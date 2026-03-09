@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="3" visible="False" parameters="joins;joinCount;index" name="QueryBuildJoins_cf">
+        <Calculation><![CDATA[// Recursively builds the JOIN clause string.
+// Call with index = 0. joins is the raw JSON array from the query object.
+// Example output: "INNER JOIN invoice__ITEM ON CONTACT.id = invoice__ITEM.idContact"
+Let
+(
+[
+_join = JSONGetElement ( joins ; "[" & index & "]" ) ;
+_type = JSONGetElement ( _join ; "type" ) ;
+_table = JSONGetElement ( _join ; "table" ) ;
+_first = JSONGetElement ( _join ; "first" ) ;
+_operator = JSONGetElement ( _join ; "operator" ) ;
+_second = JSONGetElement ( _join ; "second" ) ;
+_keyword = If ( Exact ( _type ; "left" ) ; "LEFT JOIN" ; "INNER JOIN" ) ;
+_clause = _keyword & " " & _table & " ON " & _first & " " & _operator & " " & _second ;
+_rest = If ( index + 1 < joinCount ; " " & QueryBuildJoins_cf ( joins ; joinCount ; index + 1 ) ; "" )
+];
+_clause & _rest
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

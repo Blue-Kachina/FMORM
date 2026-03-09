@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="1" visible="True" parameters="query" name="QueryToSQL_cf">
+        <Calculation><![CDATA[// Assembles and returns the full SQL string without executing it.
+// Useful for debugging. Bindings are represented as ? placeholders.
+Let
+(
+[
+_table = JSONGetElement ( query ; "table" ) ;
+_selects = JSONGetElement ( query ; "selects" ) ;
+_joins = JSONGetElement ( query ; "joins" ) ;
+_joinCount = JSONGetElement ( query ; "joinCount" ) ;
+_wheres = JSONGetElement ( query ; "wheres" ) ;
+_whereCount = JSONGetElement ( query ; "whereCount" ) ;
+_groupBys = JSONGetElement ( query ; "groupBys" ) ;
+_groupByCount = JSONGetElement ( query ; "groupByCount" ) ;
+_havings = JSONGetElement ( query ; "havings" ) ;
+_havingCount = JSONGetElement ( query ; "havingCount" ) ;
+_orderBys = JSONGetElement ( query ; "orderBys" ) ;
+_orderByCount = JSONGetElement ( query ; "orderByCount" ) ;
+_limit = JSONGetElement ( query ; "limit" ) ;
+_offset = JSONGetElement ( query ; "offset" ) ;
+_joinSQL = If ( _joinCount > 0 ; " " & QueryBuildJoins_cf ( _joins ; _joinCount ; 0 ) ; "" ) ;
+_whereSQL = If ( _whereCount > 0 ; " WHERE " & QueryBuildWheres_cf ( _wheres ; _whereCount ; 0 ) ; "" ) ;
+_groupBySQL = If ( _groupByCount > 0 ; " GROUP BY " & QueryBuildGroupBys_cf ( _groupBys ; _groupByCount ; 0 ) ; "" ) ;
+_havingSQL = If ( _havingCount > 0 ; " HAVING " & QueryBuildHavings_cf ( _havings ; _havingCount ; 0 ) ; "" ) ;
+_orderBySQL = If ( _orderByCount > 0 ; " ORDER BY " & QueryBuildOrderBys_cf ( _orderBys ; _orderByCount ; 0 ) ; "" ) ;
+_offsetSQL = If ( not IsEmpty ( _offset ) ; " OFFSET " & _offset & " ROWS" ; "" ) ;
+_limitSQL = If ( not IsEmpty ( _limit ) ; " FETCH FIRST " & _limit & " ROWS ONLY" ; "" )
+];
+"SELECT " & _selects & " FROM " & _table & _joinSQL & _whereSQL & _groupBySQL & _havingSQL & _orderBySQL & _offsetSQL & _limitSQL
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

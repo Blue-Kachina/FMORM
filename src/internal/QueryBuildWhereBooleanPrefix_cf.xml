@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="2" visible="False" parameters="boolean;index" name="QueryBuildWhereBooleanPrefix_cf">
+        <Calculation><![CDATA[// Returns "" for the first clause (index = 0),
+// " AND " or " OR " for subsequent clauses.
+If ( index = 0 ;
+	"" ;
+// ELSE
+	If ( Exact ( boolean ; "or" ) ;
+		" OR " ;
+	// ELSE
+		" AND "
+	)
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

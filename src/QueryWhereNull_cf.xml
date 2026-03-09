@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="2" visible="True" parameters="query;column" name="QueryWhereNull_cf">
+        <Calculation><![CDATA[Let
+(
+[
+_whereCount = JSONGetElement ( query ; "whereCount" ) ;
+_whereObj = JSONSetElement ( "{}" ;
+	[ "type" ; "null" ; JSONString ] ;
+	[ "column" ; column ; JSONString ] ;
+	[ "boolean" ; "and" ; JSONString ]
+	)
+];
+JSONSetElement (
+	JSONSetElement ( query ; "wheres[" & _whereCount & "]" ; _whereObj ; JSONObject ) ;
+	"whereCount" ; _whereCount + 1 ; JSONNumber
+)
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

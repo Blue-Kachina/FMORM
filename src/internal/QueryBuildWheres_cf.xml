@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="3" visible="False" parameters="wheres;whereCount;index" name="QueryBuildWheres_cf">
+        <Calculation><![CDATA[// Recursively builds the WHERE clause body (excluding the "WHERE" keyword).
+// Call with index = 0. wheres is the raw JSON array from the query object.
+// Supported types: basic, in, null, notNull, between.
+Let
+(
+[
+_where = JSONGetElement ( wheres ; "[" & index & "]" ) ;
+_type = JSONGetElement ( _where ; "type" ) ;
+_column = JSONGetElement ( _where ; "column" ) ;
+_operator = JSONGetElement ( _where ; "operator" ) ;
+_boolean = JSONGetElement ( _where ; "boolean" ) ;
+_valueCount = JSONGetElement ( _where ; "valueCount" ) ;
+_prefix = QueryBuildWhereBooleanPrefix_cf ( _boolean ; index ) ;
+_clause = Case (
+	Exact ( _type ; "basic" ) ;
+		_prefix & _column & " " & _operator & " ?" ;
+	Exact ( _type ; "in" ) ;
+		_prefix & _column & " IN (" & QueryBuildInPlaceholders_cf ( _valueCount ; 0 ) & ")" ;
+	Exact ( _type ; "null" ) ;
+		_prefix & _column & " IS NULL" ;
+	Exact ( _type ; "notNull" ) ;
+		_prefix & _column & " IS NOT NULL" ;
+	Exact ( _type ; "between" ) ;
+		_prefix & _column & " BETWEEN ? AND ?" ;
+	""
+	) ;
+_rest = If ( index + 1 < whereCount ; QueryBuildWheres_cf ( wheres ; whereCount ; index + 1 ) ; "" )
+];
+_clause & _rest
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

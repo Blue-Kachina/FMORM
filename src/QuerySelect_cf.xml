@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="2" visible="True" parameters="query;columns" name="QuerySelect_cf">
+        <Calculation><![CDATA[JSONSetElement ( query ; "selects" ; columns ; JSONString )]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

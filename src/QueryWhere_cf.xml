@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="4" visible="True" parameters="query;column;operator;value" name="QueryWhere_cf">
+        <Calculation><![CDATA[Let
+(
+[
+_whereCount = JSONGetElement ( query ; "whereCount" ) ;
+_bindingCount = JSONGetElement ( query ; "bindingCount" ) ;
+_whereObj = JSONSetElement ( "{}" ;
+	[ "type" ; "basic" ; JSONString ] ;
+	[ "column" ; column ; JSONString ] ;
+	[ "operator" ; operator ; JSONString ] ;
+	[ "boolean" ; "and" ; JSONString ]
+	) ;
+_q1 = JSONSetElement ( query ; "wheres[" & _whereCount & "]" ; _whereObj ; JSONObject ) ;
+_q2 = JSONSetElement ( _q1 ; "whereCount" ; _whereCount + 1 ; JSONNumber ) ;
+_q3 = JSONSetElement ( _q2 ; "bindings[" & _bindingCount & "]" ; value ; JSONString ) ;
+_q4 = JSONSetElement ( _q3 ; "bindingCount" ; _bindingCount + 1 ; JSONNumber )
+];
+_q4
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

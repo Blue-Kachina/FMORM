@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="4" visible="False" parameters="query;values;valueCount;index" name="QueryAppendBindings_cf">
+        <Calculation><![CDATA[// Recursively appends values from a ¶-delimited list to the query's
+// bindings array. Call with index = 1 (GetValue is 1-based).
+// Used by QueryWhereIn_cf to add N bindings in one pass.
+Let
+(
+[
+_bindingCount = JSONGetElement ( query ; "bindingCount" ) ;
+_value = GetValue ( values ; index ) ;
+_q1 = JSONSetElement ( query ; "bindings[" & _bindingCount & "]" ; _value ; JSONString ) ;
+_q2 = JSONSetElement ( _q1 ; "bindingCount" ; _bindingCount + 1 ; JSONNumber )
+];
+If ( index < valueCount ;
+	QueryAppendBindings_cf ( _q2 ; values ; valueCount ; index + 1 ) ;
+// ELSE
+	_q2
+)
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

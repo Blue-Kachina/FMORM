@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="1" visible="True" parameters="table" name="QueryNew_cf">
+        <Calculation><![CDATA[JSONSetElement ( "{}" ;
+[ "table" ; table ; JSONString ] ;
+[ "selects" ; "*" ; JSONString ] ;
+[ "joins" ; "[]" ; JSONRaw ] ;
+[ "joinCount" ; 0 ; JSONNumber ] ;
+[ "wheres" ; "[]" ; JSONRaw ] ;
+[ "whereCount" ; 0 ; JSONNumber ] ;
+[ "groupBys" ; "[]" ; JSONRaw ] ;
+[ "groupByCount" ; 0 ; JSONNumber ] ;
+[ "havings" ; "[]" ; JSONRaw ] ;
+[ "havingCount" ; 0 ; JSONNumber ] ;
+[ "orderBys" ; "[]" ; JSONRaw ] ;
+[ "orderByCount" ; 0 ; JSONNumber ] ;
+[ "limit" ; "" ; JSONString ] ;
+[ "offset" ; "" ; JSONString ] ;
+[ "bindings" ; "[]" ; JSONRaw ] ;
+[ "bindingCount" ; 0 ; JSONNumber ]
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

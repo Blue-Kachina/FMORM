@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="5" visible="True" parameters="query;table;first;operator;second" name="QueryJoin_cf">
+        <Calculation><![CDATA[Let
+(
+[
+_joinCount = JSONGetElement ( query ; "joinCount" ) ;
+_joinObj = JSONSetElement ( "{}" ;
+	[ "type" ; "inner" ; JSONString ] ;
+	[ "table" ; table ; JSONString ] ;
+	[ "first" ; first ; JSONString ] ;
+	[ "operator" ; operator ; JSONString ] ;
+	[ "second" ; second ; JSONString ]
+	) ;
+_q1 = JSONSetElement ( query ; "joins[" & _joinCount & "]" ; _joinObj ; JSONObject ) ;
+_q2 = JSONSetElement ( _q1 ; "joinCount" ; _joinCount + 1 ; JSONNumber )
+];
+_q2
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

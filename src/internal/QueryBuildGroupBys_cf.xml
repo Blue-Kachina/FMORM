@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="3" visible="False" parameters="groupBys;groupByCount;index" name="QueryBuildGroupBys_cf">
+        <Calculation><![CDATA[// Recursively builds the GROUP BY column list.
+// Call with index = 0. groupBys is the raw JSON array from the query object.
+// Example output: "CONTACT.type, CONTACT.status"
+Let
+(
+[
+_col = JSONGetElement ( groupBys ; "[" & index & "]" ) ;
+_rest = If ( index + 1 < groupByCount ; ", " & QueryBuildGroupBys_cf ( groupBys ; groupByCount ; index + 1 ) ; "" )
+];
+_col & _rest
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

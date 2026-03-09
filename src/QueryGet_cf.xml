@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="3" visible="True" parameters="query;fieldSeparator;rowSeparator" name="QueryGet_cf">
+        <Calculation><![CDATA[// Executes the assembled query via ExecuteSQL using Evaluate to
+// dynamically bind the stored parameter values.
+// Returns "" if ExecuteSQL returns an error (result starting with "?").
+Let
+(
+[
+_sql = QueryToSQL_cf ( query ) ;
+_bindings = JSONGetElement ( query ; "bindings" ) ;
+_bindingCount = JSONGetElement ( query ; "bindingCount" ) ;
+_bindingArgs = QueryBuildBindingArgs_cf ( _bindings ; _bindingCount ; 0 ) ;
+_exprBase = "ExecuteSQL ( " & Quote ( _sql ) & " ; " & Quote ( fieldSeparator ) & " ; " & Quote ( rowSeparator ) ;
+_expr = _exprBase & If ( _bindingCount > 0 ; " ; " & _bindingArgs ; "" ) & " )" ;
+_result = Evaluate ( _expr )
+];
+If ( Left ( _result ; 1 ) = "?" ; "" ; _result )
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

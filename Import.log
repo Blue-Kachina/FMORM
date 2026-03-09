@@ -1,0 +1,11 @@
+﻿Timestamp	Filename	Error	Message
+2026-03-09 09:56:53.523 -0400	FMORM.fmp12	0	Import operations started
+2026-03-09 09:56:53.536 -0400	FMORM.fmp12	0	Import of custom functions from clipboard started
+2026-03-09 09:56:53.549 -0400	FMORM.fmp12	0	custom functions imported : 25
+2026-03-09 09:56:53.550 -0400	FMORM.fmp12	0	Import completed
+2026-03-09 10:29:20.207 -0400	FMORM.fmp12	0	Import operations started
+2026-03-09 10:29:20.219 -0400	FMORM.fmp12	0	Import of custom functions from clipboard started
+2026-03-09 10:29:20.223 -0400	QueryBuildInPlaceholders_cf::QueryBuildInPlaceholders_cf	1301	One of the parameters “count;index” is already used as a function's name.
+2026-03-09 10:29:20.224 -0400	QueryAppendBindings_cf::QueryAppendBindings_cf	1301	One of the parameters “query;values;valueCount;index” is already used as a function's name.
+2026-03-09 10:29:20.236 -0400	FMORM.fmp12	0	custom functions imported : 25
+2026-03-09 10:29:20.237 -0400	FMORM.fmp12	0	Import completed

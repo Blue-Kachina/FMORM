@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="2" visible="True" parameters="query;column" name="QueryGroupBy_cf">
+        <Calculation><![CDATA[Let
+(
+[
+_groupByCount = JSONGetElement ( query ; "groupByCount" )
+];
+JSONSetElement (
+	JSONSetElement ( query ; "groupBys[" & _groupByCount & "]" ; column ; JSONString ) ;
+	"groupByCount" ; _groupByCount + 1 ; JSONNumber
+)
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>
