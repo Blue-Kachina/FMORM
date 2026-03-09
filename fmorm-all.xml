@@ -2,8 +2,8 @@
 <!--
   fmorm-all.xml — combined fmxmlsnippet for one-shot FileMaker import.
 
-  Contains all 30 custom functions in dependency order:
-    Internal helpers (1–13) are declared before the public builders (14–30)
+  Contains all 31 custom functions in dependency order:
+    Internal helpers (1–13) are declared before the public builders (14–31)
     that call them, though FileMaker resolves function references at runtime
     so import order does not strictly matter.
 
@@ -16,7 +16,7 @@
     <!-- INTERNAL HELPERS                                             -->
     <!-- ============================================================ -->
 
-    <!-- 1 of 30 -->
+    <!-- 1 of 31 -->
     <CustomFunction id="1" functionArity="2" visible="False" parameters="boolean;index" name="QueryBuildWhereBooleanPrefix_cf">
         <Calculation><![CDATA[// Returns "" for the first clause (index = 0),
 // " AND " or " OR " for subsequent clauses.
@@ -31,7 +31,7 @@ If ( index = 0 ;
 )]]></Calculation>
     </CustomFunction>
 
-    <!-- 2 of 30 -->
+    <!-- 2 of 31 -->
     <CustomFunction id="2" functionArity="2" visible="False" parameters="count;index" name="QueryBuildInPlaceholders_cf">
         <Calculation><![CDATA[// Recursively builds N comma-separated ? placeholders for IN clauses.
 // Call with index = 0. Example: count=3 → "?, ?, ?"
@@ -42,7 +42,7 @@ If ( index + 1 < count ;
 )]]></Calculation>
     </CustomFunction>
 
-    <!-- 3 of 30 -->
+    <!-- 3 of 31 -->
     <CustomFunction id="3" functionArity="4" visible="False" parameters="query;values;valueCount;index" name="QueryAppendBindings_cf">
         <Calculation><![CDATA[// Recursively appends values from a ¶-delimited list to the query's
 // bindings array. Call with index = 1 (GetValue is 1-based).
@@ -63,7 +63,7 @@ If ( index < valueCount ;
 )]]></Calculation>
     </CustomFunction>
 
-    <!-- 4 of 30 -->
+    <!-- 4 of 31 -->
     <CustomFunction id="4" functionArity="3" visible="False" parameters="joins;joinCount;index" name="QueryBuildJoins_cf">
         <Calculation><![CDATA[// Recursively builds the JOIN clause string.
 // Call with index = 0. joins is the raw JSON array from the query object.
@@ -85,7 +85,7 @@ _clause & _rest
 )]]></Calculation>
     </CustomFunction>
 
-    <!-- 5 of 30 -->
+    <!-- 5 of 31 -->
     <CustomFunction id="5" functionArity="3" visible="False" parameters="wheres;whereCount;index" name="QueryBuildWheres_cf">
         <Calculation><![CDATA[// Recursively builds the WHERE clause body (excluding the "WHERE" keyword).
 // Call with index = 0. wheres is the raw JSON array from the query object.
@@ -119,7 +119,7 @@ _clause & _rest
 )]]></Calculation>
     </CustomFunction>
 
-    <!-- 6 of 30 -->
+    <!-- 6 of 31 -->
     <CustomFunction id="6" functionArity="3" visible="False" parameters="groupBys;groupByCount;index" name="QueryBuildGroupBys_cf">
         <Calculation><![CDATA[// Recursively builds the GROUP BY column list.
 // Call with index = 0. groupBys is the raw JSON array from the query object.
@@ -134,7 +134,7 @@ _col & _rest
 )]]></Calculation>
     </CustomFunction>
 
-    <!-- 7 of 30 -->
+    <!-- 7 of 31 -->
     <CustomFunction id="7" functionArity="3" visible="False" parameters="havings;havingCount;index" name="QueryBuildHavings_cf">
         <Calculation><![CDATA[// Recursively builds the HAVING clause body (excluding the "HAVING" keyword).
 // Call with index = 0. havings is the raw JSON array from the query object.
@@ -154,7 +154,7 @@ _clause & _rest
 )]]></Calculation>
     </CustomFunction>
 
-    <!-- 8 of 30 -->
+    <!-- 8 of 31 -->
     <CustomFunction id="8" functionArity="3" visible="False" parameters="orderBys;orderByCount;index" name="QueryBuildOrderBys_cf">
         <Calculation><![CDATA[// Recursively builds the ORDER BY column list.
 // Call with index = 0. orderBys is the raw JSON array from the query object.
@@ -172,7 +172,7 @@ _clause & _rest
 )]]></Calculation>
     </CustomFunction>
 
-    <!-- 9 of 30 -->
+    <!-- 9 of 31 -->
     <CustomFunction id="9" functionArity="3" visible="False" parameters="bindings;bindingCount;index" name="QueryBuildBindingArgs_cf">
         <Calculation><![CDATA[// Recursively builds the binding argument string for use inside Evaluate().
 // Call with index = 0. bindings is the raw JSON array from the query object.
@@ -190,7 +190,7 @@ _quoted & _rest
 )]]></Calculation>
     </CustomFunction>
 
-    <!-- 10 of 30 -->
+    <!-- 10 of 31 -->
     <CustomFunction id="26" functionArity="3" visible="False" parameters="columns;columnCount;index" name="QueryBuildSelects_cf">
         <Calculation><![CDATA[// Recursively converts a ¶-delimited column list to SQL column expressions.
 // Delegates individual field conversion to QueryConvertField_cf.
@@ -211,7 +211,7 @@ _converted & _rest
 )]]></Calculation>
     </CustomFunction>
 
-    <!-- 11 of 30 -->
+    <!-- 11 of 31 -->
     <CustomFunction id="27" functionArity="1" visible="False" parameters="field" name="QueryConvertField_cf">
         <Calculation><![CDATA[// Converts a FileMaker fully-qualified field name (Table::Field) to a
 // quoted SQL dot-notation identifier ("Table"."Field"). Quote() is used for
@@ -230,7 +230,37 @@ If ( _sepPos > 0 ;
 )]]></Calculation>
     </CustomFunction>
 
-    <!-- 12 of 30 -->
+    <!-- 12 of 31 -->
+    <CustomFunction id="31" functionArity="3" visible="False" parameters="columns;columnCount;index" name="QueryBuildSelectKeys_cf">
+        <Calculation><![CDATA[// Recursively extracts a plain key name from each column expression in a
+// ¶-delimited list, for use as JSON object property names.
+// Extraction rules (applied to the original input before SQL conversion):
+//   Table::Field  →  Field   (FM fully-qualified: take part after ::)
+//   Table.field   →  field   (dot notation: take part after the dot)
+//   anything else →  as-is   (e.g. *, COUNT(*))
+// Call with index = 1.
+Let
+(
+[
+_expr = Trim ( GetValue ( columns ; index ) ) ;
+_scopePos = Position ( _expr ; "::" ; 1 ; 1 ) ;
+_dotPos = Position ( _expr ; "." ; 1 ; 1 ) ;
+_key = Case (
+	_scopePos > 0 ; Middle ( _expr ; _scopePos + 2 ; Length ( _expr ) ) ;
+	_dotPos > 0 ; Middle ( _expr ; _dotPos + 1 ; Length ( _expr ) ) ;
+	_expr
+	) ;
+_rest = If ( index < columnCount ;
+	"¶" & QueryBuildSelectKeys_cf ( columns ; columnCount ; index + 1 ) ;
+// ELSE
+	""
+	)
+];
+_key & _rest
+)]]></Calculation>
+    </CustomFunction>
+
+    <!-- 13 of 31 -->
     <CustomFunction id="28" functionArity="5" visible="False" parameters="obj;fields;keys;keyCount;index" name="QueryBuildJsonRow_cf">
         <Calculation><![CDATA[// Recursively builds a single JSON object from parallel ¶-delimited lists
 // of field values and key names. Call with index = 1 and obj = "{}".
@@ -250,7 +280,7 @@ If ( index < keyCount ;
 )]]></Calculation>
     </CustomFunction>
 
-    <!-- 13 of 30 -->
+    <!-- 14 of 31 -->
     <CustomFunction id="29" functionArity="6" visible="False" parameters="result;rawResult;rowCount;keys;keyCount;rowIndex" name="QueryBuildJsonRows_cf">
         <Calculation><![CDATA[// Recursively appends row objects to a JSON array.
 // rawResult is the ExecuteSQL output with Char(28) field separators and ¶ row separators.
@@ -275,11 +305,12 @@ If ( rowIndex < rowCount ;
     <!-- PUBLIC BUILDERS                                              -->
     <!-- ============================================================ -->
 
-    <!-- 14 of 30 -->
+    <!-- 15 of 31 -->
     <CustomFunction id="10" functionArity="1" visible="True" parameters="table" name="QueryNew_cf">
         <Calculation><![CDATA[JSONSetElement ( "{}" ;
 [ "table" ; table ; JSONString ] ;
 [ "selects" ; "*" ; JSONString ] ;
+[ "selectKeys" ; "*" ; JSONString ] ;
 [ "joins" ; "[]" ; JSONRaw ] ;
 [ "joinCount" ; 0 ; JSONNumber ] ;
 [ "wheres" ; "[]" ; JSONRaw ] ;
@@ -297,24 +328,28 @@ If ( rowIndex < rowCount ;
 )]]></Calculation>
     </CustomFunction>
 
-    <!-- 15 of 30 -->
+    <!-- 16 of 31 -->
     <CustomFunction id="11" functionArity="2" visible="True" parameters="query;columns" name="QuerySelect_cf">
         <Calculation><![CDATA[// Accepts a ¶-delimited list (e.g. from List() / GetFieldName()) or a
 // comma-separated string. FileMaker fully-qualified names (Table::Field) are
 // converted to quoted SQL dot notation ("Table"."Field"). Other expressions
 // (*, COUNT(*), already-dotted names, etc.) pass through unchanged.
+// Also stores selectKeys — plain field names extracted from the original input —
+// for use by QueryGetResultsAsJson_cf.
 Let
 (
 [
 _normalized = Substitute ( Substitute ( columns ; ", " ; "¶" ) ; "," ; "¶" ) ;
 _columnCount = ValueCount ( _normalized ) ;
-_selects = QueryBuildSelects_cf ( _normalized ; _columnCount ; 1 )
+_selects = QueryBuildSelects_cf ( _normalized ; _columnCount ; 1 ) ;
+_selectKeys = QueryBuildSelectKeys_cf ( _normalized ; _columnCount ; 1 ) ;
+_q1 = JSONSetElement ( query ; "selects" ; _selects ; JSONString )
 ];
-JSONSetElement ( query ; "selects" ; _selects ; JSONString )
+JSONSetElement ( _q1 ; "selectKeys" ; _selectKeys ; JSONString )
 )]]></Calculation>
     </CustomFunction>
 
-    <!-- 16 of 30 -->
+    <!-- 17 of 31 -->
     <CustomFunction id="12" functionArity="4" visible="True" parameters="query;column;operator;value" name="QueryWhere_cf">
         <Calculation><![CDATA[Let
 (
@@ -337,7 +372,7 @@ _q4
 )]]></Calculation>
     </CustomFunction>
 
-    <!-- 17 of 30 -->
+    <!-- 18 of 31 -->
     <CustomFunction id="13" functionArity="4" visible="True" parameters="query;column;operator;value" name="QueryOrWhere_cf">
         <Calculation><![CDATA[Let
 (
@@ -360,7 +395,7 @@ _q4
 )]]></Calculation>
     </CustomFunction>
 
-    <!-- 18 of 30 -->
+    <!-- 19 of 31 -->
     <CustomFunction id="14" functionArity="3" visible="True" parameters="query;column;values" name="QueryWhereIn_cf">
         <Calculation><![CDATA[// values is a ¶-delimited list of values.
 // Appends an IN where clause and N bindings (one per value).
@@ -384,7 +419,7 @@ _q3
 )]]></Calculation>
     </CustomFunction>
 
-    <!-- 19 of 30 -->
+    <!-- 20 of 31 -->
     <CustomFunction id="15" functionArity="2" visible="True" parameters="query;column" name="QueryWhereNull_cf">
         <Calculation><![CDATA[Let
 (
@@ -404,7 +439,7 @@ JSONSetElement (
 )]]></Calculation>
     </CustomFunction>
 
-    <!-- 20 of 30 -->
+    <!-- 21 of 31 -->
     <CustomFunction id="16" functionArity="2" visible="True" parameters="query;column" name="QueryWhereNotNull_cf">
         <Calculation><![CDATA[Let
 (
@@ -424,7 +459,7 @@ JSONSetElement (
 )]]></Calculation>
     </CustomFunction>
 
-    <!-- 21 of 30 -->
+    <!-- 22 of 31 -->
     <CustomFunction id="17" functionArity="5" visible="True" parameters="query;table;first;operator;second" name="QueryJoin_cf">
         <Calculation><![CDATA[Let
 (
@@ -446,7 +481,7 @@ _q2
 )]]></Calculation>
     </CustomFunction>
 
-    <!-- 22 of 30 -->
+    <!-- 23 of 31 -->
     <CustomFunction id="18" functionArity="5" visible="True" parameters="query;table;first;operator;second" name="QueryLeftJoin_cf">
         <Calculation><![CDATA[Let
 (
@@ -468,7 +503,7 @@ _q2
 )]]></Calculation>
     </CustomFunction>
 
-    <!-- 23 of 30 -->
+    <!-- 24 of 31 -->
     <CustomFunction id="19" functionArity="3" visible="True" parameters="query;column;direction" name="QueryOrderBy_cf">
         <Calculation><![CDATA[// direction defaults to "ASC" when empty.
 Let
@@ -488,7 +523,7 @@ _q2
 )]]></Calculation>
     </CustomFunction>
 
-    <!-- 24 of 30 -->
+    <!-- 25 of 31 -->
     <CustomFunction id="20" functionArity="2" visible="True" parameters="query;column" name="QueryGroupBy_cf">
         <Calculation><![CDATA[Let
 (
@@ -503,7 +538,7 @@ JSONSetElement (
 )]]></Calculation>
     </CustomFunction>
 
-    <!-- 25 of 30 -->
+    <!-- 26 of 31 -->
     <CustomFunction id="21" functionArity="4" visible="True" parameters="query;column;operator;value" name="QueryHaving_cf">
         <Calculation><![CDATA[Let
 (
@@ -525,17 +560,17 @@ _q4
 )]]></Calculation>
     </CustomFunction>
 
-    <!-- 26 of 30 -->
+    <!-- 27 of 31 -->
     <CustomFunction id="22" functionArity="2" visible="True" parameters="query;value" name="QueryLimit_cf">
         <Calculation><![CDATA[JSONSetElement ( query ; "limit" ; value ; JSONNumber )]]></Calculation>
     </CustomFunction>
 
-    <!-- 27 of 30 -->
+    <!-- 28 of 31 -->
     <CustomFunction id="23" functionArity="2" visible="True" parameters="query;value" name="QueryOffset_cf">
         <Calculation><![CDATA[JSONSetElement ( query ; "offset" ; value ; JSONNumber )]]></Calculation>
     </CustomFunction>
 
-    <!-- 28 of 30 -->
+    <!-- 29 of 31 -->
     <CustomFunction id="24" functionArity="1" visible="True" parameters="query" name="QueryToSQL_cf">
         <Calculation><![CDATA[// Assembles and returns the full SQL string without executing it.
 // Useful for debugging. Bindings are represented as ? placeholders.
@@ -568,7 +603,7 @@ _limitSQL = If ( not IsEmpty ( _limit ) ; " FETCH FIRST " & _limit & " ROWS ONLY
 )]]></Calculation>
     </CustomFunction>
 
-    <!-- 29 of 30 -->
+    <!-- 30 of 31 -->
     <CustomFunction id="25" functionArity="3" visible="True" parameters="query;fieldSeparator;rowSeparator" name="QueryGet_cf">
         <Calculation><![CDATA[// Executes the assembled query via ExecuteSQL using Evaluate to
 // dynamically bind the stored parameter values.
@@ -588,24 +623,24 @@ If ( Left ( _result ; 1 ) = "?" ; "" ; _result )
 )]]></Calculation>
     </CustomFunction>
 
-    <!-- 30 of 30 -->
-    <CustomFunction id="30" functionArity="2" visible="True" parameters="query;keys" name="QueryGetResultsAsJson_cf">
+    <!-- 31 of 31 -->
+    <CustomFunction id="30" functionArity="1" visible="True" parameters="query" name="QueryGetResultsAsJson_cf">
         <Calculation><![CDATA[// Executes the query and returns results as a JSON array of objects.
-// keys is a ¶-delimited list of property names for each selected column,
-// in the same order as the SELECT list. The natural source is List():
-//   QueryGetResultsAsJson_cf ( _query ; List ( "id" ; "name" ; "status" ) )
+// Property names are derived automatically from the selectKeys stored in the
+// query object, which QuerySelect_cf populates from the original column input.
 // Returns "[]" when the query produces no rows or an error.
 Let
 (
 [
-_keyCount = ValueCount ( keys ) ;
+_keys = JSONGetElement ( query ; "selectKeys" ) ;
+_keyCount = ValueCount ( _keys ) ;
 _rawResult = QueryGet_cf ( query ; Char ( 28 ) ; "¶" ) ;
 _rowCount = If ( IsEmpty ( _rawResult ) ; 0 ; ValueCount ( _rawResult ) )
 ];
 If ( _rowCount = 0 ;
 	"[]" ;
 // ELSE
-	QueryBuildJsonRows_cf ( "[]" ; _rawResult ; _rowCount ; keys ; _keyCount ; 1 )
+	QueryBuildJsonRows_cf ( "[]" ; _rawResult ; _rowCount ; _keys ; _keyCount ; 1 )
 )
 )]]></Calculation>
     </CustomFunction>

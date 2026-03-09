@@ -10,9 +10,11 @@ Let
 [
 _normalized = Substitute ( Substitute ( columns ; ", " ; "¶" ) ; "," ; "¶" ) ;
 _columnCount = ValueCount ( _normalized ) ;
-_selects = QueryBuildSelects_cf ( _normalized ; _columnCount ; 1 )
+_selects = QueryBuildSelects_cf ( _normalized ; _columnCount ; 1 ) ;
+_selectKeys = QueryBuildSelectKeys_cf ( _normalized ; _columnCount ; 1 ) ;
+_q1 = JSONSetElement ( query ; "selects" ; _selects ; JSONString )
 ];
-JSONSetElement ( query ; "selects" ; _selects ; JSONString )
+JSONSetElement ( _q1 ; "selectKeys" ; _selectKeys ; JSONString )
 )]]></Calculation>
     </CustomFunction>
 </fmxmlsnippet>

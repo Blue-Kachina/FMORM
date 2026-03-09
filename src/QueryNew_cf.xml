@@ -4,6 +4,7 @@
         <Calculation><![CDATA[JSONSetElement ( "{}" ;
 [ "table" ; table ; JSONString ] ;
 [ "selects" ; "*" ; JSONString ] ;
+[ "selectKeys" ; "*" ; JSONString ] ;
 [ "joins" ; "[]" ; JSONRaw ] ;
 [ "joinCount" ; 0 ; JSONNumber ] ;
 [ "wheres" ; "[]" ; JSONRaw ] ;

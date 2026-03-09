@@ -45,6 +45,7 @@ These functions are called by the public builders and are not intended to be cal
 | [QueryConvertField\_cf](#queryconvertfield_cf) | Convert a single `Table::Field` name to quoted dot notation |
 | [QueryBuildJsonRow\_cf](#querybuildjsonrow_cf) | Build a single JSON object from a row of field values |
 | [QueryBuildJsonRows\_cf](#querybuildjsonrows_cf) | Recursively build a JSON array from all result rows |
+| [QueryBuildSelectKeys\_cf](#querybuildselectkeys_cf) | Extract plain key names from the original column input |
 
 ---
 
@@ -81,6 +82,8 @@ _query
 Replaces the SELECT column list. By default all columns are selected (`*`). Call once — the entire list is replaced wholesale, not appended.
 
 Accepts either a ¶-delimited list (e.g. from FileMaker's `List()` and `GetFieldName()`) or a plain comma-separated string. FileMaker fully-qualified field names in `Table::Field` format are automatically converted to quoted SQL dot notation (`"Table"."Field"`). Expressions that do not contain `::` — such as `*`, `COUNT(*)`, or already-dotted names — pass through unchanged.
+
+Also stores a `selectKeys` field in the query object: a ¶-delimited list of plain field names extracted from the original input (e.g. `PrimaryKey¶FullName`), which `QueryGetResultsAsJson_cf` uses to name the properties of each result object.
 
 **Parameters**
 
@@ -390,7 +393,9 @@ _result
 
 ### QueryGetResultsAsJson_cf
 
-Executes the query and returns the results as a JSON array of objects, one object per row. Each object's keys come from the `keys` parameter — a ¶-delimited list of property names that must match the SELECT column order. The natural way to supply keys is `List ( "key1" ; "key2" ; ... )`.
+Executes the query and returns the results as a JSON array of objects, one object per row. Property names are derived automatically from the column input originally passed to `QuerySelect_cf` — no separate key list is required.
+
+`QuerySelect_cf` stores a `selectKeys` field alongside `selects` in the query object. For each column, the key is extracted from the original (pre-conversion) expression: the part after `::` for `Table::Field` names, the part after `.` for dot-notation, or the expression as-is for anything else (e.g. `*`, `COUNT(*)`).
 
 Uses `Char(28)` as the internal field separator (safe for typical data) and `¶` as the row separator. Returns `"[]"` when the query produces no rows or an error.
 
@@ -401,7 +406,6 @@ Uses `Char(28)` as the internal field separator (safe for typical data) and `¶`
 | Parameter | Description |
 |---|---|
 | `query` | Fully assembled query object |
-| `keys` | ¶-delimited list of JSON property names, one per selected column, in SELECT order |
 
 **Example**
 
@@ -412,10 +416,10 @@ Let
 _query  = QueryNew_cf    ( "CONTACT" ) ;
 _query  = QuerySelect_cf ( _query ; List ( GetFieldName ( CONTACT::PrimaryKey ) ; GetFieldName ( CONTACT::FullName ) ; GetFieldName ( CONTACT::Status ) ) ) ;
 _query  = QueryWhere_cf  ( _query ; CONTACT::Status ; "=" ; "Active" ) ;
-_result = QueryGetResultsAsJson_cf ( _query ; List ( "id" ; "name" ; "status" ) )
+_result = QueryGetResultsAsJson_cf ( _query )
 ];
 _result
-// → [{"id":"1","name":"Jane Smith","status":"Active"},{"id":"2",...}]
+// → [{"PrimaryKey":"1","FullName":"Jane Smith","Status":"Active"},{"PrimaryKey":"2",...}]
 )
 ```
 
@@ -735,4 +739,31 @@ Recursively appends row objects to a JSON array. Splits each raw row on `Char(28
 // Typically called internally by QueryGetResultsAsJson_cf:
 QueryBuildJsonRows_cf ( "[]" ; _rawResult ; _rowCount ; "id¶name" ; 2 ; 1 )
 // → [{"id":"1","name":"Alice"},{"id":"2","name":"Bob"}]
+```
+
+---
+
+### QueryBuildSelectKeys_cf
+
+Recursively extracts a plain key name from each column expression in a ¶-delimited list, for use as JSON object property names. Operates on the **original** input to `QuerySelect_cf` before SQL conversion, so it sees `Table::Field` or `Table.field` strings rather than quoted SQL identifiers. Called by `QuerySelect_cf` to populate `selectKeys` in the query object; do not call directly.
+
+Extraction rules:
+- `Table::Field` → `Field` (take the part after `::`)
+- `Table.field` → `field` (take the part after `.`)
+- Anything else → as-is (e.g. `*`, `COUNT(*)`)
+
+**Parameters**
+
+| Parameter | Description |
+|---|---|
+| `columns` | ¶-delimited list of column expressions (original input, before SQL conversion) |
+| `columnCount` | Total number of columns |
+| `index` | Current position (call with `1`; `GetValue` is 1-based) |
+
+**Example**
+
+```
+// Input: "CONTACT::PrimaryKey¶CONTACT::FullName¶CONTACT::Status"
+QueryBuildSelectKeys_cf ( "CONTACT::PrimaryKey¶CONTACT::FullName¶CONTACT::Status" ; 3 ; 1 )
+// → "PrimaryKey¶FullName¶Status"
 ```

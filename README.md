@@ -60,6 +60,7 @@ JSONFormatElements ( _query )
     "offset" : "",
     "orderByCount" : 0,
     "orderBys" : [],
+    "selectKeys" : "PrimaryKey\rCreationTimestamp",
     "selects" : "\"FMORM\".\"PrimaryKey\", \"FMORM\".\"CreationTimestamp\"",
     "table" : "FMORM",
     "whereCount" : 1,
@@ -77,7 +78,7 @@ JSONFormatElements ( _query )
 
 ### Executing the query
 
-When you're done building, use `QueryGet_cf` to execute it. It handles the `?` substitutions and returns the `ExecuteSQL` result:
+When you're done building, use `QueryGet_cf` to execute it. It handles the `?` substitutions and returns the raw `ExecuteSQL` result as a delimited string. You choose the field and row separators:
 
 ```
 Let
@@ -87,12 +88,32 @@ _query = QueryNew_cf ( "FMORM" ) ;
 _query = QuerySelect_cf ( _query ; List ( GetFieldName ( FMORM::PrimaryKey ) ; GetFieldName ( FMORM::CreationTimestamp ) ) ) ;
 _query = QueryWhere_cf ( _query ; "FMORM.CreationTimestamp" ; "<" ; Get ( CurrentTimestamp ) )
 ];
-QueryGet_cf ( _query ; "" ; "¶" )
+QueryGet_cf ( _query ; "," ; "¶" )
 )
 ```
 
 ```
 C6131AAC-F09C-DD44-975D-5E33494E6176,2026-03-09 09:56:34
+```
+
+Alternatively, use `QueryGetResultsAsJson_cf` to get a JSON array of objects ready for direct consumption. Property names are derived automatically from your `QuerySelect_cf` input — no separate key list needed:
+
+```
+Let
+(
+[
+_query = QueryNew_cf ( "FMORM" ) ;
+_query = QuerySelect_cf ( _query ; List ( GetFieldName ( FMORM::PrimaryKey ) ; GetFieldName ( FMORM::CreationTimestamp ) ) ) ;
+_query = QueryWhere_cf ( _query ; "FMORM.CreationTimestamp" ; "<" ; Get ( CurrentTimestamp ) )
+];
+QueryGetResultsAsJson_cf ( _query )
+)
+```
+
+```json
+[
+    { "PrimaryKey": "C6131AAC-F09C-DD44-975D-5E33494E6176", "CreationTimestamp": "2026-03-09 09:56:34" }
+]
 ```
 
 ---
