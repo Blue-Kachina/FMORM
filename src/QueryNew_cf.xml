@@ -4,11 +4,13 @@
         <Calculation><![CDATA[Let
 (
 [
+_fqName = GetFieldName ( table ) ;
+_tableName = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; table ) ;
 _table = Quote (
-	If ( PatternCount ( table ; "::" ) ;
-		Left ( table ; Position ( table ; "::" ; 1 ; 1 ) - 1 ) ;
+	If ( PatternCount ( _tableName ; "::" ) ;
+		Left ( _tableName ; Position ( _tableName ; "::" ; 1 ; 1 ) - 1 ) ;
 	// ELSE
-		table
+		_tableName
 	))
 ];
 JSONSetElement ( "{}" ;

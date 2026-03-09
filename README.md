@@ -12,13 +12,16 @@ FMORM helps solve the pain point of writing SQL for FileMaker. You incrementally
 
 ### Building a query
 
+Field references can be passed directly — no `GetFieldName()` wrapper required (unless passing a list of them to QuerySelect). Passing fields directly is concise and works well when field names are stable. Use `GetFieldName()` when you want rename-safety (the function call is resolved at parse time, so it breaks at edit time if the field is renamed).
+
 ```
 Let
 (
 [
-_query = QueryNew_cf ( GetFieldName ( FMORM::__kptID ) ) ;
+// Direct field references — concise, no wrapper needed
+_query = QueryNew_cf ( FMORM::__kptID ) ;
 _query = QuerySelect_cf ( _query ; List ( GetFieldName ( FMORM::PrimaryKey ) ; GetFieldName ( FMORM::CreationTimestamp ) ) ) ;
-_query = QueryWhere_cf ( _query ; GetFieldName ( FMORM::CreationTimestamp ) ; "<" ; Get ( CurrentTimestamp ) )
+_query = QueryWhere_cf ( _query ; FMORM::CreationTimestamp ; "<" ; Get ( CurrentTimestamp ) )
 ];
 QueryToSQL_cf ( _query )
 )

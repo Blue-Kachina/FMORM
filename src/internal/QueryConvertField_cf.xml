@@ -5,15 +5,19 @@
 // quoted SQL dot-notation identifier ("Table"."Field"). Quote() is used for
 // readability and automatic escaping. Expressions without :: pass through
 // unchanged, so *, COUNT(*), and already-converted references are safe.
+// A direct FM field reference may also be passed; GetFieldName() is called
+// internally to resolve the name before conversion.
 Let
 (
 [
-_sepPos = Position ( field ; "::" ; 1 ; 1 )
+_fqName = GetFieldName ( field ) ;
+_name = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; field ) ;
+_sepPos = Position ( _name ; "::" ; 1 ; 1 )
 ];
 If ( _sepPos > 0 ;
-	Quote ( Left ( field ; _sepPos - 1 ) ) & "." & Quote ( Middle ( field ; _sepPos + 2 ; Length ( field ) ) ) ;
+	Quote ( Left ( _name ; _sepPos - 1 ) ) & "." & Quote ( Middle ( _name ; _sepPos + 2 ; Length ( _name ) ) ) ;
 // ELSE
-	field
+	_name
 )
 )]]></Calculation>
     </CustomFunction>

@@ -8,7 +8,9 @@
 Let
 (
 [
-_normalized = Substitute ( Substitute ( columns ; ", " ; "¶" ) ; "," ; "¶" ) ;
+_fqName = GetFieldName ( columns ) ;
+_input = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; columns ) ;
+_normalized = Substitute ( Substitute ( _input ; ", " ; "¶" ) ; "," ; "¶" ) ;
 _columnCount = ValueCount ( _normalized ) ;
 _selects = QueryBuildSelects_cf ( _normalized ; _columnCount ; 1 ) ;
 _selectKeys = QueryBuildSelectKeys_cf ( _normalized ; _columnCount ; 1 ) ;

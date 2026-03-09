@@ -218,15 +218,19 @@ _converted & _rest
 // quoted SQL dot-notation identifier ("Table"."Field"). Quote() is used for
 // readability and automatic escaping. Expressions without :: pass through
 // unchanged, so *, COUNT(*), and already-converted references are safe.
+// A direct FM field reference may also be passed; GetFieldName() is called
+// internally to resolve the name before conversion.
 Let
 (
 [
-_sepPos = Position ( field ; "::" ; 1 ; 1 )
+_fqName = GetFieldName ( field ) ;
+_name = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; field ) ;
+_sepPos = Position ( _name ; "::" ; 1 ; 1 )
 ];
 If ( _sepPos > 0 ;
-	Quote ( Left ( field ; _sepPos - 1 ) ) & "." & Quote ( Middle ( field ; _sepPos + 2 ; Length ( field ) ) ) ;
+	Quote ( Left ( _name ; _sepPos - 1 ) ) & "." & Quote ( Middle ( _name ; _sepPos + 2 ; Length ( _name ) ) ) ;
 // ELSE
-	field
+	_name
 )
 )]]></Calculation>
     </CustomFunction>
@@ -311,11 +315,13 @@ If ( rowIndex < rowCount ;
         <Calculation><![CDATA[Let
 (
 [
+_fqName = GetFieldName ( table ) ;
+_tableName = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; table ) ;
 _table = Quote (
-	If ( PatternCount ( table ; "::" ) ;
-		Left ( table ; Position ( table ; "::" ; 1 ; 1 ) - 1 ) ;
+	If ( PatternCount ( _tableName ; "::" ) ;
+		Left ( _tableName ; Position ( _tableName ; "::" ; 1 ; 1 ) - 1 ) ;
 	// ELSE
-		table
+		_tableName
 	))
 ];
 JSONSetElement ( "{}" ;
@@ -351,7 +357,9 @@ JSONSetElement ( "{}" ;
 Let
 (
 [
-_normalized = Substitute ( Substitute ( columns ; ", " ; "¶" ) ; "," ; "¶" ) ;
+_fqName = GetFieldName ( columns ) ;
+_input = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; columns ) ;
+_normalized = Substitute ( Substitute ( _input ; ", " ; "¶" ) ; "," ; "¶" ) ;
 _columnCount = ValueCount ( _normalized ) ;
 _selects = QueryBuildSelects_cf ( _normalized ; _columnCount ; 1 ) ;
 _selectKeys = QueryBuildSelectKeys_cf ( _normalized ; _columnCount ; 1 ) ;
@@ -477,11 +485,13 @@ JSONSetElement (
 (
 [
 _joinCount = JSONGetElement ( query ; "joinCount" ) ;
+_fqName = GetFieldName ( table ) ;
+_tableName = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; table ) ;
 _table = Quote (
-	If ( PatternCount ( table ; "::" ) ;
-		Left ( table ; Position ( table ; "::" ; 1 ; 1 ) - 1 ) ;
+	If ( PatternCount ( _tableName ; "::" ) ;
+		Left ( _tableName ; Position ( _tableName ; "::" ; 1 ; 1 ) - 1 ) ;
 	// ELSE
-		table
+		_tableName
 	)) ;
 _first = QueryConvertField_cf ( first ) ;
 _second = QueryConvertField_cf ( second ) ;
@@ -505,11 +515,13 @@ _q2
 (
 [
 _joinCount = JSONGetElement ( query ; "joinCount" ) ;
+_fqName = GetFieldName ( table ) ;
+_tableName = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; table ) ;
 _table = Quote (
-	If ( PatternCount ( table ; "::" ) ;
-		Left ( table ; Position ( table ; "::" ; 1 ; 1 ) - 1 ) ;
+	If ( PatternCount ( _tableName ; "::" ) ;
+		Left ( _tableName ; Position ( _tableName ; "::" ; 1 ; 1 ) - 1 ) ;
 	// ELSE
-		table
+		_tableName
 	)) ;
 _first = QueryConvertField_cf ( first ) ;
 _second = QueryConvertField_cf ( second ) ;

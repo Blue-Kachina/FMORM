@@ -69,18 +69,19 @@ The table name is stored pre-quoted (`"Table"`) so the generated SQL consistentl
 
 | Parameter | Description |
 |---|---|
-| `table` | Table occurrence name as a plain string (`"CONTACT"`), or any `GetFieldName()` result from that table (`GetFieldName ( CONTACT::anyField )`). When a `Table::Field` string is passed the table part is extracted automatically. |
+| `table` | Table occurrence name. Accepts a plain string (`"CONTACT"`), a direct FM field reference (`CONTACT::anyField`), or a `GetFieldName()` result (`GetFieldName ( CONTACT::anyField )`). When a `Table::Field` string or field reference is passed, the table part is extracted automatically. |
 
 **Example**
 
 ```
-Let
-(
-[
+// Direct field reference — no GetFieldName() wrapper needed
+_query = QueryNew_cf ( CONTACT::__kptID )
+
+// GetFieldName() — rename-safe alternative
 _query = QueryNew_cf ( GetFieldName ( CONTACT::__kptID ) )
-];
-_query
-)
+
+// Plain string — also valid
+_query = QueryNew_cf ( "CONTACT" )
 ```
 
 ---
@@ -89,7 +90,7 @@ _query
 
 Replaces the SELECT column list. By default all columns are selected (`*`). Call once — the entire list is replaced wholesale, not appended.
 
-Accepts either a ¶-delimited list (e.g. from FileMaker's `List()` and `GetFieldName()`) or a plain comma-separated string. FileMaker fully-qualified field names in `Table::Field` format are automatically converted to quoted SQL dot notation (`"Table"."Field"`). Expressions that do not contain `::` — such as `*`, `COUNT(*)`, or already-dotted names — pass through unchanged.
+Accepts either a ¶-delimited list (e.g. from FileMaker's `List()` and `GetFieldName()`) or a plain comma-separated string. FileMaker fully-qualified field names in `Table::Field` format are automatically converted to quoted SQL dot notation (`"Table"."Field"`). Expressions that do not contain `::` — such as `*`, `COUNT(*)`, or already-dotted names — pass through unchanged. A single direct FM field reference may also be passed.
 
 Also stores a `selectKeys` field in the query object: a ¶-delimited list of plain field names extracted from the original input (e.g. `PrimaryKey¶FullName`), which `QueryGetResultsAsJson_cf` uses to name the properties of each result object.
 
@@ -98,13 +99,16 @@ Also stores a `selectKeys` field in the query object: a ¶-delimited list of pla
 | Parameter | Description |
 |---|---|
 | `query` | Query object returned by a previous builder call |
-| `columns` | ¶-delimited list from `List()` / `GetFieldName()`, or a comma-separated SQL column string |
+| `columns` | ¶-delimited list from `List()` / `GetFieldName()`, a comma-separated SQL column string, or a single direct FM field reference |
 
 **Example**
 
 ```
-// Using GetFieldName() — recommended; survives field renames
+// Using GetFieldName() with List() — recommended for multiple fields; survives field renames
 _query = QuerySelect_cf ( _query ; List ( GetFieldName ( FMORM::PrimaryKey ) ; GetFieldName ( FMORM::CreatedBy ) ) )
+
+// Single direct field reference — no GetFieldName() wrapper needed
+_query = QuerySelect_cf ( _query ; FMORM::PrimaryKey )
 
 // Using a plain SQL string — also valid
 _query = QuerySelect_cf ( _query ; "CONTACT.id, CONTACT.firstName, CONTACT.lastName" )
@@ -121,13 +125,17 @@ Appends an AND WHERE condition. The value is stored as a bound parameter and emi
 | Parameter | Description |
 |---|---|
 | `query` | Query object |
-| `column` | Column reference |
+| `column` | Column reference — a direct FM field reference (`TABLE::field`), a `GetFieldName()` result, or a plain SQL expression (`"TABLE.field"`) |
 | `operator` | SQL comparison operator (`=`, `<>`, `<`, `>`, `<=`, `>=`, `LIKE`, etc.) |
 | `value` | Bound value |
 
 **Example**
 
 ```
+// Direct field reference
+_query = QueryWhere_cf ( _query ; CONTACT::status ; "=" ; "Active" )
+
+// Plain SQL string — also valid
 _query = QueryWhere_cf ( _query ; "CONTACT.status" ; "=" ; "Active" )
 ```
 
@@ -142,16 +150,16 @@ Identical to `QueryWhere_cf` but joins the condition to the previous clause with
 | Parameter | Description |
 |---|---|
 | `query` | Query object |
-| `column` | Column reference |
+| `column` | Column reference — a direct FM field reference, a `GetFieldName()` result, or a plain SQL expression |
 | `operator` | SQL comparison operator |
 | `value` | Bound value |
 
 **Example**
 
 ```
-_query = QueryWhere_cf   ( _query ; "CONTACT.status" ; "=" ; "Active" ) ;
-_query = QueryOrWhere_cf ( _query ; "CONTACT.status" ; "=" ; "Prospect" )
-// → WHERE CONTACT.status = ? OR CONTACT.status = ?
+_query = QueryWhere_cf   ( _query ; CONTACT::status ; "=" ; "Active" ) ;
+_query = QueryOrWhere_cf ( _query ; CONTACT::status ; "=" ; "Prospect" )
+// → WHERE "CONTACT"."status" = ? OR "CONTACT"."status" = ?
 ```
 
 ---
@@ -165,14 +173,14 @@ Appends an AND WHERE … IN (…) condition. Each value in the ¶-delimited list
 | Parameter | Description |
 |---|---|
 | `query` | Query object |
-| `column` | Column reference |
+| `column` | Column reference — a direct FM field reference, a `GetFieldName()` result, or a plain SQL expression |
 | `values` | ¶-delimited list of values |
 
 **Example**
 
 ```
-_query = QueryWhereIn_cf ( _query ; "CONTACT.type" ; "customer¶prospect¶partner" )
-// → WHERE CONTACT.type IN (?, ?, ?)
+_query = QueryWhereIn_cf ( _query ; CONTACT::type ; "customer¶prospect¶partner" )
+// → WHERE "CONTACT"."type" IN (?, ?, ?)
 ```
 
 ---
@@ -186,13 +194,13 @@ Appends AND column IS NULL. No binding is added because the test is against SQL 
 | Parameter | Description |
 |---|---|
 | `query` | Query object |
-| `column` | Column reference |
+| `column` | Column reference — a direct FM field reference, a `GetFieldName()` result, or a plain SQL expression |
 
 **Example**
 
 ```
-_query = QueryWhereNull_cf ( _query ; "CONTACT.deletedAt" )
-// → WHERE CONTACT.deletedAt IS NULL
+_query = QueryWhereNull_cf ( _query ; CONTACT::deletedAt )
+// → WHERE "CONTACT"."deletedAt" IS NULL
 ```
 
 ---
@@ -206,13 +214,13 @@ Appends AND column IS NOT NULL. No binding is added.
 | Parameter | Description |
 |---|---|
 | `query` | Query object |
-| `column` | Column reference |
+| `column` | Column reference — a direct FM field reference, a `GetFieldName()` result, or a plain SQL expression |
 
 **Example**
 
 ```
-_query = QueryWhereNotNull_cf ( _query ; "CONTACT.emailWork" )
-// → WHERE CONTACT.emailWork IS NOT NULL
+_query = QueryWhereNotNull_cf ( _query ; CONTACT::emailWork )
+// → WHERE "CONTACT"."emailWork" IS NOT NULL
 ```
 
 ---
@@ -228,15 +236,16 @@ The join table name is stored pre-quoted. `first` and `second` accept `Table::Fi
 | Parameter | Description |
 |---|---|
 | `query` | Query object |
-| `table` | Table occurrence name to join — plain string or `GetFieldName()` result from that table |
-| `first` | Left-hand side of the ON condition — `Table::Field` or plain SQL expression |
+| `table` | Table occurrence name to join — a direct FM field reference, a `GetFieldName()` result from that table, or a plain string |
+| `first` | Left-hand side of the ON condition — a direct FM field reference, a `GetFieldName()` result, or a plain SQL expression |
 | `operator` | Join condition operator (typically `=`) |
-| `second` | Right-hand side of the ON condition — `Table::Field` or plain SQL expression |
+| `second` | Right-hand side of the ON condition — a direct FM field reference, a `GetFieldName()` result, or a plain SQL expression |
 
 **Example**
 
 ```
-_query = QueryJoin_cf ( _query ; GetFieldName ( invoice__ITEM::__kptID ) ; GetFieldName ( CONTACT::_kftItemID ) ; "=" ; GetFieldName ( invoice__ITEM::__kptID ) )
+// Direct field references — table is inferred from the field reference passed to table
+_query = QueryJoin_cf ( _query ; invoice__ITEM::__kptID ; CONTACT::_kftItemID ; "=" ; invoice__ITEM::__kptID )
 // → INNER JOIN "invoice__ITEM" ON "CONTACT"."_kftItemID" = "invoice__ITEM"."__kptID"
 ```
 
@@ -251,15 +260,16 @@ Identical to `QueryJoin_cf` but produces a LEFT JOIN, returning all rows from th
 | Parameter | Description |
 |---|---|
 | `query` | Query object |
-| `table` | Table occurrence name to join — plain string or `GetFieldName()` result from that table |
-| `first` | Left-hand side of the ON condition — `Table::Field` or plain SQL expression |
+| `table` | Table occurrence name to join — a direct FM field reference, a `GetFieldName()` result from that table, or a plain string |
+| `first` | Left-hand side of the ON condition — a direct FM field reference, a `GetFieldName()` result, or a plain SQL expression |
 | `operator` | Join condition operator |
-| `second` | Right-hand side of the ON condition — `Table::Field` or plain SQL expression |
+| `second` | Right-hand side of the ON condition — a direct FM field reference, a `GetFieldName()` result, or a plain SQL expression |
 
 **Example**
 
 ```
-_query = QueryLeftJoin_cf ( _query ; GetFieldName ( contact__INVOICE::__kptID ) ; GetFieldName ( CONTACT::_kftInvoiceID ) ; "=" ; GetFieldName ( contact__INVOICE::__kptID ) )
+// Direct field references
+_query = QueryLeftJoin_cf ( _query ; contact__INVOICE::__kptID ; CONTACT::_kftInvoiceID ; "=" ; contact__INVOICE::__kptID )
 // → LEFT JOIN "contact__INVOICE" ON "CONTACT"."_kftInvoiceID" = "contact__INVOICE"."__kptID"
 ```
 
@@ -274,15 +284,15 @@ Appends an ORDER BY column. Call multiple times to sort by multiple columns — 
 | Parameter | Description |
 |---|---|
 | `query` | Query object |
-| `column` | Column reference |
+| `column` | Column reference — a direct FM field reference, a `GetFieldName()` result, or a plain SQL expression |
 | `direction` | `ASC` or `DESC` — defaults to `ASC` when empty |
 
 **Example**
 
 ```
-_query = QueryOrderBy_cf ( _query ; "CONTACT.lastName" ; "ASC" ) ;
-_query = QueryOrderBy_cf ( _query ; "CONTACT.firstName" ; "ASC" )
-// → ORDER BY CONTACT.lastName ASC, CONTACT.firstName ASC
+_query = QueryOrderBy_cf ( _query ; CONTACT::lastName ; "ASC" ) ;
+_query = QueryOrderBy_cf ( _query ; CONTACT::firstName ; "ASC" )
+// → ORDER BY "CONTACT"."lastName" ASC, "CONTACT"."firstName" ASC
 ```
 
 ---
@@ -296,13 +306,13 @@ Appends a GROUP BY column. Call multiple times to group by multiple columns — 
 | Parameter | Description |
 |---|---|
 | `query` | Query object |
-| `column` | Column reference |
+| `column` | Column reference — a direct FM field reference, a `GetFieldName()` result, or a plain SQL expression |
 
 **Example**
 
 ```
-_query = QueryGroupBy_cf ( _query ; "CONTACT.type" )
-// → GROUP BY CONTACT.type
+_query = QueryGroupBy_cf ( _query ; CONTACT::type )
+// → GROUP BY "CONTACT"."type"
 ```
 
 ---
@@ -316,7 +326,7 @@ Appends an AND HAVING condition. The value is stored as a bound parameter. Must 
 | Parameter | Description |
 |---|---|
 | `query` | Query object |
-| `column` | Column reference or aggregate expression (e.g. `COUNT(*)`) |
+| `column` | Column reference or aggregate expression — a direct FM field reference, a `GetFieldName()` result, a plain SQL expression, or an aggregate like `COUNT(*)` |
 | `operator` | SQL comparison operator |
 | `value` | Bound value |
 
@@ -687,25 +697,30 @@ QueryBuildSelects_cf ( "FMORM::PrimaryKey¶FMORM::CreatedBy" ; 2 ; 1 )
 
 Converts a single FileMaker fully-qualified field name (`Table::Field`) to a quoted SQL dot-notation identifier (`"Table"."Field"`). Uses `Quote()` for readability and automatic escaping. Expressions that do not contain `::` pass through unchanged — `*`, `COUNT(*)`, and already-converted strings are safe to pass in. Called by `QueryBuildSelects_cf` and by all public builders that accept column references.
 
-You can also call this directly when building complex SQL expressions (aggregate functions, arithmetic) that the builder functions can't assemble automatically. The recommended pattern is `QueryConvertField_cf ( GetFieldName ( TABLE::field ) )` — the `GetFieldName()` call produces a `Table::Field` string that survives field renames.
+A direct FM field reference may be passed — `GetFieldName()` is called internally to resolve the name. You can also call this directly when building complex SQL expressions (aggregate functions, arithmetic) that the builder functions can't assemble automatically.
 
 **Parameters**
 
 | Parameter | Description |
 |---|---|
-| `field` | A `Table::Field` string (e.g. from `GetFieldName()`), or any plain SQL expression — anything without `::` passes through unchanged |
+| `field` | A direct FM field reference, a `Table::Field` string (e.g. from `GetFieldName()`), or any plain SQL expression — anything without `::` passes through unchanged |
 
 **Example**
 
 ```
+// Direct field reference — GetFieldName() called internally
+QueryConvertField_cf ( FMORM::PrimaryKey )                    // → "FMORM"."PrimaryKey"
+
+// GetFieldName() string — rename-safe, equivalent result
 QueryConvertField_cf ( GetFieldName ( FMORM::PrimaryKey ) )   // → "FMORM"."PrimaryKey"
+
 QueryConvertField_cf ( "CONTACT.status" )                     // → CONTACT.status  (pass-through)
 QueryConvertField_cf ( "*" )                                  // → *               (pass-through)
 
 // Hand-building an aggregate expression — each component rename-safe:
 "SUM( "
-& QueryConvertField_cf ( GetFieldName ( BUDGET_HISTORY::originalBudgetTotalCost ) ) & " * "
-& QueryConvertField_cf ( GetFieldName ( BUDGET_HISTORY::contingencyRundown ) )
+& QueryConvertField_cf ( BUDGET_HISTORY::originalBudgetTotalCost ) & " * "
+& QueryConvertField_cf ( BUDGET_HISTORY::contingencyRundown )
 & " )"
 // → SUM( "BUDGET_HISTORY"."originalBudgetTotalCost" * "BUDGET_HISTORY"."contingencyRundown" )
 ```
