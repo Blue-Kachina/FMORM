@@ -26,6 +26,12 @@
 | [QueryGetResultsAsJson\_cf](#querygetresultsasjson_cf) | Execute the query and return results as a JSON array of objects |
 | [QueryToSQL\_cf](#querytosql_cf) | Return the assembled SQL string (debug) |
 
+### Utility functions
+
+| Function | Purpose |
+|---|---|
+| [JSONGetElementLikeField\_cf](#jsongetelementlikefield_cf) | Get a JSON element using a FileMaker field reference or field-name string as the property key |
+
 ### Internal helpers
 
 These functions are called by the public builders and are not intended to be called directly.
@@ -766,4 +772,51 @@ Extraction rules:
 // Input: "CONTACT::PrimaryKey¶CONTACT::FullName¶CONTACT::Status"
 QueryBuildSelectKeys_cf ( "CONTACT::PrimaryKey¶CONTACT::FullName¶CONTACT::Status" ; 3 ; 1 )
 // → "PrimaryKey¶FullName¶Status"
+```
+
+---
+
+## Utility functions
+
+---
+
+### JSONGetElementLikeField_cf
+
+Retrieves a value from a JSON object by deriving the property name from a FileMaker field reference or field-name string. This bridges the gap between FileMaker's `Table::Field` naming convention and JSON property keys — you can pass the same field reference you use elsewhere in your calculation and the function resolves the key automatically.
+
+Property name resolution happens in this priority order:
+
+1. **Real FM field reference** — if `GetFieldName( field )` returns a non-empty value, the table occurrence prefix (everything before `::`) is stripped and the bare field name is used as the key.
+2. **String containing `::`** — if the `field` value contains `::` (e.g. `"CONTACT::firstName"`), the part after `::` is used.
+3. **Fallback** — the `field` value is used as-is, assumed to already be the target property name.
+
+Returns `"?"` if `json` does not pass JSON validation (i.e. `JSONFormatElements` signals an error).
+
+> **Note on path 1:** FileMaker evaluates CF parameters before passing them in, so a bare `Table::Field` reference becomes the field's *value* inside the function. Path 1 is most useful when the caller explicitly passes `GetFieldName( Table::Field )` as the `field` argument — the resulting `"Table::Field"` string then also satisfies path 2. In practice, paths 2 and 3 are the most commonly triggered.
+
+**Parameters**
+
+| Parameter | Description |
+|---|---|
+| `json` | A valid JSON object string |
+| `field` | A FileMaker field reference, a `"Table::Field"` string, or a plain property name string |
+
+**Examples**
+
+```
+// Path 2 — passing GetFieldName() result as a string
+JSONGetElementLikeField_cf ( _json ; GetFieldName ( CONTACT::firstName ) )
+// field = "CONTACT::firstName" → property resolved to "firstName"
+
+// Path 2 — passing a qualified string literal
+JSONGetElementLikeField_cf ( _json ; "CONTACT::firstName" )
+// → same result
+
+// Path 3 — plain property name
+JSONGetElementLikeField_cf ( _json ; "firstName" )
+// → JSONGetElement( _json ; "firstName" )
+
+// Invalid JSON — returns "?"
+JSONGetElementLikeField_cf ( "not json" ; "firstName" )
+// → "?"
 ```
