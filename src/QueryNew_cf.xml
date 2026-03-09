@@ -1,8 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <fmxmlsnippet type="FMObjectList">
     <CustomFunction id="1" functionArity="1" visible="True" parameters="table" name="QueryNew_cf">
-        <Calculation><![CDATA[JSONSetElement ( "{}" ;
-[ "table" ; table ; JSONString ] ;
+        <Calculation><![CDATA[Let
+(
+[
+_table = Quote (
+	If ( PatternCount ( table ; "::" ) ;
+		Left ( table ; Position ( table ; "::" ; 1 ; 1 ) - 1 ) ;
+	// ELSE
+		table
+	))
+];
+JSONSetElement ( "{}" ;
+[ "table" ; _table ; JSONString ] ;
 [ "selects" ; "*" ; JSONString ] ;
 [ "selectKeys" ; "*" ; JSONString ] ;
 [ "joins" ; "[]" ; JSONRaw ] ;
@@ -19,6 +29,7 @@
 [ "offset" ; "" ; JSONString ] ;
 [ "bindings" ; "[]" ; JSONRaw ] ;
 [ "bindingCount" ; 0 ; JSONNumber ]
+)
 )]]></Calculation>
     </CustomFunction>
 </fmxmlsnippet>

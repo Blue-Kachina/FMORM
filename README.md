@@ -16,9 +16,9 @@ FMORM helps solve the pain point of writing SQL for FileMaker. You incrementally
 Let
 (
 [
-_query = QueryNew_cf ( "FMORM" ) ;
+_query = QueryNew_cf ( GetFieldName ( FMORM::__kptID ) ) ;
 _query = QuerySelect_cf ( _query ; List ( GetFieldName ( FMORM::PrimaryKey ) ; GetFieldName ( FMORM::CreationTimestamp ) ) ) ;
-_query = QueryWhere_cf ( _query ; "FMORM.CreationTimestamp" ; "<" ; Get ( CurrentTimestamp ) )
+_query = QueryWhere_cf ( _query ; GetFieldName ( FMORM::CreationTimestamp ) ; "<" ; Get ( CurrentTimestamp ) )
 ];
 QueryToSQL_cf ( _query )
 )
@@ -27,7 +27,7 @@ QueryToSQL_cf ( _query )
 Use `QueryToSQL_cf` at any point to inspect the SQL that would be produced without executing it (very useful during development):
 
 ```
-SELECT "FMORM"."PrimaryKey", "FMORM"."CreationTimestamp" FROM FMORM WHERE FMORM.CreationTimestamp < ?
+SELECT "FMORM"."PrimaryKey", "FMORM"."CreationTimestamp" FROM "FMORM" WHERE "FMORM"."CreationTimestamp" < ?
 ```
 
 ### Under the hood
@@ -38,9 +38,9 @@ Each builder function is accumulating state into a JSON object. You can inspect 
 Let
 (
 [
-_query = QueryNew_cf ( "FMORM" ) ;
+_query = QueryNew_cf ( GetFieldName ( FMORM::__kptID ) ) ;
 _query = QuerySelect_cf ( _query ; List ( GetFieldName ( FMORM::PrimaryKey ) ; GetFieldName ( FMORM::CreationTimestamp ) ) ) ;
-_query = QueryWhere_cf ( _query ; "FMORM.CreationTimestamp" ; "<" ; Get ( CurrentTimestamp ) )
+_query = QueryWhere_cf ( _query ; GetFieldName ( FMORM::CreationTimestamp ) ; "<" ; Get ( CurrentTimestamp ) )
 ];
 JSONFormatElements ( _query )
 )
@@ -62,7 +62,7 @@ JSONFormatElements ( _query )
     "orderBys" : [],
     "selectKeys" : "PrimaryKey\rCreationTimestamp",
     "selects" : "\"FMORM\".\"PrimaryKey\", \"FMORM\".\"CreationTimestamp\"",
-    "table" : "FMORM",
+    "table" : "\"FMORM\"",
     "whereCount" : 1,
     "wheres" :
     [
@@ -84,9 +84,9 @@ When you're done building, use `QueryGet_cf` to execute it. It handles the `?` s
 Let
 (
 [
-_query = QueryNew_cf ( "FMORM" ) ;
+_query = QueryNew_cf ( GetFieldName ( FMORM::__kptID ) ) ;
 _query = QuerySelect_cf ( _query ; List ( GetFieldName ( FMORM::PrimaryKey ) ; GetFieldName ( FMORM::CreationTimestamp ) ) ) ;
-_query = QueryWhere_cf ( _query ; "FMORM.CreationTimestamp" ; "<" ; Get ( CurrentTimestamp ) )
+_query = QueryWhere_cf ( _query ; GetFieldName ( FMORM::CreationTimestamp ) ; "<" ; Get ( CurrentTimestamp ) )
 ];
 QueryGet_cf ( _query ; "," ; "¶" )
 )
@@ -102,9 +102,9 @@ Alternatively, use `QueryGetResultsAsJson_cf` to get a JSON array of objects rea
 Let
 (
 [
-_query = QueryNew_cf ( "FMORM" ) ;
+_query = QueryNew_cf ( GetFieldName ( FMORM::__kptID ) ) ;
 _query = QuerySelect_cf ( _query ; List ( GetFieldName ( FMORM::PrimaryKey ) ; GetFieldName ( FMORM::CreationTimestamp ) ) ) ;
-_query = QueryWhere_cf ( _query ; "FMORM.CreationTimestamp" ; "<" ; Get ( CurrentTimestamp ) )
+_query = QueryWhere_cf ( _query ; GetFieldName ( FMORM::CreationTimestamp ) ; "<" ; Get ( CurrentTimestamp ) )
 ];
 QueryGetResultsAsJson_cf ( _query )
 )

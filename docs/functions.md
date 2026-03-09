@@ -63,11 +63,13 @@ These functions are called by the public builders and are not intended to be cal
 
 Initialises a fresh query object for the given table occurrence. All clause arrays are set to empty, `selects` defaults to `*`, and all counts are set to `0`. Pass the returned object as the first argument to every subsequent builder call.
 
+The table name is stored pre-quoted (`"Table"`) so the generated SQL consistently uses double-quoted identifiers throughout.
+
 **Parameters**
 
 | Parameter | Description |
 |---|---|
-| `table` | Table occurrence name as it appears in the FileMaker relationship graph |
+| `table` | Table occurrence name as a plain string (`"CONTACT"`), or any `GetFieldName()` result from that table (`GetFieldName ( CONTACT::anyField )`). When a `Table::Field` string is passed the table part is extracted automatically. |
 
 **Example**
 
@@ -75,7 +77,7 @@ Initialises a fresh query object for the given table occurrence. All clause arra
 Let
 (
 [
-_query = QueryNew_cf ( "CONTACT" )
+_query = QueryNew_cf ( GetFieldName ( CONTACT::__kptID ) )
 ];
 _query
 )
@@ -219,21 +221,23 @@ _query = QueryWhereNotNull_cf ( _query ; "CONTACT.emailWork" )
 
 Appends an INNER JOIN clause. The join condition is specified as a three-part ON expression: `first operator second`.
 
+The join table name is stored pre-quoted. `first` and `second` accept `Table::Field` format and are converted to quoted dot notation automatically, identical to `QueryWhere_cf`.
+
 **Parameters**
 
 | Parameter | Description |
 |---|---|
 | `query` | Query object |
-| `table` | Table occurrence name to join |
-| `first` | Left-hand side of the ON condition |
+| `table` | Table occurrence name to join — plain string or `GetFieldName()` result from that table |
+| `first` | Left-hand side of the ON condition — `Table::Field` or plain SQL expression |
 | `operator` | Join condition operator (typically `=`) |
-| `second` | Right-hand side of the ON condition |
+| `second` | Right-hand side of the ON condition — `Table::Field` or plain SQL expression |
 
 **Example**
 
 ```
-_query = QueryJoin_cf ( _query ; "invoice__ITEM" ; "CONTACT.id" ; "=" ; "invoice__ITEM.idContact" )
-// → INNER JOIN invoice__ITEM ON CONTACT.id = invoice__ITEM.idContact
+_query = QueryJoin_cf ( _query ; GetFieldName ( invoice__ITEM::__kptID ) ; GetFieldName ( CONTACT::_kftItemID ) ; "=" ; GetFieldName ( invoice__ITEM::__kptID ) )
+// → INNER JOIN "invoice__ITEM" ON "CONTACT"."_kftItemID" = "invoice__ITEM"."__kptID"
 ```
 
 ---
@@ -247,16 +251,16 @@ Identical to `QueryJoin_cf` but produces a LEFT JOIN, returning all rows from th
 | Parameter | Description |
 |---|---|
 | `query` | Query object |
-| `table` | Table occurrence name to join |
-| `first` | Left-hand side of the ON condition |
+| `table` | Table occurrence name to join — plain string or `GetFieldName()` result from that table |
+| `first` | Left-hand side of the ON condition — `Table::Field` or plain SQL expression |
 | `operator` | Join condition operator |
-| `second` | Right-hand side of the ON condition |
+| `second` | Right-hand side of the ON condition — `Table::Field` or plain SQL expression |
 
 **Example**
 
 ```
-_query = QueryLeftJoin_cf ( _query ; "contact__INVOICE" ; "CONTACT.id" ; "=" ; "contact__INVOICE.idContact" )
-// → LEFT JOIN contact__INVOICE ON CONTACT.id = contact__INVOICE.idContact
+_query = QueryLeftJoin_cf ( _query ; GetFieldName ( contact__INVOICE::__kptID ) ; GetFieldName ( CONTACT::_kftInvoiceID ) ; "=" ; GetFieldName ( contact__INVOICE::__kptID ) )
+// → LEFT JOIN "contact__INVOICE" ON "CONTACT"."_kftInvoiceID" = "contact__INVOICE"."__kptID"
 ```
 
 ---
@@ -681,20 +685,29 @@ QueryBuildSelects_cf ( "FMORM::PrimaryKey¶FMORM::CreatedBy" ; 2 ; 1 )
 
 ### QueryConvertField_cf
 
-Converts a single FileMaker fully-qualified field name (`Table::Field`) to a quoted SQL dot-notation identifier (`"Table"."Field"`). Uses `Quote()` for readability and automatic escaping. Expressions that do not contain `::` pass through unchanged — `*`, `COUNT(*)`, and already-converted strings are safe to pass in. Called by `QueryBuildSelects_cf` and by all public builders that accept column references; do not call directly.
+Converts a single FileMaker fully-qualified field name (`Table::Field`) to a quoted SQL dot-notation identifier (`"Table"."Field"`). Uses `Quote()` for readability and automatic escaping. Expressions that do not contain `::` pass through unchanged — `*`, `COUNT(*)`, and already-converted strings are safe to pass in. Called by `QueryBuildSelects_cf` and by all public builders that accept column references.
+
+You can also call this directly when building complex SQL expressions (aggregate functions, arithmetic) that the builder functions can't assemble automatically. The recommended pattern is `QueryConvertField_cf ( GetFieldName ( TABLE::field ) )` — the `GetFieldName()` call produces a `Table::Field` string that survives field renames.
 
 **Parameters**
 
 | Parameter | Description |
 |---|---|
-| `field` | A field reference — either `Table::Field` (FM fully-qualified) or a plain SQL expression |
+| `field` | A `Table::Field` string (e.g. from `GetFieldName()`), or any plain SQL expression — anything without `::` passes through unchanged |
 
 **Example**
 
 ```
-QueryConvertField_cf ( "FMORM::PrimaryKey" )   // → "FMORM"."PrimaryKey"
-QueryConvertField_cf ( "CONTACT.status" )       // → CONTACT.status  (pass-through)
-QueryConvertField_cf ( "*" )                    // → *               (pass-through)
+QueryConvertField_cf ( GetFieldName ( FMORM::PrimaryKey ) )   // → "FMORM"."PrimaryKey"
+QueryConvertField_cf ( "CONTACT.status" )                     // → CONTACT.status  (pass-through)
+QueryConvertField_cf ( "*" )                                  // → *               (pass-through)
+
+// Hand-building an aggregate expression — each component rename-safe:
+"SUM( "
+& QueryConvertField_cf ( GetFieldName ( BUDGET_HISTORY::originalBudgetTotalCost ) ) & " * "
+& QueryConvertField_cf ( GetFieldName ( BUDGET_HISTORY::contingencyRundown ) )
+& " )"
+// → SUM( "BUDGET_HISTORY"."originalBudgetTotalCost" * "BUDGET_HISTORY"."contingencyRundown" )
 ```
 
 ---

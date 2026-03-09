@@ -308,8 +308,18 @@ If ( rowIndex < rowCount ;
 
     <!-- 15 of 32 -->
     <CustomFunction id="10" functionArity="1" visible="True" parameters="table" name="QueryNew_cf">
-        <Calculation><![CDATA[JSONSetElement ( "{}" ;
-[ "table" ; table ; JSONString ] ;
+        <Calculation><![CDATA[Let
+(
+[
+_table = Quote (
+	If ( PatternCount ( table ; "::" ) ;
+		Left ( table ; Position ( table ; "::" ; 1 ; 1 ) - 1 ) ;
+	// ELSE
+		table
+	))
+];
+JSONSetElement ( "{}" ;
+[ "table" ; _table ; JSONString ] ;
 [ "selects" ; "*" ; JSONString ] ;
 [ "selectKeys" ; "*" ; JSONString ] ;
 [ "joins" ; "[]" ; JSONRaw ] ;
@@ -326,6 +336,7 @@ If ( rowIndex < rowCount ;
 [ "offset" ; "" ; JSONString ] ;
 [ "bindings" ; "[]" ; JSONRaw ] ;
 [ "bindingCount" ; 0 ; JSONNumber ]
+)
 )]]></Calculation>
     </CustomFunction>
 
@@ -466,11 +477,17 @@ JSONSetElement (
 (
 [
 _joinCount = JSONGetElement ( query ; "joinCount" ) ;
+_table = Quote (
+	If ( PatternCount ( table ; "::" ) ;
+		Left ( table ; Position ( table ; "::" ; 1 ; 1 ) - 1 ) ;
+	// ELSE
+		table
+	)) ;
 _first = QueryConvertField_cf ( first ) ;
 _second = QueryConvertField_cf ( second ) ;
 _joinObj = JSONSetElement ( "{}" ;
 	[ "type" ; "inner" ; JSONString ] ;
-	[ "table" ; table ; JSONString ] ;
+	[ "table" ; _table ; JSONString ] ;
 	[ "first" ; _first ; JSONString ] ;
 	[ "operator" ; operator ; JSONString ] ;
 	[ "second" ; _second ; JSONString ]
@@ -488,11 +505,17 @@ _q2
 (
 [
 _joinCount = JSONGetElement ( query ; "joinCount" ) ;
+_table = Quote (
+	If ( PatternCount ( table ; "::" ) ;
+		Left ( table ; Position ( table ; "::" ; 1 ; 1 ) - 1 ) ;
+	// ELSE
+		table
+	)) ;
 _first = QueryConvertField_cf ( first ) ;
 _second = QueryConvertField_cf ( second ) ;
 _joinObj = JSONSetElement ( "{}" ;
 	[ "type" ; "left" ; JSONString ] ;
-	[ "table" ; table ; JSONString ] ;
+	[ "table" ; _table ; JSONString ] ;
 	[ "first" ; _first ; JSONString ] ;
 	[ "operator" ; operator ; JSONString ] ;
 	[ "second" ; _second ; JSONString ]

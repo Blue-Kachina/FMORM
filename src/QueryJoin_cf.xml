@@ -5,11 +5,17 @@
 (
 [
 _joinCount = JSONGetElement ( query ; "joinCount" ) ;
+_table = Quote (
+	If ( PatternCount ( table ; "::" ) ;
+		Left ( table ; Position ( table ; "::" ; 1 ; 1 ) - 1 ) ;
+	// ELSE
+		table
+	)) ;
 _first = QueryConvertField_cf ( first ) ;
 _second = QueryConvertField_cf ( second ) ;
 _joinObj = JSONSetElement ( "{}" ;
 	[ "type" ; "inner" ; JSONString ] ;
-	[ "table" ; table ; JSONString ] ;
+	[ "table" ; _table ; JSONString ] ;
 	[ "first" ; _first ; JSONString ] ;
 	[ "operator" ; operator ; JSONString ] ;
 	[ "second" ; _second ; JSONString ]
