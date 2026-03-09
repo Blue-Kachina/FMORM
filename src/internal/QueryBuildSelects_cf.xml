@@ -2,20 +2,13 @@
 <fmxmlsnippet type="FMObjectList">
     <CustomFunction id="1" functionArity="3" visible="False" parameters="columns;columnCount;index" name="QueryBuildSelects_cf">
         <Calculation><![CDATA[// Recursively converts a ¶-delimited column list to SQL column expressions.
-// FileMaker fully-qualified names (Table::Field) are converted to quoted dot
-// notation ("Table"."Field") using Char(34) for the double-quote character.
-// Other expressions (*, COUNT(*), already-dotted names, etc.) pass through unchanged.
+// Delegates individual field conversion to QueryConvertField_cf.
 // Call with index = 1 (GetValue is 1-based).
 Let
 (
 [
 _field = Trim ( GetValue ( columns ; index ) ) ;
-_sepPos = Position ( _field ; "::" ; 1 ; 1 ) ;
-_converted = If ( _sepPos > 0 ;
-	Char ( 34 ) & Left ( _field ; _sepPos - 1 ) & Char ( 34 ) & "." & Char ( 34 ) & Middle ( _field ; _sepPos + 2 ; Length ( _field ) ) & Char ( 34 ) ;
-// ELSE
-	_field
-	) ;
+_converted = QueryConvertField_cf ( _field ) ;
 _rest = If ( index < columnCount ;
 	", " & QueryBuildSelects_cf ( columns ; columnCount ; index + 1 ) ;
 // ELSE

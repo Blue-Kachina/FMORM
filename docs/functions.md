@@ -41,6 +41,7 @@ These functions are called by the public builders and are not intended to be cal
 | [QueryBuildWhereBooleanPrefix\_cf](#querybuildwherebooleanprefix_cf) | Render AND / OR / empty connector |
 | [QueryAppendBindings\_cf](#queryappendbindings_cf) | Recursively append N values to the bindings array |
 | [QueryBuildSelects\_cf](#querybuildselects_cf) | Convert ¶-delimited field names to quoted SQL column list |
+| [QueryConvertField\_cf](#queryconvertfield_cf) | Convert a single `Table::Field` name to quoted dot notation |
 
 ---
 
@@ -628,4 +629,24 @@ Recursively converts a ¶-delimited column list to a SQL column expression strin
 // Input:  "FMORM::PrimaryKey¶FMORM::CreatedBy"
 // Output: "\"FMORM\".\"PrimaryKey\", \"FMORM\".\"CreatedBy\""
 QueryBuildSelects_cf ( "FMORM::PrimaryKey¶FMORM::CreatedBy" ; 2 ; 1 )
+```
+
+---
+
+### QueryConvertField_cf
+
+Converts a single FileMaker fully-qualified field name (`Table::Field`) to a quoted SQL dot-notation identifier (`"Table"."Field"`). Uses `Quote()` for readability and automatic escaping. Expressions that do not contain `::` pass through unchanged — `*`, `COUNT(*)`, and already-converted strings are safe to pass in. Called by `QueryBuildSelects_cf` and by all public builders that accept column references; do not call directly.
+
+**Parameters**
+
+| Parameter | Description |
+|---|---|
+| `field` | A field reference — either `Table::Field` (FM fully-qualified) or a plain SQL expression |
+
+**Example**
+
+```
+QueryConvertField_cf ( "FMORM::PrimaryKey" )   // → "FMORM"."PrimaryKey"
+QueryConvertField_cf ( "CONTACT.status" )       // → CONTACT.status  (pass-through)
+QueryConvertField_cf ( "*" )                    // → *               (pass-through)
 ```

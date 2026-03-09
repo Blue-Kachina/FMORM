@@ -7,8 +7,9 @@ Let
 [
 _orderByCount = JSONGetElement ( query ; "orderByCount" ) ;
 _dir = If ( IsEmpty ( direction ) ; "ASC" ; Upper ( direction ) ) ;
+_column = QueryConvertField_cf ( column ) ;
 _orderByObj = JSONSetElement ( "{}" ;
-	[ "column" ; column ; JSONString ] ;
+	[ "column" ; _column ; JSONString ] ;
 	[ "direction" ; _dir ; JSONString ]
 	) ;
 _q1 = JSONSetElement ( query ; "orderBys[" & _orderByCount & "]" ; _orderByObj ; JSONObject ) ;

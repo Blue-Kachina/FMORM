@@ -4,10 +4,11 @@
         <Calculation><![CDATA[Let
 (
 [
-_groupByCount = JSONGetElement ( query ; "groupByCount" )
+_groupByCount = JSONGetElement ( query ; "groupByCount" ) ;
+_column = QueryConvertField_cf ( column )
 ];
 JSONSetElement (
-	JSONSetElement ( query ; "groupBys[" & _groupByCount & "]" ; column ; JSONString ) ;
+	JSONSetElement ( query ; "groupBys[" & _groupByCount & "]" ; _column ; JSONString ) ;
 	"groupByCount" ; _groupByCount + 1 ; JSONNumber
 )
 )]]></Calculation>
