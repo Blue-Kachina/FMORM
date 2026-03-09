@@ -23,6 +23,7 @@
 | [QueryLimit\_cf](#querylimit_cf) | Set the row limit |
 | [QueryOffset\_cf](#queryoffset_cf) | Set the row offset |
 | [QueryGet\_cf](#queryget_cf) | Execute the query and return results |
+| [QueryGetResultsAsJson\_cf](#querygetresultsasjson_cf) | Execute the query and return results as a JSON array of objects |
 | [QueryToSQL\_cf](#querytosql_cf) | Return the assembled SQL string (debug) |
 
 ### Internal helpers
@@ -42,6 +43,8 @@ These functions are called by the public builders and are not intended to be cal
 | [QueryAppendBindings\_cf](#queryappendbindings_cf) | Recursively append N values to the bindings array |
 | [QueryBuildSelects\_cf](#querybuildselects_cf) | Convert ¶-delimited field names to quoted SQL column list |
 | [QueryConvertField\_cf](#queryconvertfield_cf) | Convert a single `Table::Field` name to quoted dot notation |
+| [QueryBuildJsonRow\_cf](#querybuildjsonrow_cf) | Build a single JSON object from a row of field values |
+| [QueryBuildJsonRows\_cf](#querybuildjsonrows_cf) | Recursively build a JSON array from all result rows |
 
 ---
 
@@ -385,6 +388,39 @@ _result
 
 ---
 
+### QueryGetResultsAsJson_cf
+
+Executes the query and returns the results as a JSON array of objects, one object per row. Each object's keys come from the `keys` parameter — a ¶-delimited list of property names that must match the SELECT column order. The natural way to supply keys is `List ( "key1" ; "key2" ; ... )`.
+
+Uses `Char(28)` as the internal field separator (safe for typical data) and `¶` as the row separator. Returns `"[]"` when the query produces no rows or an error.
+
+> **Note:** All field values are stored as JSON strings. If you need numeric types in the output, parse the string values after receiving the result.
+
+**Parameters**
+
+| Parameter | Description |
+|---|---|
+| `query` | Fully assembled query object |
+| `keys` | ¶-delimited list of JSON property names, one per selected column, in SELECT order |
+
+**Example**
+
+```
+Let
+(
+[
+_query  = QueryNew_cf    ( "CONTACT" ) ;
+_query  = QuerySelect_cf ( _query ; List ( GetFieldName ( CONTACT::PrimaryKey ) ; GetFieldName ( CONTACT::FullName ) ; GetFieldName ( CONTACT::Status ) ) ) ;
+_query  = QueryWhere_cf  ( _query ; CONTACT::Status ; "=" ; "Active" ) ;
+_result = QueryGetResultsAsJson_cf ( _query ; List ( "id" ; "name" ; "status" ) )
+];
+_result
+// → [{"id":"1","name":"Jane Smith","status":"Active"},{"id":"2",...}]
+)
+```
+
+---
+
 ### QueryToSQL_cf
 
 Returns the assembled SQL string without executing it. Bound parameters appear as `?` placeholders. Useful for verifying query structure during development.
@@ -649,4 +685,54 @@ Converts a single FileMaker fully-qualified field name (`Table::Field`) to a quo
 QueryConvertField_cf ( "FMORM::PrimaryKey" )   // → "FMORM"."PrimaryKey"
 QueryConvertField_cf ( "CONTACT.status" )       // → CONTACT.status  (pass-through)
 QueryConvertField_cf ( "*" )                    // → *               (pass-through)
+```
+
+---
+
+### QueryBuildJsonRow_cf
+
+Recursively builds a single JSON object from a row of field values and a parallel list of key names. Both `fields` and `keys` are ¶-delimited; `fields` comes from splitting a raw result row on `Char(28)`. Called by `QueryBuildJsonRows_cf`; do not call directly.
+
+**Parameters**
+
+| Parameter | Description |
+|---|---|
+| `obj` | Accumulating JSON object — call with `"{}"` |
+| `fields` | ¶-delimited field values for the current row |
+| `keys` | ¶-delimited JSON property names |
+| `keyCount` | Total number of keys/fields |
+| `index` | Current position (call with `1`; `GetValue` is 1-based) |
+
+**Example**
+
+```
+// Input fields: "42¶Jane Smith¶Active"
+// Input keys:   "id¶name¶status"
+QueryBuildJsonRow_cf ( "{}" ; "42¶Jane Smith¶Active" ; "id¶name¶status" ; 3 ; 1 )
+// → {"id":"42","name":"Jane Smith","status":"Active"}
+```
+
+---
+
+### QueryBuildJsonRows_cf
+
+Recursively appends row objects to a JSON array. Splits each raw row on `Char(28)` to recover individual field values, delegates object construction to `QueryBuildJsonRow_cf`, then inserts the result into the accumulating array at the correct 0-based index. Called by `QueryGetResultsAsJson_cf`; do not call directly.
+
+**Parameters**
+
+| Parameter | Description |
+|---|---|
+| `result` | Accumulating JSON array — call with `"[]"` |
+| `rawResult` | Full ExecuteSQL output (`Char(28)` field sep, `¶` row sep) |
+| `rowCount` | Total number of rows |
+| `keys` | ¶-delimited JSON property names |
+| `keyCount` | Total number of keys/fields |
+| `rowIndex` | Current row position (call with `1`; `GetValue` is 1-based) |
+
+**Example**
+
+```
+// Typically called internally by QueryGetResultsAsJson_cf:
+QueryBuildJsonRows_cf ( "[]" ; _rawResult ; _rowCount ; "id¶name" ; 2 ; 1 )
+// → [{"id":"1","name":"Alice"},{"id":"2","name":"Bob"}]
 ```

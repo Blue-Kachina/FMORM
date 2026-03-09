@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="5" visible="False" parameters="obj;fields;keys;keyCount;index" name="QueryBuildJsonRow_cf">
+        <Calculation><![CDATA[// Recursively builds a single JSON object from parallel ¶-delimited lists
+// of field values and key names. Call with index = 1 and obj = "{}".
+// All values are stored as JSONString; numeric/date coercion is left to the caller.
+Let
+(
+[
+_key = GetValue ( keys ; index ) ;
+_value = GetValue ( fields ; index ) ;
+_newObj = JSONSetElement ( obj ; _key ; _value ; JSONString )
+];
+If ( index < keyCount ;
+	QueryBuildJsonRow_cf ( _newObj ; fields ; keys ; keyCount ; index + 1 ) ;
+// ELSE
+	_newObj
+)
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

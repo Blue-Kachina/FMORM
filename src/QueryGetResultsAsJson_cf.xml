@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="2" visible="True" parameters="query;keys" name="QueryGetResultsAsJson_cf">
+        <Calculation><![CDATA[// Executes the query and returns results as a JSON array of objects.
+// keys is a ¶-delimited list of property names for each selected column,
+// in the same order as the SELECT list. The natural source is List():
+//   QueryGetResultsAsJson_cf ( _query ; List ( "id" ; "name" ; "status" ) )
+// Returns "[]" when the query produces no rows or an error.
+Let
+(
+[
+_keyCount = ValueCount ( keys ) ;
+_rawResult = QueryGet_cf ( query ; Char ( 28 ) ; "¶" ) ;
+_rowCount = If ( IsEmpty ( _rawResult ) ; 0 ; ValueCount ( _rawResult ) )
+];
+If ( _rowCount = 0 ;
+	"[]" ;
+// ELSE
+	QueryBuildJsonRows_cf ( "[]" ; _rawResult ; _rowCount ; keys ; _keyCount ; 1 )
+)
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>
