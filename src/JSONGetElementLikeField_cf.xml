@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <fmxmlsnippet type="FMObjectList">
-    <CustomFunction id="1" functionArity="2" visible="True" parameters="json;field" name="JSONGetElementLikeField_cf">
+    <CustomFunction id="1" functionArity="3" visible="True" parameters="json;field;index" name="JSONGetElementLikeField_cf">
         <Calculation><![CDATA[// Returns JSONGetElement( json ; property ) where property is resolved from
 // the field argument using this priority order:
 //   1. GetFieldName( field ) — works when field is a real FM field reference;
 //      strips the table occurrence prefix (everything before ::)
 //   2. field contains :: — strips the table prefix from the string value
 //   3. Fallback — assumes field is already the intended property name string
-// Returns "?" if json does not pass JSON validation.
+// If index is provided (non-empty), JSONGetElement( json ; index ) is evaluated
+// first to extract an array element, and the property lookup runs on that result.
+// Returns "?" if the working JSON does not pass JSON validation.
 Let
 (
 [
-_isValidJson = not Exact ( Left ( JSONFormatElements ( json ) ; 1 ) ; "?" ) ;
+_working = If ( not IsEmpty ( index ) ; JSONGetElement ( json ; index ) ; json ) ;
+_isValidJson = not Exact ( Left ( JSONFormatElements ( _working ) ; 1 ) ; "?" ) ;
 _fqName = GetFieldName ( field ) ;
 _colonPos = Position ( field ; "::" ; 1 ; 1 ) ;
 _property = Case (
@@ -29,7 +32,7 @@ Case (
 	not _isValidJson ;
 		"?" ;
 	// ELSE
-	JSONGetElement ( json ; _property )
+	JSONGetElement ( _working ; _property )
 	)
 )]]></Calculation>
     </CustomFunction>

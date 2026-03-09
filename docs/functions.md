@@ -30,7 +30,7 @@
 
 | Function | Purpose |
 |---|---|
-| [JSONGetElementLikeField\_cf](#jsongetelementlikefield_cf) | Get a JSON element using a FileMaker field reference or field-name string as the property key |
+| [JSONGetElementLikeField\_cf](#jsongetelementlikefield_cf) | Get a JSON element using a FileMaker field reference or field-name string as the property key; optional index for array input |
 
 ### Internal helpers
 
@@ -803,7 +803,7 @@ Property name resolution happens in this priority order:
 2. **String containing `::`** — if the `field` value contains `::` (e.g. `"CONTACT::firstName"`), the part after `::` is used.
 3. **Fallback** — the `field` value is used as-is, assumed to already be the target property name.
 
-Returns `"?"` if `json` does not pass JSON validation (i.e. `JSONFormatElements` signals an error).
+When `index` is provided (non-empty), `JSONGetElement( json ; index )` is called first to extract an element from the array, and the property lookup runs on that result. This is the standard path when `json` is a JSON array. Returns `"?"` if the working JSON (the array element when `index` is used, or `json` directly) does not pass JSON validation.
 
 > **Note on path 1:** FileMaker evaluates CF parameters before passing them in, so a bare `Table::Field` reference becomes the field's *value* inside the function. Path 1 is most useful when the caller explicitly passes `GetFieldName( Table::Field )` as the `field` argument — the resulting `"Table::Field"` string then also satisfies path 2. In practice, paths 2 and 3 are the most commonly triggered.
 
@@ -811,25 +811,32 @@ Returns `"?"` if `json` does not pass JSON validation (i.e. `JSONFormatElements`
 
 | Parameter | Description |
 |---|---|
-| `json` | A valid JSON object string |
+| `json` | A valid JSON object or array string |
 | `field` | A FileMaker field reference, a `"Table::Field"` string, or a plain property name string |
+| `index` | *(Optional — pass `""` to omit)* A 0-based array index. When non-empty, the element at that position is extracted from `json` before the property lookup runs. |
 
 **Examples**
 
 ```
-// Path 2 — passing GetFieldName() result as a string
-JSONGetElementLikeField_cf ( _json ; GetFieldName ( CONTACT::firstName ) )
+// Plain object — no index needed
+JSONGetElementLikeField_cf ( _json ; GetFieldName ( CONTACT::firstName ) ; "" )
 // field = "CONTACT::firstName" → property resolved to "firstName"
 
-// Path 2 — passing a qualified string literal
-JSONGetElementLikeField_cf ( _json ; "CONTACT::firstName" )
-// → same result
+// Array — index 0 (first element)
+JSONGetElementLikeField_cf ( _jsonArray ; GetFieldName ( CONTACT::firstName ) ; 0 )
+// extracts _jsonArray[0], then reads "firstName" from that object
+
+// Array — index 1 (second element)
+JSONGetElementLikeField_cf ( _jsonArray ; GetFieldName ( CONTACT::firstName ) ; 1 )
+
+// Path 2 — qualified string literal, no index
+JSONGetElementLikeField_cf ( _json ; "CONTACT::firstName" ; "" )
 
 // Path 3 — plain property name
-JSONGetElementLikeField_cf ( _json ; "firstName" )
+JSONGetElementLikeField_cf ( _json ; "firstName" ; "" )
 // → JSONGetElement( _json ; "firstName" )
 
-// Invalid JSON — returns "?"
-JSONGetElementLikeField_cf ( "not json" ; "firstName" )
+// Invalid JSON (or index points to a non-object) — returns "?"
+JSONGetElementLikeField_cf ( "not json" ; "firstName" ; "" )
 // → "?"
 ```
