@@ -40,6 +40,7 @@ These functions are called by the public builders and are not intended to be cal
 | [QueryBuildBindingArgs\_cf](#querybuildbindingargs_cf) | Render binding values for Evaluate injection |
 | [QueryBuildWhereBooleanPrefix\_cf](#querybuildwherebooleanprefix_cf) | Render AND / OR / empty connector |
 | [QueryAppendBindings\_cf](#queryappendbindings_cf) | Recursively append N values to the bindings array |
+| [QueryBuildSelects\_cf](#querybuildselects_cf) | Convert ¶-delimited field names to quoted SQL column list |
 
 ---
 
@@ -75,16 +76,22 @@ _query
 
 Replaces the SELECT column list. By default all columns are selected (`*`). Call once — the entire list is replaced wholesale, not appended.
 
+Accepts either a ¶-delimited list (e.g. from FileMaker's `List()` and `GetFieldName()`) or a plain comma-separated string. FileMaker fully-qualified field names in `Table::Field` format are automatically converted to quoted SQL dot notation (`"Table"."Field"`). Expressions that do not contain `::` — such as `*`, `COUNT(*)`, or already-dotted names — pass through unchanged.
+
 **Parameters**
 
 | Parameter | Description |
 |---|---|
 | `query` | Query object returned by a previous builder call |
-| `columns` | SQL column expression string |
+| `columns` | ¶-delimited list from `List()` / `GetFieldName()`, or a comma-separated SQL column string |
 
 **Example**
 
 ```
+// Using GetFieldName() — recommended; survives field renames
+_query = QuerySelect_cf ( _query ; List ( GetFieldName ( FMORM::PrimaryKey ) ; GetFieldName ( FMORM::CreatedBy ) ) )
+
+// Using a plain SQL string — also valid
 _query = QuerySelect_cf ( _query ; "CONTACT.id, CONTACT.firstName, CONTACT.lastName" )
 ```
 
@@ -599,4 +606,26 @@ Recursively appends values from a ¶-delimited list to the `bindings` array insi
 ```
 // Appends "customer", "prospect", "partner" to the bindings array
 QueryAppendBindings_cf ( _query ; "customer¶prospect¶partner" ; 3 ; 1 )
+```
+
+---
+
+### QueryBuildSelects_cf
+
+Recursively converts a ¶-delimited column list to a SQL column expression string. FileMaker fully-qualified names in `Table::Field` format are converted to quoted dot notation (`"Table"."Field"`) using `Char(34)` for the double-quote character. Expressions without `::` pass through unchanged. Called by `QuerySelect_cf`; do not call directly.
+
+**Parameters**
+
+| Parameter | Description |
+|---|---|
+| `columns` | ¶-delimited list of column expressions |
+| `columnCount` | Total number of columns |
+| `index` | Current position (call with `1`; `GetValue` is 1-based) |
+
+**Example**
+
+```
+// Input:  "FMORM::PrimaryKey¶FMORM::CreatedBy"
+// Output: "\"FMORM\".\"PrimaryKey\", \"FMORM\".\"CreatedBy\""
+QueryBuildSelects_cf ( "FMORM::PrimaryKey¶FMORM::CreatedBy" ; 2 ; 1 )
 ```

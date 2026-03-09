@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <fmxmlsnippet type="FMObjectList">
     <CustomFunction id="1" functionArity="2" visible="True" parameters="query;columns" name="QuerySelect_cf">
-        <Calculation><![CDATA[JSONSetElement ( query ; "selects" ; columns ; JSONString )]]></Calculation>
+        <Calculation><![CDATA[// Accepts a ¶-delimited list (e.g. from List() / GetFieldName()) or a
+// comma-separated string. FileMaker fully-qualified names (Table::Field) are
+// converted to quoted SQL dot notation ("Table"."Field"). Other expressions
+// (*, COUNT(*), already-dotted names, etc.) pass through unchanged.
+Let
+(
+[
+_normalized = Substitute ( Substitute ( columns ; ", " ; "¶" ) ; "," ; "¶" ) ;
+_columnCount = ValueCount ( _normalized ) ;
+_selects = QueryBuildSelects_cf ( _normalized ; _columnCount ; 1 )
+];
+JSONSetElement ( query ; "selects" ; _selects ; JSONString )
+)]]></Calculation>
     </CustomFunction>
 </fmxmlsnippet>

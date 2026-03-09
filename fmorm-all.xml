@@ -2,7 +2,7 @@
 <!--
   fmorm-all.xml — combined fmxmlsnippet for one-shot FileMaker import.
 
-  Contains all 25 custom functions in dependency order:
+  Contains all 26 custom functions in dependency order:
     Internal helpers (1–9) are declared before the public builders (10–25)
     that call them, though FileMaker resolves function references at runtime
     so import order does not strictly matter.
@@ -190,11 +190,38 @@ _quoted & _rest
 )]]></Calculation>
     </CustomFunction>
 
+    <!-- 10 of 26 -->
+    <CustomFunction id="26" functionArity="3" visible="False" parameters="columns;columnCount;index" name="QueryBuildSelects_cf">
+        <Calculation><![CDATA[// Recursively converts a ¶-delimited column list to SQL column expressions.
+// FileMaker fully-qualified names (Table::Field) are converted to quoted dot
+// notation ("Table"."Field") using Char(34) for the double-quote character.
+// Other expressions (*, COUNT(*), already-dotted names, etc.) pass through unchanged.
+// Call with index = 1 (GetValue is 1-based).
+Let
+(
+[
+_field = Trim ( GetValue ( columns ; index ) ) ;
+_sepPos = Position ( _field ; "::" ; 1 ; 1 ) ;
+_converted = If ( _sepPos > 0 ;
+	Char ( 34 ) & Left ( _field ; _sepPos - 1 ) & Char ( 34 ) & "." & Char ( 34 ) & Middle ( _field ; _sepPos + 2 ; Length ( _field ) ) & Char ( 34 ) ;
+// ELSE
+	_field
+	) ;
+_rest = If ( index < columnCount ;
+	", " & QueryBuildSelects_cf ( columns ; columnCount ; index + 1 ) ;
+// ELSE
+	""
+	)
+];
+_converted & _rest
+)]]></Calculation>
+    </CustomFunction>
+
     <!-- ============================================================ -->
     <!-- PUBLIC BUILDERS                                              -->
     <!-- ============================================================ -->
 
-    <!-- 10 of 25 -->
+    <!-- 11 of 26 -->
     <CustomFunction id="10" functionArity="1" visible="True" parameters="table" name="QueryNew_cf">
         <Calculation><![CDATA[JSONSetElement ( "{}" ;
 [ "table" ; table ; JSONString ] ;
@@ -216,9 +243,21 @@ _quoted & _rest
 )]]></Calculation>
     </CustomFunction>
 
-    <!-- 11 of 25 -->
+    <!-- 12 of 26 -->
     <CustomFunction id="11" functionArity="2" visible="True" parameters="query;columns" name="QuerySelect_cf">
-        <Calculation><![CDATA[JSONSetElement ( query ; "selects" ; columns ; JSONString )]]></Calculation>
+        <Calculation><![CDATA[// Accepts a ¶-delimited list (e.g. from List() / GetFieldName()) or a
+// comma-separated string. FileMaker fully-qualified names (Table::Field) are
+// converted to quoted SQL dot notation ("Table"."Field"). Other expressions
+// (*, COUNT(*), already-dotted names, etc.) pass through unchanged.
+Let
+(
+[
+_normalized = Substitute ( Substitute ( columns ; ", " ; "¶" ) ; "," ; "¶" ) ;
+_columnCount = ValueCount ( _normalized ) ;
+_selects = QueryBuildSelects_cf ( _normalized ; _columnCount ; 1 )
+];
+JSONSetElement ( query ; "selects" ; _selects ; JSONString )
+)]]></Calculation>
     </CustomFunction>
 
     <!-- 12 of 25 -->
