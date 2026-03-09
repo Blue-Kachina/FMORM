@@ -12,7 +12,7 @@ FMORM helps solve the pain point of writing SQL for FileMaker. You incrementally
 
 ### Building a query
 
-Field references can be passed directly — no `GetFieldName()` wrapper required (unless passing a list of them to QuerySelect). Passing fields directly is concise and works well when field names are stable. Use `GetFieldName()` when you want rename-safety (the function call is resolved at parse time, so it breaks at edit time if the field is renamed).
+Field references can be passed directly to most functions — no `GetFieldName()` wrapper required. The exception is `QuerySelect_cf`, where the `columns` parameter requires `GetFieldName()` (for a single field) or `List()` + `GetFieldName()` (for multiple fields). Passing fields directly is concise and works well when field names are stable. Use `GetFieldName()` when you want rename-safety (the function call is resolved at parse time, so it breaks at edit time if the field is renamed).
 
 ```
 Let

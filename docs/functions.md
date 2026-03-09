@@ -90,7 +90,7 @@ _query = QueryNew_cf ( "CONTACT" )
 
 Replaces the SELECT column list. By default all columns are selected (`*`). Call once — the entire list is replaced wholesale, not appended.
 
-Accepts either a ¶-delimited list (e.g. from FileMaker's `List()` and `GetFieldName()`) or a plain comma-separated string. FileMaker fully-qualified field names in `Table::Field` format are automatically converted to quoted SQL dot notation (`"Table"."Field"`). Expressions that do not contain `::` — such as `*`, `COUNT(*)`, or already-dotted names — pass through unchanged. A single direct FM field reference may also be passed.
+Accepts either a ¶-delimited list (e.g. from FileMaker's `List()` and `GetFieldName()`) or a plain comma-separated string. FileMaker fully-qualified field names in `Table::Field` format are automatically converted to quoted SQL dot notation (`"Table"."Field"`). Expressions that do not contain `::` — such as `*`, `COUNT(*)`, or already-dotted names — pass through unchanged.
 
 Also stores a `selectKeys` field in the query object: a ¶-delimited list of plain field names extracted from the original input (e.g. `PrimaryKey¶FullName`), which `QueryGetResultsAsJson_cf` uses to name the properties of each result object.
 
@@ -99,16 +99,16 @@ Also stores a `selectKeys` field in the query object: a ¶-delimited list of pla
 | Parameter | Description |
 |---|---|
 | `query` | Query object returned by a previous builder call |
-| `columns` | ¶-delimited list from `List()` / `GetFieldName()`, a comma-separated SQL column string, or a single direct FM field reference |
+| `columns` | ¶-delimited list from `List()` / `GetFieldName()`, or a comma-separated SQL column string |
 
 **Example**
 
 ```
-// Using GetFieldName() with List() — recommended for multiple fields; survives field renames
+// Multiple fields — use List() with GetFieldName() for rename-safety
 _query = QuerySelect_cf ( _query ; List ( GetFieldName ( FMORM::PrimaryKey ) ; GetFieldName ( FMORM::CreatedBy ) ) )
 
-// Single direct field reference — no GetFieldName() wrapper needed
-_query = QuerySelect_cf ( _query ; FMORM::PrimaryKey )
+// Single field — wrap in GetFieldName()
+_query = QuerySelect_cf ( _query ; GetFieldName ( FMORM::PrimaryKey ) )
 
 // Using a plain SQL string — also valid
 _query = QuerySelect_cf ( _query ; "CONTACT.id, CONTACT.firstName, CONTACT.lastName" )

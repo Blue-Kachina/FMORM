@@ -218,19 +218,17 @@ _converted & _rest
 // quoted SQL dot-notation identifier ("Table"."Field"). Quote() is used for
 // readability and automatic escaping. Expressions without :: pass through
 // unchanged, so *, COUNT(*), and already-converted references are safe.
-// A direct FM field reference may also be passed; GetFieldName() is called
-// internally to resolve the name before conversion.
+// Callers are responsible for resolving direct field references via GetFieldName()
+// before passing to this function.
 Let
 (
 [
-_fqName = GetFieldName ( field ) ;
-_name = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; field ) ;
-_sepPos = Position ( _name ; "::" ; 1 ; 1 )
+_sepPos = Position ( field ; "::" ; 1 ; 1 )
 ];
 If ( _sepPos > 0 ;
-	Quote ( Left ( _name ; _sepPos - 1 ) ) & "." & Quote ( Middle ( _name ; _sepPos + 2 ; Length ( _name ) ) ) ;
+	Quote ( Left ( field ; _sepPos - 1 ) ) & "." & Quote ( Middle ( field ; _sepPos + 2 ; Length ( field ) ) ) ;
 // ELSE
-	_name
+	field
 )
 )]]></Calculation>
     </CustomFunction>
@@ -357,9 +355,7 @@ JSONSetElement ( "{}" ;
 Let
 (
 [
-_fqName = GetFieldName ( columns ) ;
-_input = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; columns ) ;
-_normalized = Substitute ( Substitute ( _input ; ", " ; "¶" ) ; "," ; "¶" ) ;
+_normalized = Substitute ( Substitute ( columns ; ", " ; "¶" ) ; "," ; "¶" ) ;
 _columnCount = ValueCount ( _normalized ) ;
 _selects = QueryBuildSelects_cf ( _normalized ; _columnCount ; 1 ) ;
 _selectKeys = QueryBuildSelectKeys_cf ( _normalized ; _columnCount ; 1 ) ;
@@ -376,7 +372,9 @@ JSONSetElement ( _q1 ; "selectKeys" ; _selectKeys ; JSONString )
 [
 _whereCount = JSONGetElement ( query ; "whereCount" ) ;
 _bindingCount = JSONGetElement ( query ; "bindingCount" ) ;
-_column = QueryConvertField_cf ( column ) ;
+_fqName = GetFieldName ( column ) ;
+_col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
+_column = QueryConvertField_cf ( _col ) ;
 _whereObj = JSONSetElement ( "{}" ;
 	[ "type" ; "basic" ; JSONString ] ;
 	[ "column" ; _column ; JSONString ] ;
@@ -399,7 +397,9 @@ _q4
 [
 _whereCount = JSONGetElement ( query ; "whereCount" ) ;
 _bindingCount = JSONGetElement ( query ; "bindingCount" ) ;
-_column = QueryConvertField_cf ( column ) ;
+_fqName = GetFieldName ( column ) ;
+_col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
+_column = QueryConvertField_cf ( _col ) ;
 _whereObj = JSONSetElement ( "{}" ;
 	[ "type" ; "basic" ; JSONString ] ;
 	[ "column" ; _column ; JSONString ] ;
@@ -424,7 +424,9 @@ Let
 [
 _whereCount = JSONGetElement ( query ; "whereCount" ) ;
 _valueCount = ValueCount ( values ) ;
-_column = QueryConvertField_cf ( column ) ;
+_fqName = GetFieldName ( column ) ;
+_col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
+_column = QueryConvertField_cf ( _col ) ;
 _whereObj = JSONSetElement ( "{}" ;
 	[ "type" ; "in" ; JSONString ] ;
 	[ "column" ; _column ; JSONString ] ;
@@ -445,7 +447,9 @@ _q3
 (
 [
 _whereCount = JSONGetElement ( query ; "whereCount" ) ;
-_column = QueryConvertField_cf ( column ) ;
+_fqName = GetFieldName ( column ) ;
+_col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
+_column = QueryConvertField_cf ( _col ) ;
 _whereObj = JSONSetElement ( "{}" ;
 	[ "type" ; "null" ; JSONString ] ;
 	[ "column" ; _column ; JSONString ] ;
@@ -465,7 +469,9 @@ JSONSetElement (
 (
 [
 _whereCount = JSONGetElement ( query ; "whereCount" ) ;
-_column = QueryConvertField_cf ( column ) ;
+_fqName = GetFieldName ( column ) ;
+_col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
+_column = QueryConvertField_cf ( _col ) ;
 _whereObj = JSONSetElement ( "{}" ;
 	[ "type" ; "notNull" ; JSONString ] ;
 	[ "column" ; _column ; JSONString ] ;
@@ -547,7 +553,9 @@ Let
 [
 _orderByCount = JSONGetElement ( query ; "orderByCount" ) ;
 _dir = If ( IsEmpty ( direction ) ; "ASC" ; Upper ( direction ) ) ;
-_column = QueryConvertField_cf ( column ) ;
+_fqName = GetFieldName ( column ) ;
+_col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
+_column = QueryConvertField_cf ( _col ) ;
 _orderByObj = JSONSetElement ( "{}" ;
 	[ "column" ; _column ; JSONString ] ;
 	[ "direction" ; _dir ; JSONString ]
@@ -565,7 +573,9 @@ _q2
 (
 [
 _groupByCount = JSONGetElement ( query ; "groupByCount" ) ;
-_column = QueryConvertField_cf ( column )
+_fqName = GetFieldName ( column ) ;
+_col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
+_column = QueryConvertField_cf ( _col )
 ];
 JSONSetElement (
 	JSONSetElement ( query ; "groupBys[" & _groupByCount & "]" ; _column ; JSONString ) ;
@@ -581,7 +591,9 @@ JSONSetElement (
 [
 _havingCount = JSONGetElement ( query ; "havingCount" ) ;
 _bindingCount = JSONGetElement ( query ; "bindingCount" ) ;
-_column = QueryConvertField_cf ( column ) ;
+_fqName = GetFieldName ( column ) ;
+_col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
+_column = QueryConvertField_cf ( _col ) ;
 _havingObj = JSONSetElement ( "{}" ;
 	[ "column" ; _column ; JSONString ] ;
 	[ "operator" ; operator ; JSONString ] ;

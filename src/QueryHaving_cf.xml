@@ -6,7 +6,9 @@
 [
 _havingCount = JSONGetElement ( query ; "havingCount" ) ;
 _bindingCount = JSONGetElement ( query ; "bindingCount" ) ;
-_column = QueryConvertField_cf ( column ) ;
+_fqName = GetFieldName ( column ) ;
+_col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
+_column = QueryConvertField_cf ( _col ) ;
 _havingObj = JSONSetElement ( "{}" ;
 	[ "column" ; _column ; JSONString ] ;
 	[ "operator" ; operator ; JSONString ] ;

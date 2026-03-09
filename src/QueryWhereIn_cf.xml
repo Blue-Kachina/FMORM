@@ -8,7 +8,9 @@ Let
 [
 _whereCount = JSONGetElement ( query ; "whereCount" ) ;
 _valueCount = ValueCount ( values ) ;
-_column = QueryConvertField_cf ( column ) ;
+_fqName = GetFieldName ( column ) ;
+_col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
+_column = QueryConvertField_cf ( _col ) ;
 _whereObj = JSONSetElement ( "{}" ;
 	[ "type" ; "in" ; JSONString ] ;
 	[ "column" ; _column ; JSONString ] ;

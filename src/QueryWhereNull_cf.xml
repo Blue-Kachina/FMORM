@@ -5,7 +5,9 @@
 (
 [
 _whereCount = JSONGetElement ( query ; "whereCount" ) ;
-_column = QueryConvertField_cf ( column ) ;
+_fqName = GetFieldName ( column ) ;
+_col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
+_column = QueryConvertField_cf ( _col ) ;
 _whereObj = JSONSetElement ( "{}" ;
 	[ "type" ; "null" ; JSONString ] ;
 	[ "column" ; _column ; JSONString ] ;
