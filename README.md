@@ -5,17 +5,73 @@ A fluent, Eloquent-inspired SQL query builder for FileMaker Pro, implemented ent
 ---
 
 
-
 ## Quick start
 
-FMORM helps solve the pain point of writing SQL for FileMaker. You incrementally build up your query using chained custom function calls, resulting in much more readable code. It also automatically enforces `?` substitution, which is a good security practice.
+FMORM helps solve the pain point of writing clean SQL for FileMaker. 
+Its functions guide you through incrementally building your query, 
+resulting in much more readable code. 
+It enforces `?` variable bindings also, which is a good security practice.
+
+> #### * Prerequisite Note
+> Since we'll be iteratively building our query, this documentation will make heavy use of the [Let()](https://help.claris.com/en/pro-help/content/let.html) function (built-in to FileMaker).
+
 
 ### Building a query
+
 All query-related functions from FRMORM will have names prefixed with `Query`.
 They'll all take a `query` parameter too -- which is what let's us build as we go.
-You'll always start with a [QueryNew](docs/functions.md#QueryNew_cf) call which tells the query builder which table you want to build a query from.
 
-Many of the system's parameters are references to fields, or tables.
+#### Initialization
+You'll always start with a [QueryNew](docs/functions.md#QueryNew_cf) call. 
+
+```ecmascript 6
+Let
+(
+[
+_query = QueryNew_cf ( FMORM::__kptID )
+];
+
+// ...
+
+)
+```
+
+This tells the query builder which table you want to build a query from.
+It also serves double-duty by initializing your query object with a `SELECT *`.
+That means if you wanted to, you could run your query already!
+
+#### Expanding Your Query
+You'll most likely want to add your own `SELECT` statement into your query too -- so that you're not doing a `SELECT *`.
+This is accomplished by chaining [QuerySelect](docs/functions.md#QuerySelect_cf) into your query.
+
+Providing it with a list of fieldnames like so is recommended:
+
+```ecmascript 6
+Let
+(
+[
+_query = QueryNew_cf ( FMORM::__kptID ) ;
+_query = QuerySelect_cf ( _query ; List 
+    (
+    GetFieldName ( FMORM::PrimaryKey ) ; 
+    GetFieldName ( FMORM::CreationTimestamp ) 
+    ) 
+) 
+];
+// ...
+)
+```
+
+
+> ## *
+> 
+> There is a lot of SQL functionality available by making use of the functions.  Most of them are pretty sensibly named too.
+> 
+> See [docs/functions.md](docs/functions.md) for the full function reference with parameter details and examples.
+
+#### Common patterns
+Many of the system's parameters are actually references to fields, or tables.
+(Example a WHERE is represented by QueryWhere_cf and will often be invoked to find records that have a certain value in a certain column)
 For those ones, field references can be passed directly (no `GetFieldName()` wrapper required). 
 The exception being [QuerySelect_cf](docs/functions.md#QuerySelect_cf). 
 Its `columns` parameter lets the user specify a list of fields.
@@ -23,7 +79,7 @@ Combining use of `List()` + `GetFieldName()` is recommended for multiple fields.
 
 Following these principles will lead to concise code and will even survive field renaming
 
-```
+```ecmascript 6
 Let
 (
 [
