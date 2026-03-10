@@ -11,16 +11,17 @@ A fluent, Eloquent-inspired SQL query builder for FileMaker Pro, implemented ent
 FMORM helps solve the pain point of writing SQL for FileMaker. You incrementally build up your query using chained custom function calls, resulting in much more readable code. It also automatically enforces `?` substitution, which is a good security practice.
 
 ### Building a query
-All query-related functions from FRMORM will begin with `Query`.
+All query-related functions from FRMORM will have names prefixed with `Query`.
 They'll all take a `query` parameter too -- which is what let's us build as we go.
-You'll always start with a `QueryNew` call which tells the query builder which table you want to build a query from.
+You'll always start with a [QueryNew](docs/functions.md#QueryNew_cf) call which tells the query builder which table you want to build a query from.
 
 Many of the system's parameters are references to fields, or tables.
-For those ones, field references can be passed directly to most functions — no `GetFieldName()` wrapper required. 
-The exception being `QuerySelect_cf`, where the `columns` parameter requires `GetFieldName()` (for a single field) 
-or 
-`List()` + `GetFieldName()` (for multiple fields). 
-Passing field references directly is concise and will even survive field renaming
+For those ones, field references can be passed directly (no `GetFieldName()` wrapper required). 
+The exception being [QuerySelect_cf](docs/functions.md#QuerySelect_cf). 
+Its `columns` parameter lets the user specify a list of fields.
+Combining use of `List()` + `GetFieldName()` is recommended for multiple fields. 
+
+Following these principles will lead to concise code and will even survive field renaming
 
 ```
 Let
@@ -50,11 +51,13 @@ WHERE
 
 ### Executing the query
 
-When you're done building your query, the `QueryGet` series of functions will return your results for you. 
+When you're done building your query, the functions with names prefixed `QueryGet` will:
+1) assemble your query
+2) handle `?` variable binding
+3) execute the query
 
 #### QueryGet_cf
-`QueryGet_cf` will execute your SQL similarly to how an actual ExecuteSQL call would perform -- allowing you to specify delimiters. 
-It will handle the `?` replacements for you.
+`QueryGet_cf` will execute your SQL similarly to how an actual ExecuteSQL call would perform -- allowing you to specify delimiters.
 
 ```
 Let
@@ -95,8 +98,8 @@ QueryGetResultsAsJson_cf ( _query )
 ```
 
 > ## *
-> Developer Note: A utility function [JSONGetElementLikeField_cf](docs/functions.md#JSONGetElementLikeField_cf) has also been provided.  
-> It can help you get the value out of JSON results while still staying reference-safe
+> Developer Note: In case you want a specific value from your JSON results using a function that maintains proper field references, 
+> a utility function [JSONGetElementLikeField_cf](docs/functions.md#JSONGetElementLikeField_cf) has also been provided.
 
 ---
 
