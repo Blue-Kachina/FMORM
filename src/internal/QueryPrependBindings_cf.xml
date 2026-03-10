@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="6" visible="False" parameters="outerQuery;prefixBindings;prefixCount;suffixBindings;suffixCount;index" name="QueryPrependBindings_cf">
+        <Calculation><![CDATA[// Rebuilds outerQuery's bindings array as [prefixBindings...][suffixBindings...].
+// prefixBindings is a subquery's bindings JSON array (written first because
+// the subquery appears in FROM, before WHERE in SQL). suffixBindings is the
+// outer query's existing bindings JSON array. Call with index = 0.
+// On the final iteration writes the new bindingCount = prefixCount + suffixCount.
+// Used by QueryFromSubquery_cf to ensure correct ? placeholder order.
+Let
+(
+[
+_total = prefixCount + suffixCount ;
+_value = If ( index < prefixCount ;
+	JSONGetElement ( prefixBindings ; "[" & index & "]" ) ;
+	JSONGetElement ( suffixBindings ; "[" & ( index - prefixCount ) & "]" )
+	) ;
+_q1 = JSONSetElement ( outerQuery ; "bindings[" & index & "]" ; _value ; JSONString )
+];
+If ( index + 1 < _total ;
+	QueryPrependBindings_cf ( _q1 ; prefixBindings ; prefixCount ; suffixBindings ; suffixCount ; index + 1 ) ;
+// ELSE last element: write final bindingCount
+	JSONSetElement ( _q1 ; "bindingCount" ; _total ; JSONNumber )
+)
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

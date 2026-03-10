@@ -51,15 +51,42 @@ Let
 (
 [
 _query = QueryNew_cf ( FMORM::__kptID ) ;
-_query = QuerySelect_cf ( _query ; List 
+_query = QuerySelect_cf ( _query ; List
     (
-    GetFieldName ( FMORM::PrimaryKey ) ; 
-    GetFieldName ( FMORM::CreationTimestamp ) 
-    ) 
-) 
+    GetFieldName ( FMORM::PrimaryKey ) ;
+    GetFieldName ( FMORM::CreationTimestamp )
+    )
+)
 ];
 // ...
 )
+```
+
+`QuerySelect_cf` is **additive** — the first call replaces the default `SELECT *`, and each subsequent call appends more columns to the list. Raw SQL expressions (aggregates, `CASE` expressions, etc.) pass through unchanged since no `::` is present, so no separate "raw" variant is needed.
+
+```ecmascript 6
+_query = QuerySelect_cf ( _query ; GetFieldName ( FMORM::PrimaryKey ) ) ;
+_query = QuerySelect_cf ( _query ; "COUNT(*) AS total" )
+// → SELECT "FMORM"."PrimaryKey", COUNT(*) AS total
+```
+
+#### Subqueries
+
+Two functions support subqueries. Both accept a fully-assembled fmorm query object as the inner query and handle binding merging automatically.
+
+- **[QueryWhereInSubquery_cf](docs/functions.md#queryWhereinsubquery_cf)** — `WHERE column IN (SELECT …)`. Requires FileMaker 17+.
+- **[QueryFromSubquery_cf](docs/functions.md#queryfromsubquery_cf)** — `FROM (SELECT …) alias` (derived table). Functional in FM 19.x; not formally documented by Claris — test in your target version.
+
+```ecmascript 6
+// Subquery: IDs of active contacts
+_inner = QueryNew_cf ( "CONTACT" ) ;
+_inner = QuerySelect_cf ( _inner ; "CONTACT.id" ) ;
+_inner = QueryWhere_cf  ( _inner ; CONTACT::status ; "=" ; "Active" ) ;
+
+// Outer query: invoices for those contacts
+_query = QueryNew_cf ( "INVOICE" ) ;
+_query = QueryWhereInSubquery_cf ( _query ; INVOICE::contactID ; _inner )
+// → WHERE "INVOICE"."contactID" IN (SELECT CONTACT.id FROM "CONTACT" WHERE …)
 ```
 
 

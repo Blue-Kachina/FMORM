@@ -13,6 +13,8 @@
 | [QueryWhere\_cf](#querywhere_cf) | Append an AND WHERE condition |
 | [QueryOrWhere\_cf](#queryorwhere_cf) | Append an OR WHERE condition |
 | [QueryWhereIn\_cf](#querywherein_cf) | Append an AND WHERE … IN (…) condition |
+| [QueryWhereInSubquery\_cf](#querywhereinsubquery_cf) | Append AND WHERE column IN (subquery) |
+| [QueryFromSubquery\_cf](#queryfromsubquery_cf) | Replace FROM table with a derived table (subquery) |
 | [QueryWhereNull\_cf](#querywherenull_cf) | Append AND column IS NULL |
 | [QueryWhereNotNull\_cf](#querywherenotnull_cf) | Append AND column IS NOT NULL |
 | [QueryJoin\_cf](#queryjoin_cf) | Append an INNER JOIN |
@@ -47,6 +49,8 @@ These functions are called by the public builders and are not intended to be cal
 | [QueryBuildBindingArgs\_cf](#querybuildbindingargs_cf) | Render binding values for Evaluate injection |
 | [QueryBuildWhereBooleanPrefix\_cf](#querybuildwherebooleanprefix_cf) | Render AND / OR / empty connector |
 | [QueryAppendBindings\_cf](#queryappendbindings_cf) | Recursively append N values to the bindings array |
+| [QueryMergeBindings\_cf](#querymergebindings_cf) | Append N bindings from a JSON array into the outer query |
+| [QueryPrependBindings\_cf](#queryprependbindings_cf) | Rebuild the bindings array with subquery bindings first |
 | [QueryBuildSelects\_cf](#querybuildselects_cf) | Convert ¶-delimited field names to quoted SQL column list |
 | [QueryConvertField\_cf](#queryconvertfield_cf) | Convert a single `Table::Field` name to quoted dot notation |
 | [QueryBuildJsonRow\_cf](#querybuildjsonrow_cf) | Build a single JSON object from a row of field values |
@@ -88,9 +92,9 @@ _query = QueryNew_cf ( "CONTACT" )
 
 ### QuerySelect_cf
 
-Replaces the SELECT column list. By default all columns are selected (`*`). Call once — the entire list is replaced wholesale, not appended.
+Sets or extends the SELECT column list. The first call after `QueryNew_cf` replaces the default `SELECT *` sentinel. Each subsequent call **appends** to the existing column list, so you can build the SELECT incrementally across multiple calls.
 
-Accepts either a ¶-delimited list (e.g. from FileMaker's `List()` and `GetFieldName()`) or a plain comma-separated string. FileMaker fully-qualified field names in `Table::Field` format are automatically converted to quoted SQL dot notation (`"Table"."Field"`). Expressions that do not contain `::` — such as `*`, `COUNT(*)`, or already-dotted names — pass through unchanged.
+Accepts either a ¶-delimited list (e.g. from FileMaker's `List()` and `GetFieldName()`) or a plain comma-separated string. FileMaker fully-qualified field names in `Table::Field` format are automatically converted to quoted SQL dot notation (`"Table"."Field"`). Expressions that do not contain `::` — such as `*`, `COUNT(*)`, aggregate functions, `CASE` expressions, or raw SQL — pass through unchanged. There is no separate `QuerySelectRaw_cf`; raw expressions are already supported here.
 
 Also stores a `selectKeys` field in the query object: a ¶-delimited list of plain field names extracted from the original input (e.g. `PrimaryKey¶FullName`), which `QueryGetResultsAsJson_cf` uses to name the properties of each result object.
 
@@ -109,6 +113,14 @@ _query = QuerySelect_cf ( _query ; List ( GetFieldName ( FMORM::PrimaryKey ) ; G
 
 // Single field — wrap in GetFieldName()
 _query = QuerySelect_cf ( _query ; GetFieldName ( FMORM::PrimaryKey ) )
+
+// Additive — two calls accumulate both columns
+_query = QuerySelect_cf ( _query ; GetFieldName ( FMORM::PrimaryKey ) ) ;
+_query = QuerySelect_cf ( _query ; "COUNT(*) AS total" )
+// → SELECT "FMORM"."PrimaryKey", COUNT(*) AS total
+
+// Raw SQL aggregate — passes through unchanged (no :: present)
+_query = QuerySelect_cf ( _query ; "SUM(amount) AS revenue" )
 
 // Using a plain SQL string — also valid
 _query = QuerySelect_cf ( _query ; "CONTACT.id, CONTACT.firstName, CONTACT.lastName" )
@@ -181,6 +193,87 @@ Appends an AND WHERE … IN (…) condition. Each value in the ¶-delimited list
 ```
 _query = QueryWhereIn_cf ( _query ; CONTACT::type ; "customer¶prospect¶partner" )
 // → WHERE "CONTACT"."type" IN (?, ?, ?)
+```
+
+---
+
+### QueryWhereInSubquery_cf
+
+Appends an AND WHERE column IN (SELECT …) condition using a fully-assembled fmorm query object as the subquery. The inner query's SQL is embedded directly as the IN argument. The inner query's bound parameter values are appended to the outer query's bindings in the correct position — because the IN clause is added last, the subquery's `?` placeholders naturally follow the outer query's existing `?`s in left-to-right order.
+
+> **FileMaker compatibility:** IN subqueries are supported in FileMaker 17+. Correlated subqueries (where the inner SELECT references a column from the outer query) are not reliably supported and will likely produce an error. See [FileMaker SQL compatibility notes](#filemaker-sql-compatibility-notes).
+
+**Parameters**
+
+| Parameter | Description |
+|---|---|
+| `query` | Outer query object |
+| `column` | Column reference in the outer query — a direct FM field reference, `GetFieldName()` result, or plain SQL expression |
+| `subquery` | A fully-assembled fmorm query object (built via `QueryNew_cf` + any chain) |
+
+**Example**
+
+```
+// Inner query: IDs of active contacts
+_inner = QueryNew_cf ( "CONTACT" ) ;
+_inner = QuerySelect_cf ( _inner ; "CONTACT.id" ) ;
+_inner = QueryWhere_cf  ( _inner ; CONTACT::status ; "=" ; "Active" ) ;
+
+// Outer query: invoices belonging to those contacts
+_query = QueryNew_cf             ( "INVOICE" ) ;
+_query = QueryWhereInSubquery_cf ( _query ; INVOICE::contactID ; _inner )
+// →
+// WHERE
+//     "INVOICE"."contactID" IN (SELECT
+//         CONTACT.id
+//     FROM
+//         "CONTACT"
+//     WHERE
+//         "CONTACT"."status" = ?)
+```
+
+---
+
+### QueryFromSubquery_cf
+
+Replaces the FROM table with a derived table: `FROM (SELECT …) alias`. The table name set in `QueryNew_cf` is discarded. Any WHERE conditions you have already added to the outer query remain intact; their bindings are reordered automatically so the subquery's `?` placeholders appear first (matching the FROM position in the SQL string).
+
+> **FileMaker compatibility:** Derived tables are functional in FileMaker 19.x but are not formally documented by Claris. Behaviour may vary between FM versions — test in your target deployment. Do not use `QueryLimit_cf` or `QueryOffset_cf` on the inner query; `FETCH FIRST` inside a subquery is not supported in all FM versions. See [FileMaker SQL compatibility notes](#filemaker-sql-compatibility-notes).
+
+> **Tip:** For clarity, call `QueryFromSubquery_cf` before adding WHERE conditions to the outer query. Binding order is still handled correctly if you call it after, but the intent is clearer upfront.
+
+**Parameters**
+
+| Parameter | Description |
+|---|---|
+| `outerQuery` | Outer query object (initialised via `QueryNew_cf`; its table name is replaced) |
+| `subquery` | A fully-assembled fmorm query object to use as the derived table |
+| `alias` | Plain SQL identifier for the derived table, e.g. `"sub"` or `"recent"` — not quoted automatically |
+
+**Example**
+
+```
+// Inner query: most recent invoice per contact
+_inner = QueryNew_cf    ( "INVOICE" ) ;
+_inner = QuerySelect_cf ( _inner ; "INVOICE.contactID, MAX(INVOICE.invoiceDate) AS lastDate" ) ;
+_inner = QueryGroupBy_cf ( _inner ; "INVOICE.contactID" ) ;
+
+// Outer query: contact details joined to their latest invoice date
+_query = QueryNew_cf          ( "CONTACT" ) ;
+_query = QueryFromSubquery_cf ( _query ; _inner ; "recent" ) ;
+_query = QueryWhere_cf        ( _query ; "recent.lastDate" ; ">" ; Get ( CurrentDate ) - 30 )
+// →
+// SELECT
+//     *
+// FROM
+//     (SELECT
+//         INVOICE.contactID,MAX(INVOICE.invoiceDate) AS lastDate
+//     FROM
+//         "INVOICE"
+//     GROUP BY
+//         INVOICE.contactID) recent
+// WHERE
+//     recent.lastDate > ?
 ```
 
 ---
@@ -681,6 +774,38 @@ QueryAppendBindings_cf ( _query ; "customer¶prospect¶partner" ; 3 ; 1 )
 
 ---
 
+### QueryMergeBindings_cf
+
+Recursively appends binding values from a **JSON array** into the outer query's `bindings` array. Analogous to `QueryAppendBindings_cf` but reads from a JSON array rather than a ¶-delimited list. Called by `QueryWhereInSubquery_cf` to merge a subquery's bindings.
+
+**Parameters**
+
+| Parameter | Description |
+|---|---|
+| `outerQuery` | Query object to append bindings into |
+| `sourceBindings` | JSON array of binding values (e.g. from `JSONGetElement ( subquery ; "bindings" )`) |
+| `sourceCount` | Number of values in `sourceBindings` |
+| `index` | Current position — always call with `0` (JSON arrays are 0-based) |
+
+---
+
+### QueryPrependBindings_cf
+
+Rebuilds the outer query's `bindings` array as `[prefixBindings…][suffixBindings…]`. Used by `QueryFromSubquery_cf` to ensure that a subquery's `?` placeholders (which appear in the FROM clause) come before the outer query's WHERE bindings in the final ExecuteSQL call.
+
+**Parameters**
+
+| Parameter | Description |
+|---|---|
+| `outerQuery` | Query object whose `bindings` array is being rebuilt |
+| `prefixBindings` | JSON array of bindings to write first (from the subquery) |
+| `prefixCount` | Number of values in `prefixBindings` |
+| `suffixBindings` | JSON array of bindings to write second (the outer query's existing bindings) |
+| `suffixCount` | Number of values in `suffixBindings` |
+| `index` | Current position — always call with `0` |
+
+---
+
 ### QueryBuildSelects_cf
 
 Recursively converts a ¶-delimited column list to a SQL column expression string. FileMaker fully-qualified names in `Table::Field` format are converted to quoted dot notation (`"Table"."Field"`) using `Char(34)` for the double-quote character. Expressions without `::` pass through unchanged. Called by `QuerySelect_cf`; do not call directly.
@@ -865,3 +990,20 @@ JSONGetElementLikeField_cf ( _json ; "firstName" ; "" )
 JSONGetElementLikeField_cf ( "not json" ; "firstName" ; "" )
 // → "?"
 ```
+
+---
+
+## FileMaker SQL Compatibility Notes
+
+FileMaker's `ExecuteSQL` uses a restricted subset of SQL-92. These notes apply specifically to subquery features added in this release.
+
+| Feature | Support |
+|---|---|
+| IN subqueries — `WHERE col IN (SELECT …)` | Supported in FileMaker 17+ |
+| Derived tables — `FROM (SELECT …) AS alias` | Functional in FM 19.x; not formally documented by Claris |
+| Correlated subqueries | Not reliably supported — likely returns `""` |
+| `FETCH FIRST` / `OFFSET` inside a subquery | Unreliable; avoid `QueryLimit_cf` / `QueryOffset_cf` on inner queries |
+
+**Binding order** is handled automatically by the library. `QueryFromSubquery_cf` prepends the subquery's bindings (matching the FROM position). `QueryWhereInSubquery_cf` appends them (matching the WHERE position). You do not need to manage binding order manually.
+
+**Testing subqueries:** Use `QueryToSQL_cf` to inspect the assembled SQL before running it. If `QueryGet_cf` returns `""`, the SQL contains an error — inspect the SQL string and check it against your FM version's supported syntax.

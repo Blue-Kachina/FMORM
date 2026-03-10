@@ -4,17 +4,25 @@
         <Calculation><![CDATA[// Accepts a ¶-delimited list (e.g. from List() / GetFieldName()) or a
 // comma-separated string. FileMaker fully-qualified names (Table::Field) are
 // converted to quoted SQL dot notation ("Table"."Field"). Other expressions
-// (*, COUNT(*), already-dotted names, etc.) pass through unchanged.
+// (*, COUNT(*), already-dotted names, raw SQL expressions, etc.) pass through
+// unchanged — no separate QuerySelectRaw_cf is needed.
+// Calls are additive: the first call after QueryNew_cf replaces the initial
+// "*" sentinel; subsequent calls append to the existing column list.
 Let
 (
 [
 _normalized = Substitute ( Substitute ( columns ; ", " ; "¶" ) ; "," ; "¶" ) ;
 _columnCount = ValueCount ( _normalized ) ;
-_selects = QueryBuildSelects_cf ( _normalized ; _columnCount ; 1 ) ;
-_selectKeys = QueryBuildSelectKeys_cf ( _normalized ; _columnCount ; 1 ) ;
-_q1 = JSONSetElement ( query ; "selects" ; _selects ; JSONString )
+_newSelects = QueryBuildSelects_cf ( _normalized ; _columnCount ; 1 ) ;
+_newKeys = QueryBuildSelectKeys_cf ( _normalized ; _columnCount ; 1 ) ;
+_existingSelects = JSONGetElement ( query ; "selects" ) ;
+_existingKeys = JSONGetElement ( query ; "selectKeys" ) ;
+_isWildcard = Exact ( _existingSelects ; "*" ) ;
+_finalSelects = If ( _isWildcard ; _newSelects ; _existingSelects & ", " & _newSelects ) ;
+_finalKeys = If ( _isWildcard ; _newKeys ; _existingKeys & ¶ & _newKeys ) ;
+_q1 = JSONSetElement ( query ; "selects" ; _finalSelects ; JSONString )
 ];
-JSONSetElement ( _q1 ; "selectKeys" ; _selectKeys ; JSONString )
+JSONSetElement ( _q1 ; "selectKeys" ; _finalKeys ; JSONString )
 )]]></Calculation>
     </CustomFunction>
 </fmxmlsnippet>

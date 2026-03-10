@@ -2,9 +2,9 @@
 <!--
   fmorm-all.xml — combined fmxmlsnippet for one-shot FileMaker import.
 
-  Contains all 32 custom functions in dependency order:
-    Internal helpers (1–14) are declared before the public builders (15–31)
-    that call them, and utility functions (32) follow.
+  Contains all 36 custom functions in dependency order:
+    Internal helpers (1–16) are declared before the public builders (17–35)
+    that call them, and utility functions (36) follow.
     FileMaker resolves function references at runtime so import order does
     not strictly matter.
 
@@ -43,7 +43,7 @@ If ( index + 1 < count ;
 )]]></Calculation>
     </CustomFunction>
 
-    <!-- 3 of 32 -->
+    <!-- 3 of 36 -->
     <CustomFunction id="3" functionArity="4" visible="False" parameters="query;values;valueCount;index" name="QueryAppendBindings_cf">
         <Calculation><![CDATA[// Recursively appends values from a ¶-delimited list to the query's
 // bindings array. Call with index = 1 (GetValue is 1-based).
@@ -60,6 +60,54 @@ If ( index < valueCount ;
 	QueryAppendBindings_cf ( _q2 ; values ; valueCount ; index + 1 ) ;
 // ELSE
 	_q2
+)
+)]]></Calculation>
+    </CustomFunction>
+
+    <!-- 4 of 36 -->
+    <CustomFunction id="33" functionArity="4" visible="False" parameters="outerQuery;sourceBindings;sourceCount;index" name="QueryMergeBindings_cf">
+        <Calculation><![CDATA[// Recursively appends bindings from a JSON array (sourceBindings) into
+// outerQuery's bindings array. Call with index = 0.
+// Analogous to QueryAppendBindings_cf but reads from a JSON array rather
+// than a ¶-delimited list. Used by QueryWhereInSubquery_cf.
+Let
+(
+[
+_bindingCount = JSONGetElement ( outerQuery ; "bindingCount" ) ;
+_value = JSONGetElement ( sourceBindings ; "[" & index & "]" ) ;
+_q1 = JSONSetElement ( outerQuery ; "bindings[" & _bindingCount & "]" ; _value ; JSONString ) ;
+_q2 = JSONSetElement ( _q1 ; "bindingCount" ; _bindingCount + 1 ; JSONNumber )
+];
+If ( index + 1 < sourceCount ;
+	QueryMergeBindings_cf ( _q2 ; sourceBindings ; sourceCount ; index + 1 ) ;
+// ELSE
+	_q2
+)
+)]]></Calculation>
+    </CustomFunction>
+
+    <!-- 5 of 36 -->
+    <CustomFunction id="34" functionArity="6" visible="False" parameters="outerQuery;prefixBindings;prefixCount;suffixBindings;suffixCount;index" name="QueryPrependBindings_cf">
+        <Calculation><![CDATA[// Rebuilds outerQuery's bindings array as [prefixBindings...][suffixBindings...].
+// prefixBindings is a subquery's bindings JSON array (written first because
+// the subquery appears in FROM, before WHERE in SQL). suffixBindings is the
+// outer query's existing bindings JSON array. Call with index = 0.
+// On the final iteration writes the new bindingCount = prefixCount + suffixCount.
+// Used by QueryFromSubquery_cf to ensure correct ? placeholder order.
+Let
+(
+[
+_total = prefixCount + suffixCount ;
+_value = If ( index < prefixCount ;
+	JSONGetElement ( prefixBindings ; "[" & index & "]" ) ;
+	JSONGetElement ( suffixBindings ; "[" & ( index - prefixCount ) & "]" )
+	) ;
+_q1 = JSONSetElement ( outerQuery ; "bindings[" & index & "]" ; _value ; JSONString )
+];
+If ( index + 1 < _total ;
+	QueryPrependBindings_cf ( _q1 ; prefixBindings ; prefixCount ; suffixBindings ; suffixCount ; index + 1 ) ;
+// ELSE last element: write final bindingCount
+	JSONSetElement ( _q1 ; "bindingCount" ; _total ; JSONNumber )
 )
 )]]></Calculation>
     </CustomFunction>
@@ -86,11 +134,11 @@ _clause & _rest
 )]]></Calculation>
     </CustomFunction>
 
-    <!-- 5 of 32 -->
+    <!-- 7 of 36 -->
     <CustomFunction id="5" functionArity="3" visible="False" parameters="wheres;whereCount;index" name="QueryBuildWheres_cf">
         <Calculation><![CDATA[// Recursively builds the WHERE clause body (excluding the "WHERE" keyword).
 // Call with index = 0. wheres is the raw JSON array from the query object.
-// Supported types: basic, in, null, notNull, between.
+// Supported types: basic, in, null, notNull, between, inSubquery.
 Let
 (
 [
@@ -112,6 +160,8 @@ _clause = Case (
 		_prefix & _column & " IS NOT NULL" ;
 	Exact ( _type ; "between" ) ;
 		_prefix & _column & " BETWEEN ? AND ?" ;
+	Exact ( _type ; "inSubquery" ) ;
+		_prefix & _column & " IN (" & JSONGetElement ( _where ; "sql" ) & ")" ;
 	""
 	) ;
 _rest = If ( index + 1 < whereCount ; QueryBuildWheres_cf ( wheres ; whereCount ; index + 1 ) ; "" )
@@ -344,24 +394,30 @@ JSONSetElement ( "{}" ;
 )]]></Calculation>
     </CustomFunction>
 
-    <!-- 16 of 32 -->
+    <!-- 18 of 36 -->
     <CustomFunction id="11" functionArity="2" visible="True" parameters="query;columns" name="QuerySelect_cf">
         <Calculation><![CDATA[// Accepts a ¶-delimited list (e.g. from List() / GetFieldName()) or a
 // comma-separated string. FileMaker fully-qualified names (Table::Field) are
 // converted to quoted SQL dot notation ("Table"."Field"). Other expressions
-// (*, COUNT(*), already-dotted names, etc.) pass through unchanged.
-// Also stores selectKeys — plain field names extracted from the original input —
-// for use by QueryGetResultsAsJson_cf.
+// (*, COUNT(*), already-dotted names, raw SQL expressions, etc.) pass through
+// unchanged — no separate QuerySelectRaw_cf is needed.
+// Calls are additive: the first call after QueryNew_cf replaces the initial
+// "*" sentinel; subsequent calls append to the existing column list.
 Let
 (
 [
 _normalized = Substitute ( Substitute ( columns ; ", " ; "¶" ) ; "," ; "¶" ) ;
 _columnCount = ValueCount ( _normalized ) ;
-_selects = QueryBuildSelects_cf ( _normalized ; _columnCount ; 1 ) ;
-_selectKeys = QueryBuildSelectKeys_cf ( _normalized ; _columnCount ; 1 ) ;
-_q1 = JSONSetElement ( query ; "selects" ; _selects ; JSONString )
+_newSelects = QueryBuildSelects_cf ( _normalized ; _columnCount ; 1 ) ;
+_newKeys = QueryBuildSelectKeys_cf ( _normalized ; _columnCount ; 1 ) ;
+_existingSelects = JSONGetElement ( query ; "selects" ) ;
+_existingKeys = JSONGetElement ( query ; "selectKeys" ) ;
+_isWildcard = Exact ( _existingSelects ; "*" ) ;
+_finalSelects = If ( _isWildcard ; _newSelects ; _existingSelects & ", " & _newSelects ) ;
+_finalKeys = If ( _isWildcard ; _newKeys ; _existingKeys & ¶ & _newKeys ) ;
+_q1 = JSONSetElement ( query ; "selects" ; _finalSelects ; JSONString )
 ];
-JSONSetElement ( _q1 ; "selectKeys" ; _selectKeys ; JSONString )
+JSONSetElement ( _q1 ; "selectKeys" ; _finalKeys ; JSONString )
 )]]></Calculation>
     </CustomFunction>
 
@@ -415,7 +471,7 @@ _q4
 )]]></Calculation>
     </CustomFunction>
 
-    <!-- 19 of 32 -->
+    <!-- 21 of 36 -->
     <CustomFunction id="14" functionArity="3" visible="True" parameters="query;column;values" name="QueryWhereIn_cf">
         <Calculation><![CDATA[// values is a ¶-delimited list of values.
 // Appends an IN where clause and N bindings (one per value).
@@ -441,7 +497,73 @@ _q3
 )]]></Calculation>
     </CustomFunction>
 
-    <!-- 20 of 32 -->
+    <!-- 22 of 36 -->
+    <CustomFunction id="35" functionArity="3" visible="True" parameters="query;column;subquery" name="QueryWhereInSubquery_cf">
+        <Calculation><![CDATA[// Appends WHERE column IN (SELECT ...) using a fully-assembled fmorm
+// subquery object. The subquery's SQL is embedded directly; its bindings
+// are appended to the outer query's bindings in WHERE-clause order (correct
+// because the IN clause is appended last, after existing WHERE conditions).
+// NOTE: IN subqueries require FileMaker 17+. Correlated subqueries (where
+// the inner SELECT references an outer column) are not reliably supported.
+Let
+(
+[
+_whereCount = JSONGetElement ( query ; "whereCount" ) ;
+_fqName = GetFieldName ( column ) ;
+_col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
+_column = QueryConvertField_cf ( _col ) ;
+_subSql = QueryToSQL_cf ( subquery ) ;
+_subBindings = JSONGetElement ( subquery ; "bindings" ) ;
+_subBindingCount = JSONGetElement ( subquery ; "bindingCount" ) ;
+_whereObj = JSONSetElement ( "{}" ;
+	[ "type" ; "inSubquery" ; JSONString ] ;
+	[ "column" ; _column ; JSONString ] ;
+	[ "sql" ; _subSql ; JSONString ] ;
+	[ "boolean" ; "and" ; JSONString ]
+	) ;
+_q1 = JSONSetElement ( query ; "wheres[" & _whereCount & "]" ; _whereObj ; JSONObject ) ;
+_q2 = JSONSetElement ( _q1 ; "whereCount" ; _whereCount + 1 ; JSONNumber ) ;
+_q3 = If ( _subBindingCount > 0 ;
+	QueryMergeBindings_cf ( _q2 ; _subBindings ; _subBindingCount ; 0 ) ;
+	_q2
+	)
+];
+_q3
+)]]></Calculation>
+    </CustomFunction>
+
+    <!-- 23 of 36 -->
+    <CustomFunction id="36" functionArity="3" visible="True" parameters="outerQuery;subquery;alias" name="QueryFromSubquery_cf">
+        <Calculation><![CDATA[// Replaces the FROM table with a derived table: FROM (SELECT ...) alias.
+// The table name set in QueryNew_cf is discarded and replaced by the subquery
+// expression. alias is a plain SQL identifier — use a simple string like "sub".
+// The subquery's bindings are prepended to any existing outer bindings because
+// the FROM clause appears before WHERE in the SQL string, so its ? placeholders
+// must come first in the bindings array for ExecuteSQL to match them correctly.
+// NOTE: Derived tables (subqueries in FROM) are functional in FileMaker 19.x
+// but are not formally documented by Claris. Test in your target FM version.
+// Avoid QueryLimit_cf / QueryOffset_cf on the inner query — FETCH FIRST inside
+// a subquery is not supported in all FM versions.
+Let
+(
+[
+_subSql = QueryToSQL_cf ( subquery ) ;
+_derivedTable = "(" & _subSql & ") " & alias ;
+_subBindings = JSONGetElement ( subquery ; "bindings" ) ;
+_subBindingCount = JSONGetElement ( subquery ; "bindingCount" ) ;
+_outerBindings = JSONGetElement ( outerQuery ; "bindings" ) ;
+_outerBindingCount = JSONGetElement ( outerQuery ; "bindingCount" ) ;
+_q1 = JSONSetElement ( outerQuery ; "table" ; _derivedTable ; JSONString ) ;
+_q2 = If ( _subBindingCount > 0 ;
+	QueryPrependBindings_cf ( _q1 ; _subBindings ; _subBindingCount ; _outerBindings ; _outerBindingCount ; 0 ) ;
+	_q1
+	)
+];
+_q2
+)]]></Calculation>
+    </CustomFunction>
+
+    <!-- 24 of 36 -->
     <CustomFunction id="15" functionArity="2" visible="True" parameters="query;column" name="QueryWhereNull_cf">
         <Calculation><![CDATA[Let
 (
