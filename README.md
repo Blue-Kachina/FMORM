@@ -5,7 +5,7 @@ A fluent, Eloquent-inspired SQL query builder for FileMaker Pro, implemented ent
 ---
 
 
-## Quick start
+## Quick Start
 
 FMORM helps solve the pain point of writing clean SQL for FileMaker. 
 Its functions guide you through incrementally building your query, 
@@ -16,7 +16,7 @@ It enforces `?` variable bindings also, which is a good security practice.
 > Since we'll be iteratively building our query, this documentation will make heavy use of the [Let()](https://help.claris.com/en/pro-help/content/let.html) function (built-in to FileMaker).
 
 
-### Building a query
+### Building A Query
 
 All query-related functions from FRMORM will have names prefixed with `Query`.
 They'll all take a `query` parameter too -- which is what let's us build as we go.
@@ -40,7 +40,7 @@ This tells the query builder which table you want to build a query from.
 It also serves double-duty by initializing your query object with a `SELECT *`.
 That means if you wanted to, you could run your query already!
 
-#### Expanding Your Query
+#### Expanding The Query
 You'll most likely want to add your own `SELECT` statement into your query too -- so that you're not doing a `SELECT *`.
 This is accomplished by chaining [QuerySelect](docs/functions.md#QuerySelect_cf) into your query.
 
@@ -69,29 +69,33 @@ _query = QuerySelect_cf ( _query ; List
 > 
 > See [docs/functions.md](docs/functions.md) for the full function reference with parameter details and examples.
 
-#### Common patterns
+#### Common Parameter Patterns
 Many of the system's parameters are actually references to fields, or tables.
-(Example a WHERE is represented by QueryWhere_cf and will often be invoked to find records that have a certain value in a certain column)
-For those ones, field references can be passed directly (no `GetFieldName()` wrapper required). 
-The exception being [QuerySelect_cf](docs/functions.md#QuerySelect_cf). 
-Its `columns` parameter lets the user specify a list of fields.
-Combining use of `List()` + `GetFieldName()` is recommended for multiple fields. 
+Field references can be passed directly to those (no `GetFieldName()` wrapper required). 
+
+The exception being where multiple columns are required (See [QuerySelect_cf](docs/functions.md#QuerySelect_cf) *already covered above*).
 
 Following these principles will lead to concise code and will even survive field renaming
 
+Example using QueryWhere without needing to specify GetFieldName around the column name.
 ```ecmascript 6
 Let
 (
 [
-// Direct field references — concise, no wrapper needed
 _query = QueryNew_cf ( FMORM::__kptID ) ;
-_query = QuerySelect_cf ( _query ; List ( GetFieldName ( FMORM::PrimaryKey ) ; GetFieldName ( FMORM::CreationTimestamp ) ) ) ;
+_query = QuerySelect_cf ( _query ; List 
+    ( 
+    GetFieldName ( FMORM::PrimaryKey ) ; 
+    GetFieldName ( FMORM::CreationTimestamp ) 
+    ) 
+) ;
 _query = QueryWhere_cf ( _query ; FMORM::CreationTimestamp ; "<" ; Get ( CurrentTimestamp ) )
 ];
 QueryToSQL_cf ( _query )
 )
 ```
 
+### Debugging
 Use `QueryToSQL_cf` at any point to inspect the SQL that would be produced without executing it (very useful during development/debugging). 
 
 ```
@@ -105,7 +109,7 @@ WHERE
 ```
 
 
-### Executing the query
+### Executing The Query
 
 When you're done building your query, the functions with names prefixed `QueryGet` will:
 1) assemble your query
@@ -160,7 +164,7 @@ QueryGetResultsAsJson_cf ( _query )
 ---
 
 
-### Under the hood
+### Under-The-Hood
 
 Under-the-hood a complex JSON object is being maintained in order to keep a definition of what your query is.
 Every one of the `Query` functions alters that JSON object in a meaningful way.
@@ -213,6 +217,6 @@ JSONFormatElements ( _query )
 ---
 
 
-## Function reference
+## Function Reference
 
 See [docs/functions.md](docs/functions.md) for the full function reference with parameter details and examples.
