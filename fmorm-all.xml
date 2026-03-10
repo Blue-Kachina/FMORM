@@ -499,8 +499,10 @@ _table = Quote (
 	// ELSE
 		_tableName
 	)) ;
-_first = QueryConvertField_cf ( first ) ;
-_second = QueryConvertField_cf ( second ) ;
+_fqFirst = GetFieldName ( first ) ;
+_first = QueryConvertField_cf ( If ( Position ( _fqFirst ; "::" ; 1 ; 1 ) > 0 ; _fqFirst ; first ) ) ;
+_fqSecond = GetFieldName ( second ) ;
+_second = QueryConvertField_cf ( If ( Position ( _fqSecond ; "::" ; 1 ; 1 ) > 0 ; _fqSecond ; second ) ) ;
 _joinObj = JSONSetElement ( "{}" ;
 	[ "type" ; "inner" ; JSONString ] ;
 	[ "table" ; _table ; JSONString ] ;
@@ -529,8 +531,10 @@ _table = Quote (
 	// ELSE
 		_tableName
 	)) ;
-_first = QueryConvertField_cf ( first ) ;
-_second = QueryConvertField_cf ( second ) ;
+_fqFirst = GetFieldName ( first ) ;
+_first = QueryConvertField_cf ( If ( Position ( _fqFirst ; "::" ; 1 ; 1 ) > 0 ; _fqFirst ; first ) ) ;
+_fqSecond = GetFieldName ( second ) ;
+_second = QueryConvertField_cf ( If ( Position ( _fqSecond ; "::" ; 1 ; 1 ) > 0 ; _fqSecond ; second ) ) ;
 _joinObj = JSONSetElement ( "{}" ;
 	[ "type" ; "left" ; JSONString ] ;
 	[ "table" ; _table ; JSONString ] ;
