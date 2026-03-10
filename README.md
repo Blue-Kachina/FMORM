@@ -19,7 +19,7 @@ It enforces `?` variable bindings also, which is a good security practice.
 ### Building A Query
 
 All query-related functions from FRMORM will have names prefixed with `Query`.
-They'll all take a `query` parameter too -- which is what let's us build as we go.
+They'll all take a `query` parameter too -- which is what lets us build as we go.
 
 #### Initialization
 You'll always start with a [QueryNew](docs/functions.md#QueryNew_cf) call. 
