@@ -27,10 +27,16 @@ QueryToSQL_cf ( _query )
 )
 ```
 
-Use `QueryToSQL_cf` at any point to inspect the SQL that would be produced without executing it (very useful during development):
+Use `QueryToSQL_cf` at any point to inspect the SQL that would be produced without executing it (very useful during development). Output is pretty-printed with each clause on its own line:
 
 ```
-SELECT "FMORM"."PrimaryKey", "FMORM"."CreationTimestamp" FROM "FMORM" WHERE "FMORM"."CreationTimestamp" < ?
+SELECT
+    "FMORM"."PrimaryKey",
+    "FMORM"."CreationTimestamp"
+FROM
+    "FMORM"
+WHERE
+    "FMORM"."CreationTimestamp" < ?
 ```
 
 ### Under the hood

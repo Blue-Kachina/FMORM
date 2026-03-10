@@ -447,7 +447,7 @@ _result
 
 ### QueryToSQL_cf
 
-Returns the assembled SQL string without executing it. Bound parameters appear as `?` placeholders. Useful for verifying query structure during development.
+Returns the assembled SQL string without executing it. Bound parameters appear as `?` placeholders. Output is pretty-printed with each major clause on its own line and child items indented. Useful for verifying query structure during development.
 
 **Parameters**
 
@@ -461,16 +461,26 @@ Returns the assembled SQL string without executing it. Bound parameters appear a
 Let
 (
 [
-_query = QueryNew_cf    ( "CONTACT" ) ;
-_query = QuerySelect_cf ( _query ; "CONTACT.id, CONTACT.firstName" ) ;
-_query = QueryWhere_cf  ( _query ; "CONTACT.status" ; "=" ; "Active" ) ;
+_query = QueryNew_cf     ( "CONTACT" ) ;
+_query = QuerySelect_cf  ( _query ; "CONTACT.id, CONTACT.firstName" ) ;
+_query = QueryWhere_cf   ( _query ; "CONTACT.status" ; "=" ; "Active" ) ;
 _query = QueryOrderBy_cf ( _query ; "CONTACT.lastName" ; "ASC" ) ;
-_sql   = QueryToSQL_cf  ( _query )
+_sql   = QueryToSQL_cf   ( _query )
 ];
 _sql
 )
-// → SELECT CONTACT.id, CONTACT.firstName FROM CONTACT
-//   WHERE CONTACT.status = ? ORDER BY CONTACT.lastName ASC
+// →
+// SELECT
+//     "CONTACT"."id",
+//     "CONTACT"."firstName"
+// FROM
+//     "CONTACT"
+// WHERE
+//     "CONTACT"."status" = ?
+//     AND
+//     "CONTACT"."age" > ?
+// ORDER BY
+//     "CONTACT"."lastName" ASC
 ```
 
 ---
