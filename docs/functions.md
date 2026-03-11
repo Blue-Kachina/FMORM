@@ -6,93 +6,93 @@
 
 ### Public builders
 
-| Function | Purpose |
-|---|---|
-| [QueryNew](#querynew) | Initialise a new query object |
-| [QuerySelect](#queryselect) | Set or extend the SELECT column list |
-| [QuerySelectSub](#queryselectsub) | Add a subquery expression to the SELECT list |
-| [QueryDistinct](#querydistinct) | Add SELECT DISTINCT |
-| [QueryWhere](#querywhere) | Append AND WHERE condition |
-| [QueryOrWhere](#queryorwhere) | Append OR WHERE condition |
-| [QueryWhereIn](#querywherein) | Append AND WHERE column IN (…) |
-| [QueryWhereNotIn](#querywherenotin) | Append AND WHERE column NOT IN (…) |
-| [QueryOrWhereIn](#queryorwherein) | Append OR WHERE column IN (…) |
-| [QueryWhereNull](#querywherenull) | Append AND column IS NULL |
-| [QueryWhereNotNull](#querywherenotnull) | Append AND column IS NOT NULL |
-| [QueryOrWhereNull](#queryorwherenull) | Append OR column IS NULL |
-| [QueryOrWhereNotNull](#queryorwherenotnull) | Append OR column IS NOT NULL |
-| [QueryWhereBetween](#querywherebetween) | Append AND column BETWEEN low AND high |
-| [QueryWhereNotBetween](#querywherenotbetween) | Append AND column NOT BETWEEN low AND high |
-| [QueryOrWhereBetween](#queryorwherebetween) | Append OR column BETWEEN low AND high |
-| [QueryOrWhereNotBetween](#queryorwherenotbetween) | Append OR column NOT BETWEEN low AND high |
-| [QueryWhereColumn](#querywherecolumn) | Append AND column1 op column2 (column comparison, no binding) |
-| [QueryWhereGroup](#querywheregroup) | Append AND (grouped conditions from another query) |
-| [QueryOrWhereGroup](#queryorwheregroup) | Append OR (grouped conditions from another query) |
-| [QueryWhereRaw](#querywhereraw) | Append AND (raw SQL expression) |
-| [QueryOrWhereRaw](#queryorwhereraw) | Append OR (raw SQL expression) |
-| [QueryWhereInSubquery](#querywhereinsubquery) | Append AND column IN (subquery) |
-| [QueryWhereNotInSubquery](#querywherenotinsubquery) | Append AND column NOT IN (subquery) |
-| [QueryWhereExists](#querywhereexists) | Append AND EXISTS (subquery) |
-| [QueryWhereNotExists](#querywherenotexists) | Append AND NOT EXISTS (subquery) |
-| [QueryFromSubquery](#queryfromsubquery) | Replace FROM table with a derived table (subquery) |
-| [QueryJoin](#queryjoin) | Append INNER JOIN |
-| [QueryLeftJoin](#queryleftjoin) | Append LEFT JOIN |
-| [QueryRightJoin](#queryrightjoin) | Append RIGHT JOIN |
-| [QueryCrossJoin](#querycrossjoin) | Append CROSS JOIN |
-| [QueryJoinSub](#queryjoinsub) | Append INNER JOIN (subquery) |
-| [QueryLeftJoinSub](#queryleftjoinsub) | Append LEFT JOIN (subquery) |
-| [QueryOrderBy](#queryorderby) | Append ORDER BY column |
-| [QueryOrderByRaw](#queryorderbyraw) | Append ORDER BY raw expression |
-| [QueryReorder](#queryreorder) | Clear all ORDER BY clauses |
-| [QueryGroupBy](#querygroupby) | Append GROUP BY column |
-| [QueryGroupByRaw](#querygroupbyraw) | Append GROUP BY raw expression |
-| [QueryHaving](#queryhaving) | Append AND HAVING condition |
-| [QueryOrHaving](#queryorhaving) | Append OR HAVING condition |
-| [QueryHavingRaw](#queryhavingraw) | Append AND HAVING raw expression |
-| [QueryOrHavingRaw](#queryorhavingraw) | Append OR HAVING raw expression |
-| [QueryLimit](#querylimit) | Set the row limit |
-| [QueryOffset](#queryoffset) | Set the row offset |
-| [QueryForPage](#queryforpage) | Set limit and offset for a specific page number |
-| [QueryUnion](#queryunion) | Append UNION or UNION ALL |
-| [QueryGet](#queryget) | Execute the query and return results |
-| [QueryGetResultsAsJson](#querygetresultsasjson) | Execute the query and return results as a JSON array of objects |
-| [QueryToSQL](#querytosql) | Return the assembled SQL string (debug) |
-| [QueryCount](#querycount) | Execute SELECT COUNT(*) and return the count |
-| [QuerySum](#querysum) | Execute SELECT SUM(column) and return the sum |
-| [QueryAvg](#queryavg) | Execute SELECT AVG(column) and return the average |
-| [QueryMax](#querymax) | Execute SELECT MAX(column) and return the maximum |
-| [QueryMin](#querymin) | Execute SELECT MIN(column) and return the minimum |
-| [QueryWhen](#querywhen) | Conditionally apply query modifications |
+| Function                                             | Purpose                                                          |
+|------------------------------------------------------|------------------------------------------------------------------|
+| [QueryNew](#querynew)                                | Initialise a new query object                                    |
+| [QuerySelect](#queryselect)                          | Set or extend the SELECT column list                             |
+| [QuerySelectSub](#queryselectsub)                    | Add a subquery expression to the SELECT list                     |
+| [QueryDistinct](#querydistinct)                      | Add SELECT DISTINCT                                              |
+| [QueryWhere](#querywhere)                            | Append AND WHERE condition                                       |
+| [QueryOrWhere](#queryorwhere)                        | Append OR WHERE condition                                        |
+| [QueryWhereIn](#querywherein)                        | Append AND WHERE column IN (…)                                   |
+| [QueryWhereNotIn](#querywherenotin)                  | Append AND WHERE column NOT IN (…)                               |
+| [QueryOrWhereIn](#queryorwherein)                    | Append OR WHERE column IN (…)                                    |
+| [QueryWhereNull](#querywherenull)                    | Append AND column IS NULL                                        |
+| [QueryWhereNotNull](#querywherenotnull)              | Append AND column IS NOT NULL                                    |
+| [QueryOrWhereNull](#queryorwherenull)                | Append OR column IS NULL                                         |
+| [QueryOrWhereNotNull](#queryorwherenotnull)          | Append OR column IS NOT NULL                                     |
+| [QueryWhereBetween](#querywherebetween)              | Append AND column BETWEEN low AND high                           |
+| [QueryWhereNotBetween](#querywherenotbetween)        | Append AND column NOT BETWEEN low AND high                       |
+| [QueryOrWhereBetween](#queryorwherebetween)          | Append OR column BETWEEN low AND high                            |
+| [QueryOrWhereNotBetween](#queryorwherenotbetween)    | Append OR column NOT BETWEEN low AND high                        |
+| [QueryWhereColumn](#querywherecolumn)                | Append AND column1 op column2 (column comparison, no binding)    |
+| [QueryWhereGroup](#querywheregroup)                  | Append AND (grouped conditions from another query)               |
+| [QueryOrWhereGroup](#queryorwheregroup)              | Append OR (grouped conditions from another query)                |
+| [QueryWhereRaw](#querywhereraw)                      | Append AND (raw SQL expression)                                  |
+| [QueryOrWhereRaw](#queryorwhereraw)                  | Append OR (raw SQL expression)                                   |
+| [QueryWhereInSubquery](#querywhereinsubquery)        | Append AND column IN (subquery)                                  |
+| [QueryWhereNotInSubquery](#querywherenotinsubquery)  | Append AND column NOT IN (subquery)                              |
+| [QueryWhereExists](#querywhereexists)                | Append AND EXISTS (subquery)                                     |
+| [QueryWhereNotExists](#querywherenotexists)          | Append AND NOT EXISTS (subquery)                                 |
+| [QueryFromSubquery](#queryfromsubquery)              | Replace FROM table with a derived table (subquery)               |
+| [QueryJoin](#queryjoin)                              | Append INNER JOIN                                                |
+| [QueryLeftJoin](#queryleftjoin)                      | Append LEFT JOIN                                                 |
+| [QueryRightJoin](#queryrightjoin)                    | Append RIGHT JOIN                                                |
+| [QueryCrossJoin](#querycrossjoin)                    | Append CROSS JOIN                                                |
+| [QueryJoinSub](#queryjoinsub)                        | Append INNER JOIN (subquery)                                     |
+| [QueryLeftJoinSub](#queryleftjoinsub)                | Append LEFT JOIN (subquery)                                      |
+| [QueryOrderBy](#queryorderby)                        | Append ORDER BY column                                           |
+| [QueryOrderByRaw](#queryorderbyraw)                  | Append ORDER BY raw expression                                   |
+| [QueryReorder](#queryreorder)                        | Clear all ORDER BY clauses                                       |
+| [QueryGroupBy](#querygroupby)                        | Append GROUP BY column                                           |
+| [QueryGroupByRaw](#querygroupbyraw)                  | Append GROUP BY raw expression                                   |
+| [QueryHaving](#queryhaving)                          | Append AND HAVING condition                                      |
+| [QueryOrHaving](#queryorhaving)                      | Append OR HAVING condition                                       |
+| [QueryHavingRaw](#queryhavingraw)                    | Append AND HAVING raw expression                                 |
+| [QueryOrHavingRaw](#queryorhavingraw)                | Append OR HAVING raw expression                                  |
+| [QueryLimit](#querylimit)                            | Set the row limit                                                |
+| [QueryOffset](#queryoffset)                          | Set the row offset                                               |
+| [QueryForPage](#queryforpage)                        | Set limit and offset for a specific page number                  |
+| [QueryUnion](#queryunion)                            | Append UNION or UNION ALL                                        |
+| [QueryGet](#queryget)                                | Execute the query and return results                             |
+| [QueryGetResultsAsJson](#querygetresultsasjson)      | Execute the query and return results as a JSON array of objects  |
+| [QueryToSQL](#querytosql)                            | Return the assembled SQL string (debug)                          |
+| [QueryCount](#querycount)                            | Execute SELECT COUNT(*) and return the count                     |
+| [QuerySum](#querysum)                                | Execute SELECT SUM(column) and return the sum                    |
+| [QueryAvg](#queryavg)                                | Execute SELECT AVG(column) and return the average                |
+| [QueryMax](#querymax)                                | Execute SELECT MAX(column) and return the maximum                |
+| [QueryMin](#querymin)                                | Execute SELECT MIN(column) and return the minimum                |
+| [QueryWhen](#querywhen)                              | Conditionally apply query modifications                          |
 
 ### Utility functions
 
-| Function | Purpose |
-|---|---|
-| [JSONGetElementNamedLikeField](#jsongetelementnamedlikefield) | Get a JSON element using a FileMaker field reference or field-name string as the property key; optional index for array input |
+| Function                                                       | Purpose                                                                                                                        |
+|----------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|
+| [JSONGetElementNamedLikeField](#jsongetelementnamedlikefield)  | Get a JSON element using a FileMaker field reference or field-name string as the property key; optional index for array input  |
 
 ### Internal helpers
 
 These functions are called by the public builders and are not intended to be called directly.
 
-| Function | Purpose |
-|---|---|
-| [QueryBuildJoins](#querybuildjoins) | Recursively render JOIN clauses |
-| [QueryBuildWheres](#querybuildwheres) | Recursively render WHERE clause body |
-| [QueryBuildInPlaceholders](#querybuildinplaceholders) | Render N comma-separated `?` placeholders |
-| [QueryBuildGroupBys](#querybuildgroupbys) | Recursively render GROUP BY column list |
-| [QueryBuildHavings](#querybuildhavings) | Recursively render HAVING clause body |
-| [QueryBuildOrderBys](#querybuildorderbys) | Recursively render ORDER BY column list |
-| [QueryBuildUnions](#querybuildunions) | Recursively render UNION / UNION ALL clauses |
-| [QueryBuildBindingArgs](#querybuildbindingargs) | Render binding values for Evaluate injection |
-| [QueryBuildWhereBooleanPrefix](#querybuildwherebooleanprefix) | Render AND / OR / empty connector |
-| [QueryAppendBindings](#queryappendbindings) | Recursively append N values to the bindings array |
-| [QueryMergeBindings](#querymergebindings) | Append N bindings from a JSON array into the outer query |
-| [QueryPrependBindings](#queryprependbindings) | Rebuild the bindings array with subquery bindings first |
-| [QueryBuildSelects](#querybuildselects) | Convert ¶-delimited field names to quoted SQL column list |
-| [QueryFieldFormat](#queryfieldformat) | Convert a single `Table::Field` name to quoted dot notation |
-| [QueryBuildJsonRow](#querybuildjsonrow) | Build a single JSON object from a row of field values |
-| [QueryBuildJsonRows](#querybuildjsonrows) | Recursively build a JSON array from all result rows |
-| [QueryBuildSelectKeys](#querybuildselectkeys) | Extract plain key names from the original column input |
+| Function                                                       | Purpose                                                      |
+|----------------------------------------------------------------|--------------------------------------------------------------|
+| [QueryBuildJoins](#querybuildjoins)                            | Recursively render JOIN clauses                              |
+| [QueryBuildWheres](#querybuildwheres)                          | Recursively render WHERE clause body                         |
+| [QueryBuildInPlaceholders](#querybuildinplaceholders)          | Render N comma-separated `?` placeholders                    |
+| [QueryBuildGroupBys](#querybuildgroupbys)                      | Recursively render GROUP BY column list                      |
+| [QueryBuildHavings](#querybuildhavings)                        | Recursively render HAVING clause body                        |
+| [QueryBuildOrderBys](#querybuildorderbys)                      | Recursively render ORDER BY column list                      |
+| [QueryBuildUnions](#querybuildunions)                          | Recursively render UNION / UNION ALL clauses                 |
+| [QueryBuildBindingArgs](#querybuildbindingargs)                | Render binding values for Evaluate injection                 |
+| [QueryBuildWhereBooleanPrefix](#querybuildwherebooleanprefix)  | Render AND / OR / empty connector                            |
+| [QueryAppendBindings](#queryappendbindings)                    | Recursively append N values to the bindings array            |
+| [QueryMergeBindings](#querymergebindings)                      | Append N bindings from a JSON array into the outer query     |
+| [QueryPrependBindings](#queryprependbindings)                  | Rebuild the bindings array with subquery bindings first      |
+| [QueryBuildSelects](#querybuildselects)                        | Convert ¶-delimited field names to quoted SQL column list    |
+| [QueryFieldFormat](#queryfieldformat)                          | Convert a single `Table::Field` name to quoted dot notation  |
+| [QueryBuildJsonRow](#querybuildjsonrow)                        | Build a single JSON object from a row of field values        |
+| [QueryBuildJsonRows](#querybuildjsonrows)                      | Recursively build a JSON array from all result rows          |
+| [QueryBuildSelectKeys](#querybuildselectkeys)                  | Extract plain key names from the original column input       |
 
 ---
 
@@ -108,9 +108,9 @@ The table name is stored pre-quoted (`"Table"`) so the generated SQL consistentl
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `table` | Table occurrence name. Accepts a plain string (`"CONTACT"`), a direct FM field reference (`CONTACT::anyField`), or a `GetFieldName()` result. When a `Table::Field` string or field reference is passed, the table part is extracted automatically. |
+| Parameter  | Description                                                                                                                                                                                                                                          |
+|------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `table`    | Table occurrence name. Accepts a plain string (`"CONTACT"`), a direct FM field reference (`CONTACT::anyField`), or a `GetFieldName()` result. When a `Table::Field` string or field reference is passed, the table part is extracted automatically.  |
 
 **Example**
 
@@ -137,10 +137,10 @@ Also stores `selectKeys` in the query object (plain field names, used by `QueryG
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
-| `columns` | ¶-delimited list from `List()` / `GetFieldName()`, or a comma-separated SQL column string |
+| Parameter  | Description                                                                                |
+|------------|--------------------------------------------------------------------------------------------|
+| `query`    | Query object                                                                               |
+| `columns`  | ¶-delimited list from `List()` / `GetFieldName()`, or a comma-separated SQL column string  |
 
 **Example**
 
@@ -163,11 +163,11 @@ Adds a subquery expression to the SELECT list: `(SELECT …) AS alias`. The alia
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
-| `subquery` | A fully-assembled fmorm query object |
-| `alias` | Plain SQL identifier for the subquery column, e.g. `"totalAmount"` — stored as the JSON key |
+| Parameter   | Description                                                                                  |
+|-------------|----------------------------------------------------------------------------------------------|
+| `query`     | Query object                                                                                 |
+| `subquery`  | A fully-assembled fmorm query object                                                         |
+| `alias`     | Plain SQL identifier for the subquery column, e.g. `"totalAmount"` — stored as the JSON key  |
 
 **Example**
 
@@ -191,9 +191,9 @@ Adds `SELECT DISTINCT` to the query, eliminating duplicate rows from the result.
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
+| Parameter  | Description   |
+|------------|---------------|
+| `query`    | Query object  |
 
 **Example**
 
@@ -212,12 +212,12 @@ Appends an AND WHERE condition with a bound parameter.
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
-| `column` | Column reference — a direct FM field reference, `GetFieldName()` result, or plain SQL expression |
-| `operator` | SQL comparison operator (`=`, `<>`, `<`, `>`, `<=`, `>=`, `LIKE`, etc.) |
-| `value` | Bound value |
+| Parameter   | Description                                                                                       |
+|-------------|---------------------------------------------------------------------------------------------------|
+| `query`     | Query object                                                                                      |
+| `column`    | Column reference — a direct FM field reference, `GetFieldName()` result, or plain SQL expression  |
+| `operator`  | SQL comparison operator (`=`, `<>`, `<`, `>`, `<=`, `>=`, `LIKE`, etc.)                           |
+| `value`     | Bound value                                                                                       |
 
 **Example**
 
@@ -234,12 +234,12 @@ Identical to `QueryWhere` but joins with OR.
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
-| `column` | Column reference |
-| `operator` | SQL comparison operator |
-| `value` | Bound value |
+| Parameter   | Description              |
+|-------------|--------------------------|
+| `query`     | Query object             |
+| `column`    | Column reference         |
+| `operator`  | SQL comparison operator  |
+| `value`     | Bound value              |
 
 **Example**
 
@@ -257,11 +257,11 @@ Appends AND column IN (?, ?, …). Each value in the ¶-delimited list becomes i
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
-| `column` | Column reference |
-| `values` | ¶-delimited list of values |
+| Parameter  | Description                 |
+|------------|-----------------------------|
+| `query`    | Query object                |
+| `column`   | Column reference            |
+| `values`   | ¶-delimited list of values  |
 
 **Example**
 
@@ -278,11 +278,11 @@ Appends AND column NOT IN (?, ?, …). Each value becomes its own bound paramete
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
-| `column` | Column reference |
-| `values` | ¶-delimited list of values |
+| Parameter  | Description                 |
+|------------|-----------------------------|
+| `query`    | Query object                |
+| `column`   | Column reference            |
+| `values`   | ¶-delimited list of values  |
 
 **Example**
 
@@ -299,11 +299,11 @@ Appends OR column IN (?, ?, …).
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
-| `column` | Column reference |
-| `values` | ¶-delimited list of values |
+| Parameter  | Description                 |
+|------------|-----------------------------|
+| `query`    | Query object                |
+| `column`   | Column reference            |
+| `values`   | ¶-delimited list of values  |
 
 **Example**
 
@@ -321,10 +321,10 @@ Appends AND column IS NULL. No binding is added.
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
-| `column` | Column reference |
+| Parameter  | Description       |
+|------------|-------------------|
+| `query`    | Query object      |
+| `column`   | Column reference  |
 
 **Example**
 
@@ -341,10 +341,10 @@ Appends AND column IS NOT NULL. No binding is added.
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
-| `column` | Column reference |
+| Parameter  | Description       |
+|------------|-------------------|
+| `query`    | Query object      |
+| `column`   | Column reference  |
 
 **Example**
 
@@ -361,10 +361,10 @@ Appends OR column IS NULL. No binding is added.
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
-| `column` | Column reference |
+| Parameter  | Description       |
+|------------|-------------------|
+| `query`    | Query object      |
+| `column`   | Column reference  |
 
 **Example**
 
@@ -382,10 +382,10 @@ Appends OR column IS NOT NULL. No binding is added.
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
-| `column` | Column reference |
+| Parameter  | Description       |
+|------------|-------------------|
+| `query`    | Query object      |
+| `column`   | Column reference  |
 
 **Example**
 
@@ -402,12 +402,12 @@ Appends AND column BETWEEN low AND high. Two bindings are added.
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
-| `column` | Column reference |
-| `low` | Lower bound (bound parameter) |
-| `high` | Upper bound (bound parameter) |
+| Parameter  | Description                    |
+|------------|--------------------------------|
+| `query`    | Query object                   |
+| `column`   | Column reference               |
+| `low`      | Lower bound (bound parameter)  |
+| `high`     | Upper bound (bound parameter)  |
 
 **Example**
 
@@ -424,12 +424,12 @@ Appends AND column NOT BETWEEN low AND high. Two bindings are added.
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
-| `column` | Column reference |
-| `low` | Lower bound |
-| `high` | Upper bound |
+| Parameter  | Description       |
+|------------|-------------------|
+| `query`    | Query object      |
+| `column`   | Column reference  |
+| `low`      | Lower bound       |
+| `high`     | Upper bound       |
 
 **Example**
 
@@ -446,12 +446,12 @@ Appends OR column BETWEEN low AND high. Two bindings are added.
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
-| `column` | Column reference |
-| `low` | Lower bound |
-| `high` | Upper bound |
+| Parameter  | Description       |
+|------------|-------------------|
+| `query`    | Query object      |
+| `column`   | Column reference  |
+| `low`      | Lower bound       |
+| `high`     | Upper bound       |
 
 ---
 
@@ -461,12 +461,12 @@ Appends OR column NOT BETWEEN low AND high. Two bindings are added.
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
-| `column` | Column reference |
-| `low` | Lower bound |
-| `high` | Upper bound |
+| Parameter  | Description       |
+|------------|-------------------|
+| `query`    | Query object      |
+| `column`   | Column reference  |
+| `low`      | Lower bound       |
+| `high`     | Upper bound       |
 
 ---
 
@@ -476,12 +476,12 @@ Appends AND first operator second comparing two columns directly. No binding is 
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
-| `first` | Left-hand column reference |
-| `operator` | SQL comparison operator (`=`, `<>`, `<`, `>`, etc.) |
-| `second` | Right-hand column reference |
+| Parameter   | Description                                          |
+|-------------|------------------------------------------------------|
+| `query`     | Query object                                         |
+| `first`     | Left-hand column reference                           |
+| `operator`  | SQL comparison operator (`=`, `<>`, `<`, `>`, etc.)  |
+| `second`    | Right-hand column reference                          |
 
 **Example**
 
@@ -498,10 +498,10 @@ Appends AND (grouped conditions) by wrapping the WHERE conditions from `groupedQ
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Outer query object to append to |
-| `groupedQuery` | A query object whose WHERE conditions form the group |
+| Parameter       | Description                                           |
+|-----------------|-------------------------------------------------------|
+| `query`         | Outer query object to append to                       |
+| `groupedQuery`  | A query object whose WHERE conditions form the group  |
 
 **Example**
 
@@ -526,10 +526,10 @@ Identical to `QueryWhereGroup` but joins the group with OR.
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Outer query object |
-| `groupedQuery` | A query object whose WHERE conditions form the group |
+| Parameter       | Description                                           |
+|-----------------|-------------------------------------------------------|
+| `query`         | Outer query object                                    |
+| `groupedQuery`  | A query object whose WHERE conditions form the group  |
 
 **Example**
 
@@ -546,11 +546,11 @@ Appends AND (rawSql) inserting a raw SQL fragment verbatim into the WHERE clause
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
-| `rawSql` | Raw SQL expression — emitted verbatim inside parentheses |
-| `bindings` | *(Optional)* ¶-delimited list of bound values for `?` placeholders in `rawSql`. Pass `""` when there are none. |
+| Parameter   | Description                                                                                                     |
+|-------------|-----------------------------------------------------------------------------------------------------------------|
+| `query`     | Query object                                                                                                    |
+| `rawSql`    | Raw SQL expression — emitted verbatim inside parentheses                                                        |
+| `bindings`  | *(Optional)* ¶-delimited list of bound values for `?` placeholders in `rawSql`. Pass `""` when there are none.  |
 
 **Example**
 
@@ -572,11 +572,11 @@ Identical to `QueryWhereRaw` but joins with OR.
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
-| `rawSql` | Raw SQL expression |
-| `bindings` | *(Optional)* ¶-delimited bound values |
+| Parameter   | Description                            |
+|-------------|----------------------------------------|
+| `query`     | Query object                           |
+| `rawSql`    | Raw SQL expression                     |
+| `bindings`  | *(Optional)* ¶-delimited bound values  |
 
 ---
 
@@ -588,11 +588,11 @@ Appends AND column IN (SELECT …) using a fully-assembled fmorm subquery object
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Outer query object |
-| `column` | Column reference in the outer query |
-| `subquery` | A fully-assembled fmorm query object |
+| Parameter   | Description                           |
+|-------------|---------------------------------------|
+| `query`     | Outer query object                    |
+| `column`    | Column reference in the outer query   |
+| `subquery`  | A fully-assembled fmorm query object  |
 
 **Example**
 
@@ -616,11 +616,11 @@ Appends AND column NOT IN (SELECT …). Same binding semantics as `QueryWhereInS
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Outer query object |
-| `column` | Column reference |
-| `subquery` | A fully-assembled fmorm query object |
+| Parameter   | Description                           |
+|-------------|---------------------------------------|
+| `query`     | Outer query object                    |
+| `column`    | Column reference                      |
+| `subquery`  | A fully-assembled fmorm query object  |
 
 **Example**
 
@@ -639,10 +639,10 @@ Appends AND EXISTS (SELECT …). The subquery's bindings are appended.
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Outer query object |
-| `subquery` | A fully-assembled fmorm query object |
+| Parameter   | Description                           |
+|-------------|---------------------------------------|
+| `query`     | Outer query object                    |
+| `subquery`  | A fully-assembled fmorm query object  |
 
 **Example**
 
@@ -663,10 +663,10 @@ Appends AND NOT EXISTS (SELECT …). Same semantics as `QueryWhereExists`.
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Outer query object |
-| `subquery` | A fully-assembled fmorm query object |
+| Parameter   | Description                           |
+|-------------|---------------------------------------|
+| `query`     | Outer query object                    |
+| `subquery`  | A fully-assembled fmorm query object  |
 
 ---
 
@@ -678,11 +678,11 @@ Replaces the FROM table with a derived table: `FROM (SELECT …) alias`. The tab
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `outerQuery` | Outer query object (its table name is replaced) |
-| `subquery` | A fully-assembled fmorm query object to use as the derived table |
-| `alias` | Plain SQL identifier for the derived table, e.g. `"sub"` |
+| Parameter     | Description                                                       |
+|---------------|-------------------------------------------------------------------|
+| `outerQuery`  | Outer query object (its table name is replaced)                   |
+| `subquery`    | A fully-assembled fmorm query object to use as the derived table  |
+| `alias`       | Plain SQL identifier for the derived table, e.g. `"sub"`          |
 
 **Example**
 
@@ -704,13 +704,13 @@ Appends an INNER JOIN clause with an ON condition.
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
-| `table` | Table to join — field reference, `GetFieldName()`, or plain string |
-| `first` | Left-hand side of the ON condition |
-| `operator` | Join operator (typically `=`) |
-| `second` | Right-hand side of the ON condition |
+| Parameter   | Description                                                         |
+|-------------|---------------------------------------------------------------------|
+| `query`     | Query object                                                        |
+| `table`     | Table to join — field reference, `GetFieldName()`, or plain string  |
+| `first`     | Left-hand side of the ON condition                                  |
+| `operator`  | Join operator (typically `=`)                                       |
+| `second`    | Right-hand side of the ON condition                                 |
 
 **Example**
 
@@ -740,13 +740,13 @@ Appends a RIGHT JOIN clause. Same parameters as `QueryJoin`.
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
-| `table` | Table to join |
-| `first` | Left-hand side of the ON condition |
-| `operator` | Join operator |
-| `second` | Right-hand side of the ON condition |
+| Parameter   | Description                          |
+|-------------|--------------------------------------|
+| `query`     | Query object                         |
+| `table`     | Table to join                        |
+| `first`     | Left-hand side of the ON condition   |
+| `operator`  | Join operator                        |
+| `second`    | Right-hand side of the ON condition  |
 
 **Example**
 
@@ -763,10 +763,10 @@ Appends a CROSS JOIN (cartesian product). No ON condition.
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
-| `table` | Table to join — field reference, `GetFieldName()`, or plain string |
+| Parameter  | Description                                                         |
+|------------|---------------------------------------------------------------------|
+| `query`    | Query object                                                        |
+| `table`    | Table to join — field reference, `GetFieldName()`, or plain string  |
 
 **Example**
 
@@ -787,14 +787,14 @@ Appends INNER JOIN (SELECT …) alias ON condition. The subquery's bindings are 
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
-| `subquery` | A fully-assembled fmorm query object |
-| `alias` | Plain SQL identifier for the derived table |
-| `first` | Left-hand ON column |
-| `operator` | Join operator |
-| `second` | Right-hand ON column |
+| Parameter   | Description                                 |
+|-------------|---------------------------------------------|
+| `query`     | Query object                                |
+| `subquery`  | A fully-assembled fmorm query object        |
+| `alias`     | Plain SQL identifier for the derived table  |
+| `first`     | Left-hand ON column                         |
+| `operator`  | Join operator                               |
+| `second`    | Right-hand ON column                        |
 
 **Example**
 
@@ -816,14 +816,14 @@ Appends LEFT JOIN (SELECT …) alias ON condition. Same semantics as `QueryJoinS
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
-| `subquery` | A fully-assembled fmorm query object |
-| `alias` | Plain SQL identifier for the derived table |
-| `first` | Left-hand ON column |
-| `operator` | Join operator |
-| `second` | Right-hand ON column |
+| Parameter   | Description                                 |
+|-------------|---------------------------------------------|
+| `query`     | Query object                                |
+| `subquery`  | A fully-assembled fmorm query object        |
+| `alias`     | Plain SQL identifier for the derived table  |
+| `first`     | Left-hand ON column                         |
+| `operator`  | Join operator                               |
+| `second`    | Right-hand ON column                        |
 
 ---
 
@@ -833,11 +833,11 @@ Appends an ORDER BY column. Call multiple times to sort by multiple columns in o
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
-| `column` | Column reference |
-| `direction` | `ASC` or `DESC` — defaults to `ASC` when empty |
+| Parameter    | Description                                     |
+|--------------|-------------------------------------------------|
+| `query`      | Query object                                    |
+| `column`     | Column reference                                |
+| `direction`  | `ASC` or `DESC` — defaults to `ASC` when empty  |
 
 **Example**
 
@@ -855,10 +855,10 @@ Appends a raw SQL expression to the ORDER BY clause. Useful for `RAND()`, `CASE`
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
-| `rawSql` | Raw SQL expression emitted verbatim in the ORDER BY list |
+| Parameter  | Description                                               |
+|------------|-----------------------------------------------------------|
+| `query`    | Query object                                              |
+| `rawSql`   | Raw SQL expression emitted verbatim in the ORDER BY list  |
 
 **Example**
 
@@ -875,9 +875,9 @@ Clears all existing ORDER BY clauses from the query, allowing a fresh ordering t
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
+| Parameter  | Description   |
+|------------|---------------|
+| `query`    | Query object  |
 
 **Example**
 
@@ -896,10 +896,10 @@ Appends a GROUP BY column. Call multiple times for multiple grouping columns.
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
-| `column` | Column reference |
+| Parameter  | Description       |
+|------------|-------------------|
+| `query`    | Query object      |
+| `column`   | Column reference  |
 
 **Example**
 
@@ -916,10 +916,10 @@ Appends a raw SQL expression to the GROUP BY clause. Useful for function-based g
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
-| `rawSql` | Raw SQL expression emitted verbatim in the GROUP BY list |
+| Parameter  | Description                                               |
+|------------|-----------------------------------------------------------|
+| `query`    | Query object                                              |
+| `rawSql`   | Raw SQL expression emitted verbatim in the GROUP BY list  |
 
 **Example**
 
@@ -936,12 +936,12 @@ Appends an AND HAVING condition with a bound parameter. Must be used after `Quer
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
-| `column` | Column or aggregate expression |
-| `operator` | SQL comparison operator |
-| `value` | Bound value |
+| Parameter   | Description                     |
+|-------------|---------------------------------|
+| `query`     | Query object                    |
+| `column`    | Column or aggregate expression  |
+| `operator`  | SQL comparison operator         |
+| `value`     | Bound value                     |
 
 **Example**
 
@@ -959,12 +959,12 @@ Identical to `QueryHaving` but joins with OR.
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
-| `column` | Column or aggregate expression |
-| `operator` | SQL comparison operator |
-| `value` | Bound value |
+| Parameter   | Description                     |
+|-------------|---------------------------------|
+| `query`     | Query object                    |
+| `column`    | Column or aggregate expression  |
+| `operator`  | SQL comparison operator         |
+| `value`     | Bound value                     |
 
 **Example**
 
@@ -982,11 +982,11 @@ Appends AND (rawSql) to the HAVING clause verbatim.
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
-| `rawSql` | Raw SQL expression |
-| `bindings` | *(Optional)* ¶-delimited bound values for `?` placeholders. Pass `""` when there are none. |
+| Parameter   | Description                                                                                 |
+|-------------|---------------------------------------------------------------------------------------------|
+| `query`     | Query object                                                                                |
+| `rawSql`    | Raw SQL expression                                                                          |
+| `bindings`  | *(Optional)* ¶-delimited bound values for `?` placeholders. Pass `""` when there are none.  |
 
 **Example**
 
@@ -1003,11 +1003,11 @@ Identical to `QueryHavingRaw` but joins with OR.
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
-| `rawSql` | Raw SQL expression |
-| `bindings` | *(Optional)* ¶-delimited bound values |
+| Parameter   | Description                            |
+|-------------|----------------------------------------|
+| `query`     | Query object                           |
+| `rawSql`    | Raw SQL expression                     |
+| `bindings`  | *(Optional)* ¶-delimited bound values  |
 
 ---
 
@@ -1017,10 +1017,10 @@ Sets the maximum number of rows to return. Emits `FETCH FIRST n ROWS ONLY` (File
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
-| `value` | Maximum number of rows |
+| Parameter  | Description             |
+|------------|-------------------------|
+| `query`    | Query object            |
+| `value`    | Maximum number of rows  |
 
 **Example**
 
@@ -1037,10 +1037,10 @@ Sets the number of rows to skip. Emits `OFFSET n ROWS`.
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
-| `value` | Number of rows to skip |
+| Parameter  | Description             |
+|------------|-------------------------|
+| `query`    | Query object            |
+| `value`    | Number of rows to skip  |
 
 **Example**
 
@@ -1057,11 +1057,11 @@ Convenience function: sets both limit and offset for a specific 1-based page num
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
-| `page` | Page number (1-based) |
-| `perPage` | Number of rows per page |
+| Parameter  | Description              |
+|------------|--------------------------|
+| `query`    | Query object             |
+| `page`     | Page number (1-based)    |
+| `perPage`  | Number of rows per page  |
 
 **Example**
 
@@ -1080,11 +1080,11 @@ Appends a UNION or UNION ALL clause, combining the results of two queries. The u
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Main query object |
-| `unionQuery` | A fully-assembled fmorm query object to union |
-| `all` | Pass `1` for UNION ALL (keeps duplicates), `0` for UNION (removes duplicates) |
+| Parameter     | Description                                                                    |
+|---------------|--------------------------------------------------------------------------------|
+| `query`       | Main query object                                                              |
+| `unionQuery`  | A fully-assembled fmorm query object to union                                  |
+| `all`         | Pass `1` for UNION ALL (keeps duplicates), `0` for UNION (removes duplicates)  |
 
 **Example**
 
@@ -1108,11 +1108,11 @@ Executes the assembled query via `ExecuteSQL`. Bound values are injected using `
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Fully assembled query object |
-| `fieldSeparator` | Character(s) placed between field values within a row |
-| `rowSeparator` | Character(s) placed between rows |
+| Parameter         | Description                                            |
+|-------------------|--------------------------------------------------------|
+| `query`           | Fully assembled query object                           |
+| `fieldSeparator`  | Character(s) placed between field values within a row  |
+| `rowSeparator`    | Character(s) placed between rows                       |
 
 **Example**
 
@@ -1128,9 +1128,9 @@ Executes the query and returns results as a JSON array of objects, one object pe
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Fully assembled query object |
+| Parameter  | Description                   |
+|------------|-------------------------------|
+| `query`    | Fully assembled query object  |
 
 **Example**
 
@@ -1147,9 +1147,9 @@ Returns the assembled SQL string without executing it. Bound parameters appear a
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
+| Parameter  | Description   |
+|------------|---------------|
+| `query`    | Query object  |
 
 **Example**
 
@@ -1175,9 +1175,9 @@ Executes `SELECT COUNT(*)` for the assembled query and returns the count as a nu
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Assembled query object (FROM, WHERE, JOINs already set) |
+| Parameter  | Description                                              |
+|------------|----------------------------------------------------------|
+| `query`    | Assembled query object (FROM, WHERE, JOINs already set)  |
 
 **Example**
 
@@ -1195,10 +1195,10 @@ Executes `SELECT SUM(column)` and returns the sum as a number. Returns `0` on er
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Assembled query object |
-| `column` | Column reference — field reference, `GetFieldName()`, or SQL expression |
+| Parameter  | Description                                                              |
+|------------|--------------------------------------------------------------------------|
+| `query`    | Assembled query object                                                   |
+| `column`   | Column reference — field reference, `GetFieldName()`, or SQL expression  |
 
 **Example**
 
@@ -1215,10 +1215,10 @@ Executes `SELECT AVG(column)` and returns the average as a number. Returns `0` o
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Assembled query object |
-| `column` | Column reference |
+| Parameter  | Description             |
+|------------|-------------------------|
+| `query`    | Assembled query object  |
+| `column`   | Column reference        |
 
 **Example**
 
@@ -1234,10 +1234,10 @@ Executes `SELECT MAX(column)` and returns the maximum value as a string. Returns
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Assembled query object |
-| `column` | Column reference |
+| Parameter  | Description             |
+|------------|-------------------------|
+| `query`    | Assembled query object  |
+| `column`   | Column reference        |
 
 **Example**
 
@@ -1253,10 +1253,10 @@ Executes `SELECT MIN(column)` and returns the minimum value as a string. Returns
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Assembled query object |
-| `column` | Column reference |
+| Parameter  | Description             |
+|------------|-------------------------|
+| `query`    | Assembled query object  |
+| `column`   | Column reference        |
 
 **Example**
 
@@ -1274,11 +1274,11 @@ Because FileMaker evaluates all parameters before calling the function, both bra
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Base query object |
-| `condition` | Any FileMaker expression that evaluates to truthy/falsy |
-| `queryIfTrue` | The modified query to use when `condition` is true — typically built from `query` |
+| Parameter      | Description                                                                        |
+|----------------|------------------------------------------------------------------------------------|
+| `query`        | Base query object                                                                  |
+| `condition`    | Any FileMaker expression that evaluates to truthy/falsy                            |
+| `queryIfTrue`  | The modified query to use when `condition` is true — typically built from `query`  |
 
 **Example**
 
@@ -1306,11 +1306,11 @@ Recursively walks the `joins` array and renders the full JOIN clause string. Sup
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `joins` | Raw JSON array from the query object |
-| `joinCount` | Number of join objects |
-| `index` | Current position — call with `0` |
+| Parameter    | Description                           |
+|--------------|---------------------------------------|
+| `joins`      | Raw JSON array from the query object  |
+| `joinCount`  | Number of join objects                |
+| `index`      | Current position — call with `0`      |
 
 ---
 
@@ -1320,11 +1320,11 @@ Recursively walks the `wheres` array and renders the WHERE clause body (excludin
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `wheres` | Raw JSON array from the query object |
-| `whereCount` | Number of where objects |
-| `index` | Current position — call with `0` |
+| Parameter     | Description                           |
+|---------------|---------------------------------------|
+| `wheres`      | Raw JSON array from the query object  |
+| `whereCount`  | Number of where objects               |
+| `index`       | Current position — call with `0`      |
 
 ---
 
@@ -1334,10 +1334,10 @@ Recursively produces N comma-separated `?` placeholders for IN clauses.
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `count` | Total number of placeholders |
-| `index` | Current position — call with `0` |
+| Parameter  | Description                       |
+|------------|-----------------------------------|
+| `count`    | Total number of placeholders      |
+| `index`    | Current position — call with `0`  |
 
 **Example**
 
@@ -1354,11 +1354,11 @@ Recursively walks the `groupBys` array. Regular columns are plain JSON strings; 
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `groupBys` | Raw JSON array from the query object |
-| `groupByCount` | Number of entries |
-| `index` | Current position — call with `0` |
+| Parameter       | Description                           |
+|-----------------|---------------------------------------|
+| `groupBys`      | Raw JSON array from the query object  |
+| `groupByCount`  | Number of entries                     |
+| `index`         | Current position — call with `0`      |
 
 ---
 
@@ -1368,11 +1368,11 @@ Recursively walks the `havings` array. Supports types: default (basic column/ope
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `havings` | Raw JSON array from the query object |
-| `havingCount` | Number of having objects |
-| `index` | Current position — call with `0` |
+| Parameter      | Description                           |
+|----------------|---------------------------------------|
+| `havings`      | Raw JSON array from the query object  |
+| `havingCount`  | Number of having objects              |
+| `index`        | Current position — call with `0`      |
 
 ---
 
@@ -1382,11 +1382,11 @@ Recursively walks the `orderBys` array. Supports default (column + direction) an
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `orderBys` | Raw JSON array from the query object |
-| `orderByCount` | Number of orderBy objects |
-| `index` | Current position — call with `0` |
+| Parameter       | Description                           |
+|-----------------|---------------------------------------|
+| `orderBys`      | Raw JSON array from the query object  |
+| `orderByCount`  | Number of orderBy objects             |
+| `index`         | Current position — call with `0`      |
 
 ---
 
@@ -1396,11 +1396,11 @@ Recursively walks the `unions` array and renders the UNION / UNION ALL clause st
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `unions` | Raw JSON array from the query object |
-| `unionCount` | Number of union objects |
-| `index` | Current position — call with `0` |
+| Parameter     | Description                           |
+|---------------|---------------------------------------|
+| `unions`      | Raw JSON array from the query object  |
+| `unionCount`  | Number of union objects               |
+| `index`       | Current position — call with `0`      |
 
 ---
 
@@ -1410,11 +1410,11 @@ Recursively walks the `bindings` array and renders the bound values as a text fr
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `bindings` | Raw JSON array from the query object |
-| `bindingCount` | Number of binding values |
-| `index` | Current position — call with `0` |
+| Parameter       | Description                           |
+|-----------------|---------------------------------------|
+| `bindings`      | Raw JSON array from the query object  |
+| `bindingCount`  | Number of binding values              |
+| `index`         | Current position — call with `0`      |
 
 ---
 
@@ -1424,10 +1424,10 @@ Returns the boolean connector that precedes a WHERE or HAVING clause. Returns `"
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `boolean` | `"and"` or `"or"` |
-| `index` | Position of the clause — `0` suppresses the connector |
+| Parameter  | Description                                            |
+|------------|--------------------------------------------------------|
+| `boolean`  | `"and"` or `"or"`                                      |
+| `index`    | Position of the clause — `0` suppresses the connector  |
 
 ---
 
@@ -1437,12 +1437,12 @@ Recursively appends values from a ¶-delimited list to the `bindings` array, inc
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `query` | Query object |
-| `values` | ¶-delimited list of values |
-| `valueCount` | Total number of values |
-| `index` | Current position — call with `1` (`GetValue` is 1-based) |
+| Parameter     | Description                                               |
+|---------------|-----------------------------------------------------------|
+| `query`       | Query object                                              |
+| `values`      | ¶-delimited list of values                                |
+| `valueCount`  | Total number of values                                    |
+| `index`       | Current position — call with `1` (`GetValue` is 1-based)  |
 
 ---
 
@@ -1452,12 +1452,12 @@ Recursively appends binding values from a JSON array into the outer query's `bin
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `outerQuery` | Query object to append bindings into |
-| `sourceBindings` | JSON array of binding values |
-| `sourceCount` | Number of values |
-| `index` | Current position — call with `0` |
+| Parameter         | Description                           |
+|-------------------|---------------------------------------|
+| `outerQuery`      | Query object to append bindings into  |
+| `sourceBindings`  | JSON array of binding values          |
+| `sourceCount`     | Number of values                      |
+| `index`           | Current position — call with `0`      |
 
 ---
 
@@ -1467,14 +1467,14 @@ Rebuilds the outer query's `bindings` array as `[prefixBindings…][suffixBindin
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `outerQuery` | Query object whose `bindings` array is being rebuilt |
-| `prefixBindings` | JSON array to write first (subquery bindings) |
-| `prefixCount` | Number of prefix values |
-| `suffixBindings` | JSON array to write second (outer query's existing bindings) |
-| `suffixCount` | Number of suffix values |
-| `index` | Current position — call with `0` |
+| Parameter         | Description                                                   |
+|-------------------|---------------------------------------------------------------|
+| `outerQuery`      | Query object whose `bindings` array is being rebuilt          |
+| `prefixBindings`  | JSON array to write first (subquery bindings)                 |
+| `prefixCount`     | Number of prefix values                                       |
+| `suffixBindings`  | JSON array to write second (outer query's existing bindings)  |
+| `suffixCount`     | Number of suffix values                                       |
+| `index`           | Current position — call with `0`                              |
 
 ---
 
@@ -1484,11 +1484,11 @@ Recursively converts a ¶-delimited column list to a SQL column expression strin
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `columns` | ¶-delimited list of column expressions |
-| `columnCount` | Total number of columns |
-| `index` | Current position — call with `1` |
+| Parameter      | Description                             |
+|----------------|-----------------------------------------|
+| `columns`      | ¶-delimited list of column expressions  |
+| `columnCount`  | Total number of columns                 |
+| `index`        | Current position — call with `1`        |
 
 ---
 
@@ -1498,9 +1498,9 @@ Converts a `Table::Field` string to `"Table"."Field"`. Expressions without `::` 
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `field` | A `Table::Field` string, direct FM field reference, or plain SQL expression |
+| Parameter  | Description                                                                  |
+|------------|------------------------------------------------------------------------------|
+| `field`    | A `Table::Field` string, direct FM field reference, or plain SQL expression  |
 
 **Example**
 
@@ -1518,13 +1518,13 @@ Builds a single JSON object from parallel ¶-delimited lists of field values and
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `obj` | Accumulating JSON object — call with `"{}"` |
-| `fields` | ¶-delimited field values for the current row |
-| `keys` | ¶-delimited JSON property names |
-| `keyCount` | Total number of keys |
-| `index` | Current position — call with `1` |
+| Parameter   | Description                                   |
+|-------------|-----------------------------------------------|
+| `obj`       | Accumulating JSON object — call with `"{}"`   |
+| `fields`    | ¶-delimited field values for the current row  |
+| `keys`      | ¶-delimited JSON property names               |
+| `keyCount`  | Total number of keys                          |
+| `index`     | Current position — call with `1`              |
 
 ---
 
@@ -1534,14 +1534,14 @@ Recursively appends row objects to a JSON array. Called by `QueryGetResultsAsJso
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `result` | Accumulating JSON array — call with `"[]"` |
-| `rawResult` | Full ExecuteSQL output (`Char(28)` field sep, `¶` row sep) |
-| `rowCount` | Total number of rows |
-| `keys` | ¶-delimited JSON property names |
-| `keyCount` | Total number of keys |
-| `rowIndex` | Current row position — call with `1` |
+| Parameter    | Description                                                 |
+|--------------|-------------------------------------------------------------|
+| `result`     | Accumulating JSON array — call with `"[]"`                  |
+| `rawResult`  | Full ExecuteSQL output (`Char(28)` field sep, `¶` row sep)  |
+| `rowCount`   | Total number of rows                                        |
+| `keys`       | ¶-delimited JSON property names                             |
+| `keyCount`   | Total number of keys                                        |
+| `rowIndex`   | Current row position — call with `1`                        |
 
 ---
 
@@ -1553,11 +1553,11 @@ Rules: `Table::Field` → `Field`, `Table.field` → `field`, anything else → 
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `columns` | ¶-delimited column expressions (original input, before SQL conversion) |
-| `columnCount` | Total number of columns |
-| `index` | Current position — call with `1` |
+| Parameter      | Description                                                             |
+|----------------|-------------------------------------------------------------------------|
+| `columns`      | ¶-delimited column expressions (original input, before SQL conversion)  |
+| `columnCount`  | Total number of columns                                                 |
+| `index`        | Current position — call with `1`                                        |
 
 ---
 
@@ -1578,11 +1578,11 @@ When `index` is non-empty, `JSONGetElement( json ; index )` is called first to e
 
 **Parameters**
 
-| Parameter | Description |
-|---|---|
-| `json` | A valid JSON object or array string |
-| `field` | A FileMaker field reference, `"Table::Field"` string, or plain property name |
-| `index` | *(Optional — pass `""` to omit)* 0-based array index |
+| Parameter  | Description                                                                   |
+|------------|-------------------------------------------------------------------------------|
+| `json`     | A valid JSON object or array string                                           |
+| `field`    | A FileMaker field reference, `"Table::Field"` string, or plain property name  |
+| `index`    | *(Optional — pass `""` to omit)* 0-based array index                          |
 
 **Examples**
 
@@ -1607,19 +1607,19 @@ JSONGetElementNamedLikeField ( _json ; "firstName" ; "" )
 
 FileMaker's `ExecuteSQL` uses a restricted subset of SQL-92.
 
-| Feature | Support |
-|---|---|
-| IN / NOT IN subqueries — `WHERE col IN (SELECT …)` | FileMaker 17+ |
-| EXISTS / NOT EXISTS subqueries | FileMaker 17+ |
-| Subqueries in SELECT — `(SELECT …) AS alias` | FileMaker 17+ |
-| JOIN subqueries — `JOIN (SELECT …) AS alias` | FileMaker 17+ |
-| UNION / UNION ALL | FileMaker 17+ |
-| Derived tables — `FROM (SELECT …) AS alias` | Functional in FM 19.x; not formally documented by Claris |
-| Correlated subqueries | Not reliably supported — avoid |
-| `FETCH FIRST` / `OFFSET` inside a subquery | Unreliable; avoid `QueryLimit` / `QueryOffset` on inner queries |
-| RIGHT JOIN | Supported in standard FileMaker SQL |
-| CROSS JOIN | Supported in standard FileMaker SQL |
-| Window functions / CTEs | Not supported by FileMaker's ExecuteSQL |
+| Feature                                             | Support                                                          |
+|-----------------------------------------------------|------------------------------------------------------------------|
+| IN / NOT IN subqueries — `WHERE col IN (SELECT …)`  | FileMaker 17+                                                    |
+| EXISTS / NOT EXISTS subqueries                      | FileMaker 17+                                                    |
+| Subqueries in SELECT — `(SELECT …) AS alias`        | FileMaker 17+                                                    |
+| JOIN subqueries — `JOIN (SELECT …) AS alias`        | FileMaker 17+                                                    |
+| UNION / UNION ALL                                   | FileMaker 17+                                                    |
+| Derived tables — `FROM (SELECT …) AS alias`         | Functional in FM 19.x; not formally documented by Claris         |
+| Correlated subqueries                               | Not reliably supported — avoid                                   |
+| `FETCH FIRST` / `OFFSET` inside a subquery          | Unreliable; avoid `QueryLimit` / `QueryOffset` on inner queries  |
+| RIGHT JOIN                                          | Supported in standard FileMaker SQL                              |
+| CROSS JOIN                                          | Supported in standard FileMaker SQL                              |
+| Window functions / CTEs                             | Not supported by FileMaker's ExecuteSQL                          |
 
 **Binding order** is handled automatically. `QueryFromSubquery` and `QuerySelectSub` prepend the subquery's bindings. `QueryWhereInSubquery`, `QueryJoinSub`, and similar functions append bindings. For `QueryJoinSub` and `QueryLeftJoinSub`, call before adding WHERE conditions to preserve left-to-right binding order.
 
