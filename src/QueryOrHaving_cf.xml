@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="4" visible="True" parameters="query;column;operator;value" name="QueryOrHaving_cf">
+        <Calculation><![CDATA[// Appends OR column operator value to the HAVING clause. One binding is added.
+// Must be used after QueryGroupBy_cf.
+// Use QueryHaving_cf for AND HAVING.
+Let
+(
+[
+_havingCount = JSONGetElement ( query ; "havingCount" ) ;
+_bindingCount = JSONGetElement ( query ; "bindingCount" ) ;
+_fqName = GetFieldName ( column ) ;
+_col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
+_column = QueryConvertField_cf ( _col ) ;
+_havingObj = JSONSetElement ( "{}" ;
+	[ "column" ; _column ; JSONString ] ;
+	[ "operator" ; operator ; JSONString ] ;
+	[ "boolean" ; "or" ; JSONString ]
+	) ;
+_q1 = JSONSetElement ( query ; "havings[" & _havingCount & "]" ; _havingObj ; JSONObject ) ;
+_q2 = JSONSetElement ( _q1 ; "havingCount" ; _havingCount + 1 ; JSONNumber ) ;
+_q3 = JSONSetElement ( _q2 ; "bindings[" & _bindingCount & "]" ; value ; JSONString ) ;
+_q4 = JSONSetElement ( _q3 ; "bindingCount" ; _bindingCount + 1 ; JSONNumber )
+];
+_q4
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

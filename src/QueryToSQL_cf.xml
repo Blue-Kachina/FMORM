@@ -10,6 +10,7 @@ Let
 [
 _table = JSONGetElement ( query ; "table" ) ;
 _selects = JSONGetElement ( query ; "selects" ) ;
+_distinct = JSONGetElement ( query ; "distinct" ) ;
 _joins = JSONGetElement ( query ; "joins" ) ;
 _joinCount = JSONGetElement ( query ; "joinCount" ) ;
 _wheres = JSONGetElement ( query ; "wheres" ) ;
@@ -22,12 +23,23 @@ _orderBys = JSONGetElement ( query ; "orderBys" ) ;
 _orderByCount = JSONGetElement ( query ; "orderByCount" ) ;
 _limit = JSONGetElement ( query ; "limit" ) ;
 _offset = JSONGetElement ( query ; "offset" ) ;
+_unions = JSONGetElement ( query ; "unions" ) ;
+_unionCount = JSONGetElement ( query ; "unionCount" ) ;
 _in = "    " ;
+_selectKeyword = If ( not IsEmpty ( _distinct ) and _distinct ; "SELECT DISTINCT" ; "SELECT" ) ;
 _selectFields = Substitute ( _selects ; ", " ; "," & ¶ & _in ) ;
 _joinRaw = If ( _joinCount > 0 ; QueryBuildJoins_cf ( _joins ; _joinCount ; 0 ) ; "" ) ;
-_joinSplit = Substitute ( Substitute ( _joinRaw ; " INNER JOIN " ; ¶ & "INNER JOIN " ) ; " LEFT JOIN " ; ¶ & "LEFT JOIN " ) ;
+_joinSplit = Substitute ( Substitute ( Substitute ( Substitute ( _joinRaw ;
+	" INNER JOIN " ; ¶ & "INNER JOIN " ) ;
+	" LEFT JOIN " ; ¶ & "LEFT JOIN " ) ;
+	" RIGHT JOIN " ; ¶ & "RIGHT JOIN " ) ;
+	" CROSS JOIN " ; ¶ & "CROSS JOIN " ) ;
 _joinClause = If ( _joinCount > 0 ;
-	¶ & Substitute ( Substitute ( _joinSplit ; "INNER JOIN " ; "INNER JOIN" & ¶ & _in ) ; "LEFT JOIN " ; "LEFT JOIN" & ¶ & _in ) ;
+	¶ & Substitute ( Substitute ( Substitute ( Substitute ( _joinSplit ;
+		"INNER JOIN " ; "INNER JOIN" & ¶ & _in ) ;
+		"LEFT JOIN " ; "LEFT JOIN" & ¶ & _in ) ;
+		"RIGHT JOIN " ; "RIGHT JOIN" & ¶ & _in ) ;
+		"CROSS JOIN " ; "CROSS JOIN" & ¶ & _in ) ;
 	""
 ) ;
 _whereRaw = If ( _whereCount > 0 ; QueryBuildWheres_cf ( _wheres ; _whereCount ; 0 ) ; "" ) ;
@@ -51,9 +63,13 @@ _orderByClause = If ( _orderByCount > 0 ;
 	""
 ) ;
 _offsetClause = If ( not IsEmpty ( _offset ) ; ¶ & "OFFSET " & _offset & " ROWS" ; "" ) ;
-_limitClause = If ( not IsEmpty ( _limit ) ; ¶ & "FETCH FIRST " & _limit & " ROWS ONLY" ; "" )
+_limitClause = If ( not IsEmpty ( _limit ) ; ¶ & "FETCH FIRST " & _limit & " ROWS ONLY" ; "" ) ;
+_unionClause = If ( not IsEmpty ( _unionCount ) and _unionCount > 0 ;
+	QueryBuildUnions_cf ( _unions ; _unionCount ; 0 ) ;
+	""
+)
 ];
-"SELECT" & ¶ & _in & _selectFields &
+_selectKeyword & ¶ & _in & _selectFields &
 ¶ & "FROM" & ¶ & _in & _table &
 _joinClause &
 _whereClause &
@@ -61,7 +77,8 @@ _groupByClause &
 _havingClause &
 _orderByClause &
 _offsetClause &
-_limitClause
+_limitClause &
+_unionClause
 )]]></Calculation>
     </CustomFunction>
 </fmxmlsnippet>

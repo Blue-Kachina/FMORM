@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="1" visible="True" parameters="query" name="QueryDistinct_cf">
+        <Calculation><![CDATA[// Adds SELECT DISTINCT to the query. Applies to all selected columns.
+JSONSetElement ( query ; "distinct" ; 1 ; JSONBoolean )]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

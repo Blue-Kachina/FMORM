@@ -70,12 +70,47 @@ _query = QuerySelect_cf ( _query ; "COUNT(*) AS total" )
 // → SELECT "FMORM"."PrimaryKey", COUNT(*) AS total
 ```
 
+#### WHERE Clauses
+
+All major WHERE variants are supported. Functions are additive and may be chained freely:
+
+```ecmascript 6
+_query = QueryWhere_cf          ( _query ; CONTACT::status ; "=" ; "Active" )
+_query = QueryOrWhere_cf        ( _query ; CONTACT::status ; "=" ; "Prospect" )
+_query = QueryWhereIn_cf        ( _query ; CONTACT::type ; "customer¶partner" )
+_query = QueryWhereNotIn_cf     ( _query ; CONTACT::status ; "Archived¶Deleted" )
+_query = QueryWhereBetween_cf   ( _query ; INVOICE::amount ; 100 ; 500 )
+_query = QueryWhereNull_cf      ( _query ; CONTACT::deletedAt )
+_query = QueryWhereNotNull_cf   ( _query ; CONTACT::emailWork )
+_query = QueryWhereColumn_cf    ( _query ; INVOICE::contactId ; "=" ; CONTACT::id )
+_query = QueryWhereRaw_cf       ( _query ; "MONTH(\"INVOICE\".\"date\") = 3" ; "" )
+```
+
+**Grouped conditions** (parenthesised AND/OR blocks) use `QueryWhereGroup_cf`:
+
+```ecmascript 6
+// Build the inner group: (status = ? OR priority = ?)
+_g = QueryNew_cf     ( "CONTACT" ) ;
+_g = QueryWhere_cf   ( _g ; CONTACT::status ; "=" ; "Active" ) ;
+_g = QueryOrWhere_cf ( _g ; CONTACT::priority ; "=" ; "High" ) ;
+
+// Attach as AND (…) to the main query
+_query = QueryWhere_cf      ( _query ; CONTACT::region ; "=" ; "West" ) ;
+_query = QueryWhereGroup_cf ( _query ; _g )
+// → WHERE "CONTACT"."region" = ? AND ("CONTACT"."status" = ? OR "CONTACT"."priority" = ?)
+```
+
 #### Subqueries
 
-Two functions support subqueries. Both accept a fully-assembled fmorm query object as the inner query and handle binding merging automatically.
+Multiple subquery patterns are supported. All accept a fully-assembled fmorm query object and handle binding merging automatically. Requires FileMaker 17+.
 
-- **[QueryWhereInSubquery_cf](docs/functions.md#queryWhereinsubquery_cf)** — `WHERE column IN (SELECT …)`. Requires FileMaker 17+.
-- **[QueryFromSubquery_cf](docs/functions.md#queryfromsubquery_cf)** — `FROM (SELECT …) alias` (derived table). Functional in FM 19.x; not formally documented by Claris — test in your target version.
+- **[QueryWhereInSubquery_cf](docs/functions.md#querywhereinsubquery_cf)** — `WHERE column IN (SELECT …)`
+- **[QueryWhereNotInSubquery_cf](docs/functions.md#querywherenotinsubquery_cf)** — `WHERE column NOT IN (SELECT …)`
+- **[QueryWhereExists_cf](docs/functions.md#querywhereexists_cf)** — `WHERE EXISTS (SELECT …)`
+- **[QueryWhereNotExists_cf](docs/functions.md#querywherenotexists_cf)** — `WHERE NOT EXISTS (SELECT …)`
+- **[QuerySelectSub_cf](docs/functions.md#queryselectsub_cf)** — `(SELECT …) AS alias` in the SELECT list
+- **[QueryJoinSub_cf](docs/functions.md#queryjoinsub_cf)** / **[QueryLeftJoinSub_cf](docs/functions.md#queryleftjoinsub_cf)** — `JOIN (SELECT …) AS alias ON …`
+- **[QueryFromSubquery_cf](docs/functions.md#queryfromsubquery_cf)** — `FROM (SELECT …) alias` (derived table, FM 19.x+)
 
 ```ecmascript 6
 // Subquery: IDs of active contacts
@@ -89,11 +124,33 @@ _query = QueryWhereInSubquery_cf ( _query ; INVOICE::contactID ; _inner )
 // → WHERE "INVOICE"."contactID" IN (SELECT CONTACT.id FROM "CONTACT" WHERE …)
 ```
 
+#### Aggregate Execution
+
+`QueryCount_cf`, `QuerySum_cf`, `QueryAvg_cf`, `QueryMax_cf`, and `QueryMin_cf` execute directly and return a scalar value without modifying the query object:
+
+```ecmascript 6
+_query = QueryNew_cf   ( "INVOICE" ) ;
+_query = QueryWhere_cf ( _query ; INVOICE::status ; "=" ; "Paid" ) ;
+
+_count = QueryCount_cf ( _query )            // → 42
+_total = QuerySum_cf   ( _query ; INVOICE::amount )   // → 18500
+_avg   = QueryAvg_cf   ( _query ; INVOICE::amount )   // → 440.47
+```
+
+#### Conditional Building
+
+`QueryWhen_cf` applies a modification only when a condition is true:
+
+```ecmascript 6
+_query = QueryWhen_cf (
+    _query ;
+    not IsEmpty ( $$filterStatus ) ;
+    QueryWhere_cf ( _query ; CONTACT::status ; "=" ; $$filterStatus )
+)
+```
 
 > ## *
-> 
-> There is a lot of SQL functionality available by making use of the functions.  Most of them are pretty sensibly named too.
-> 
+>
 > See [docs/functions.md](docs/functions.md) for the full function reference with parameter details and examples.
 
 #### Common Parameter Patterns

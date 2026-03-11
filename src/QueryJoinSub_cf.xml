@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="6" visible="True" parameters="query;subquery;alias;first;operator;second" name="QueryJoinSub_cf">
+        <Calculation><![CDATA[// Appends INNER JOIN (SELECT ...) alias ON first operator second.
+// alias is a plain SQL identifier string (e.g. "sub").
+// first and second accept Table::Field references, GetFieldName() strings,
+// or plain SQL expressions for the ON condition.
+// The subquery's bindings are appended to the outer query's bindings.
+// IMPORTANT: Call this before adding WHERE conditions to ensure correct
+// binding order (JOIN bindings must precede WHERE bindings in the SQL).
+// NOTE: JOIN subqueries require FileMaker 17+.
+// Use QueryLeftJoinSub_cf for a LEFT JOIN variant.
+Let
+(
+[
+_joinCount = JSONGetElement ( query ; "joinCount" ) ;
+_subSql = QueryToSQL_cf ( subquery ) ;
+_subBindings = JSONGetElement ( subquery ; "bindings" ) ;
+_subBindingCount = JSONGetElement ( subquery ; "bindingCount" ) ;
+_fqFirst = GetFieldName ( first ) ;
+_first = QueryConvertField_cf ( If ( Position ( _fqFirst ; "::" ; 1 ; 1 ) > 0 ; _fqFirst ; first ) ) ;
+_fqSecond = GetFieldName ( second ) ;
+_second = QueryConvertField_cf ( If ( Position ( _fqSecond ; "::" ; 1 ; 1 ) > 0 ; _fqSecond ; second ) ) ;
+_joinObj = JSONSetElement ( "{}" ;
+	[ "type" ; "subJoin" ; JSONString ] ;
+	[ "sql" ; _subSql ; JSONString ] ;
+	[ "alias" ; alias ; JSONString ] ;
+	[ "first" ; _first ; JSONString ] ;
+	[ "operator" ; operator ; JSONString ] ;
+	[ "second" ; _second ; JSONString ]
+	) ;
+_q1 = JSONSetElement ( query ; "joins[" & _joinCount & "]" ; _joinObj ; JSONObject ) ;
+_q2 = JSONSetElement ( _q1 ; "joinCount" ; _joinCount + 1 ; JSONNumber ) ;
+_q3 = If ( _subBindingCount > 0 ;
+	QueryMergeBindings_cf ( _q2 ; _subBindings ; _subBindingCount ; 0 ) ;
+	_q2
+	)
+];
+_q3
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

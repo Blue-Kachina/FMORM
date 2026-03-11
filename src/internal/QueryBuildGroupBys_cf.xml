@@ -3,11 +3,19 @@
     <CustomFunction id="1" functionArity="3" visible="False" parameters="groupBys;groupByCount;index" name="QueryBuildGroupBys_cf">
         <Calculation><![CDATA[// Recursively builds the GROUP BY column list.
 // Call with index = 0. groupBys is the raw JSON array from the query object.
-// Example output: "CONTACT.type, CONTACT.status"
+// Regular columns are stored as plain JSON strings; raw expressions are stored
+// as JSON objects {"type":"raw","sql":"..."} and detected by checking Left(item;1)="{".
+// Example output: "\"CONTACT\".\"type\", YEAR(\"Invoice\".\"date\")"
 Let
 (
 [
-_col = JSONGetElement ( groupBys ; "[" & index & "]" ) ;
+_item = JSONGetElement ( groupBys ; "[" & index & "]" ) ;
+_isObj = Left ( _item ; 1 ) = "{" ;
+_type = If ( _isObj ; JSONGetElement ( _item ; "type" ) ; "" ) ;
+_col = Case (
+	_isObj and Exact ( _type ; "raw" ) ; JSONGetElement ( _item ; "sql" ) ;
+	_item
+	) ;
 _rest = If ( index + 1 < groupByCount ; ", " & QueryBuildGroupBys_cf ( groupBys ; groupByCount ; index + 1 ) ; "" )
 ];
 _col & _rest

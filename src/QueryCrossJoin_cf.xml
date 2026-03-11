@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="2" visible="True" parameters="query;table" name="QueryCrossJoin_cf">
+        <Calculation><![CDATA[// Appends a CROSS JOIN (cartesian product) with no ON condition.
+// table accepts a plain string, direct FM field reference, or GetFieldName() result.
+Let
+(
+[
+_joinCount = JSONGetElement ( query ; "joinCount" ) ;
+_fqName = GetFieldName ( table ) ;
+_tableName = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; table ) ;
+_table = Quote (
+	If ( PatternCount ( _tableName ; "::" ) ;
+		Left ( _tableName ; Position ( _tableName ; "::" ; 1 ; 1 ) - 1 ) ;
+	// ELSE
+		_tableName
+	)) ;
+_joinObj = JSONSetElement ( "{}" ;
+	[ "type" ; "cross" ; JSONString ] ;
+	[ "table" ; _table ; JSONString ]
+	) ;
+_q1 = JSONSetElement ( query ; "joins[" & _joinCount & "]" ; _joinObj ; JSONObject ) ;
+_q2 = JSONSetElement ( _q1 ; "joinCount" ; _joinCount + 1 ; JSONNumber )
+];
+_q2
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

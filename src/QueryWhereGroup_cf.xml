@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="2" visible="True" parameters="query;groupedQuery" name="QueryWhereGroup_cf">
+        <Calculation><![CDATA[// Appends AND (inner conditions...) wrapping the WHERE conditions from groupedQuery.
+// Build groupedQuery on any query object using QueryWhere_cf / QueryOrWhere_cf etc.
+// Only the wheres and bindings of groupedQuery are used; its FROM/SELECT/etc. are ignored.
+// Example: AND (status = ? OR priority = ?)
+// Use QueryOrWhereGroup_cf to prefix the group with OR instead of AND.
+Let
+(
+[
+_whereCount = JSONGetElement ( query ; "whereCount" ) ;
+_groupWheres = JSONGetElement ( groupedQuery ; "wheres" ) ;
+_groupWhereCount = JSONGetElement ( groupedQuery ; "whereCount" ) ;
+_groupBindings = JSONGetElement ( groupedQuery ; "bindings" ) ;
+_groupBindingCount = JSONGetElement ( groupedQuery ; "bindingCount" ) ;
+_whereObj = JSONSetElement ( "{}" ;
+	[ "type" ; "group" ; JSONString ] ;
+	[ "wheres" ; _groupWheres ; JSONRaw ] ;
+	[ "whereCount" ; _groupWhereCount ; JSONNumber ] ;
+	[ "boolean" ; "and" ; JSONString ]
+	) ;
+_q1 = JSONSetElement ( query ; "wheres[" & _whereCount & "]" ; _whereObj ; JSONObject ) ;
+_q2 = JSONSetElement ( _q1 ; "whereCount" ; _whereCount + 1 ; JSONNumber ) ;
+_q3 = If ( _groupBindingCount > 0 ;
+	QueryMergeBindings_cf ( _q2 ; _groupBindings ; _groupBindingCount ; 0 ) ;
+	_q2
+	)
+];
+_q3
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

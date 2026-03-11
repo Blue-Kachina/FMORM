@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="2" visible="True" parameters="query;column" name="QuerySum_cf">
+        <Calculation><![CDATA[// Executes SELECT SUM(column) for the assembled query and returns the sum as a number.
+// column accepts Table::Field references, GetFieldName() strings, or SQL expressions.
+// The original query object is not modified.
+// Returns 0 on error or empty result.
+Let
+(
+[
+_fqName = GetFieldName ( column ) ;
+_col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
+_column = QueryConvertField_cf ( _col ) ;
+_q = JSONSetElement ( query ; "selects" ; "SUM(" & _column & ")" ; JSONString ) ;
+_result = QueryGet_cf ( _q ; ¶ ; Char ( 28 ) )
+];
+GetAsNumber ( GetValue ( _result ; 1 ) )
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

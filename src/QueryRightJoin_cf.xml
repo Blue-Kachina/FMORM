@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="5" visible="True" parameters="query;table;first;operator;second" name="QueryRightJoin_cf">
+        <Calculation><![CDATA[// Appends a RIGHT JOIN clause. table, first, and second accept plain strings,
+// direct FM field references, or GetFieldName() results.
+Let
+(
+[
+_joinCount = JSONGetElement ( query ; "joinCount" ) ;
+_fqName = GetFieldName ( table ) ;
+_tableName = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; table ) ;
+_table = Quote (
+	If ( PatternCount ( _tableName ; "::" ) ;
+		Left ( _tableName ; Position ( _tableName ; "::" ; 1 ; 1 ) - 1 ) ;
+	// ELSE
+		_tableName
+	)) ;
+_fqFirst = GetFieldName ( first ) ;
+_first = QueryConvertField_cf ( If ( Position ( _fqFirst ; "::" ; 1 ; 1 ) > 0 ; _fqFirst ; first ) ) ;
+_fqSecond = GetFieldName ( second ) ;
+_second = QueryConvertField_cf ( If ( Position ( _fqSecond ; "::" ; 1 ; 1 ) > 0 ; _fqSecond ; second ) ) ;
+_joinObj = JSONSetElement ( "{}" ;
+	[ "type" ; "right" ; JSONString ] ;
+	[ "table" ; _table ; JSONString ] ;
+	[ "first" ; _first ; JSONString ] ;
+	[ "operator" ; operator ; JSONString ] ;
+	[ "second" ; _second ; JSONString ]
+	) ;
+_q1 = JSONSetElement ( query ; "joins[" & _joinCount & "]" ; _joinObj ; JSONObject ) ;
+_q2 = JSONSetElement ( _q1 ; "joinCount" ; _joinCount + 1 ; JSONNumber )
+];
+_q2
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

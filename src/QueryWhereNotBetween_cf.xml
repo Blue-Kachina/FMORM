@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="4" visible="True" parameters="query;column;low;high" name="QueryWhereNotBetween_cf">
+        <Calculation><![CDATA[// Appends AND column NOT BETWEEN low AND high. Two bindings are added.
+Let
+(
+[
+_whereCount = JSONGetElement ( query ; "whereCount" ) ;
+_bindingCount = JSONGetElement ( query ; "bindingCount" ) ;
+_fqName = GetFieldName ( column ) ;
+_col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
+_column = QueryConvertField_cf ( _col ) ;
+_whereObj = JSONSetElement ( "{}" ;
+	[ "type" ; "notBetween" ; JSONString ] ;
+	[ "column" ; _column ; JSONString ] ;
+	[ "boolean" ; "and" ; JSONString ]
+	) ;
+_q1 = JSONSetElement ( query ; "wheres[" & _whereCount & "]" ; _whereObj ; JSONObject ) ;
+_q2 = JSONSetElement ( _q1 ; "whereCount" ; _whereCount + 1 ; JSONNumber ) ;
+_q3 = JSONSetElement ( _q2 ; "bindings[" & _bindingCount & "]" ; low ; JSONString ) ;
+_q4 = JSONSetElement ( _q3 ; "bindingCount" ; _bindingCount + 1 ; JSONNumber ) ;
+_q5 = JSONSetElement ( _q4 ; "bindings[" & ( _bindingCount + 1 ) & "]" ; high ; JSONString ) ;
+_q6 = JSONSetElement ( _q5 ; "bindingCount" ; _bindingCount + 2 ; JSONNumber )
+];
+_q6
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>
