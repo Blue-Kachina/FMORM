@@ -24,7 +24,7 @@ They'll all take a `query` parameter too -- which is what lets us build as we go
 #### Initialization
 You'll always start with a [QueryNew](docs/functions.md#QueryNew) call. 
 
-```ecmascript 6
+```fmcalc
 Let
 (
 [
@@ -46,7 +46,7 @@ This is accomplished by chaining [QuerySelect](docs/functions.md#QuerySelect) in
 
 Providing it with a list of fieldnames like so is recommended:
 
-```ecmascript 6
+```fmcalc
 Let
 (
 [
@@ -64,7 +64,7 @@ _query = QuerySelect ( _query ; List
 
 `QuerySelect` is **additive** — the first call replaces the default `SELECT *`, and each subsequent call appends more columns to the list. Raw SQL expressions (aggregates, `CASE` expressions, etc.) pass through unchanged since no `::` is present, so no separate "raw" variant is needed.
 
-```ecmascript 6
+```fmcalc
 _query = QuerySelect ( _query ; GetFieldName ( FMORM::PrimaryKey ) ) ;
 _query = QuerySelect ( _query ; "COUNT(*) AS total" )
 // → SELECT "FMORM"."PrimaryKey", COUNT(*) AS total
@@ -74,7 +74,7 @@ _query = QuerySelect ( _query ; "COUNT(*) AS total" )
 
 All major WHERE variants are supported. Functions are additive and may be chained freely:
 
-```ecmascript 6
+```fmcalc
 _query = QueryWhere          ( _query ; CONTACT::status ; "=" ; "Active" )
 _query = QueryOrWhere        ( _query ; CONTACT::status ; "=" ; "Prospect" )
 _query = QueryWhereIn        ( _query ; CONTACT::type ; "customer¶partner" )
@@ -88,7 +88,7 @@ _query = QueryWhereRaw       ( _query ; "MONTH(\"INVOICE\".\"date\") = 3" ; "" )
 
 **Grouped conditions** (parenthesised AND/OR blocks) use `QueryWhereGroup`:
 
-```ecmascript 6
+```fmcalc
 // Build the inner group: (status = ? OR priority = ?)
 _g = QueryNew     ( "CONTACT" ) ;
 _g = QueryWhere   ( _g ; CONTACT::status ; "=" ; "Active" ) ;
@@ -102,7 +102,7 @@ _query = QueryWhereGroup ( _query ; _g )
 
 #### Subqueries
 
-Multiple subquery patterns are supported. All accept a fully-assembled fmorm query object and handle binding merging automatically. Requires FileMaker 17+.
+Multiple subquery patterns are supported. All accept a fully assembled fmorm query object and handle binding merging automatically. Requires FileMaker 17+.
 
 - **[QueryWhereInSubquery](docs/functions.md#querywhereinsubquery)** — `WHERE column IN (SELECT …)`
 - **[QueryWhereNotInSubquery](docs/functions.md#querywherenotinsubquery)** — `WHERE column NOT IN (SELECT …)`
@@ -112,7 +112,7 @@ Multiple subquery patterns are supported. All accept a fully-assembled fmorm que
 - **[QueryJoinSub](docs/functions.md#queryjoinsub)** / **[QueryLeftJoinSub](docs/functions.md#queryleftjoinsub)** — `JOIN (SELECT …) AS alias ON …`
 - **[QueryFromSubquery](docs/functions.md#queryfromsubquery)** — `FROM (SELECT …) alias` (derived table, FM 19.x+)
 
-```ecmascript 6
+```fmcalc
 // Subquery: IDs of active contacts
 _inner = QueryNew ( "CONTACT" ) ;
 _inner = QuerySelect ( _inner ; "CONTACT.id" ) ;
@@ -128,7 +128,7 @@ _query = QueryWhereInSubquery ( _query ; INVOICE::contactID ; _inner )
 
 `QueryCount`, `QuerySum`, `QueryAvg`, `QueryMax`, and `QueryMin` execute directly and return a scalar value without modifying the query object:
 
-```ecmascript 6
+```fmcalc
 _query = QueryNew   ( "INVOICE" ) ;
 _query = QueryWhere ( _query ; INVOICE::status ; "=" ; "Paid" ) ;
 
@@ -141,7 +141,7 @@ _avg   = QueryAvg   ( _query ; INVOICE::amount )   // → 440.47
 
 `QueryWhen` applies a modification only when a condition is true:
 
-```ecmascript 6
+```fmcalc
 _query = QueryWhen (
     _query ;
     not IsEmpty ( $$filterStatus ) ;
@@ -162,7 +162,7 @@ The exception being where multiple columns are required (See [QuerySelect](docs/
 Following these principles will lead to concise code and will even survive field renaming
 
 Example using QueryWhere without needing to specify GetFieldName around the column name.
-```ecmascript 6
+```fmcalc
 Let
 (
 [
@@ -250,7 +250,7 @@ QueryGetResultsAsJson ( _query )
 
 ### Under-The-Hood
 
-Under-the-hood a complex JSON object is being maintained in order to keep a definition of what your query is.
+Under-the-hood a complex JSON object is being maintained to keep a definition of what your query is.
 Every one of the `Query` functions alters that JSON object in a meaningful way.
 When one of the `QueryGet` functions is invoked, the actual query gets assembled based on how you've defined it.
 
