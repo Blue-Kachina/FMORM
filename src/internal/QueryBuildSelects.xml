@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="3" visible="False" parameters="columns;columnCount;index" name="QueryBuildSelects">
+        <Calculation><![CDATA[// Recursively converts a ¶-delimited column list to SQL column expressions.
+// Delegates individual field conversion to QueryFieldFormat.
+// Call with index = 1 (GetValue is 1-based).
+Let
+(
+[
+_field = Trim ( GetValue ( columns ; index ) ) ;
+_converted = QueryFieldFormat ( _field ) ;
+_rest = If ( index < columnCount ;
+	", " & QueryBuildSelects ( columns ; columnCount ; index + 1 ) ;
+// ELSE
+	""
+	)
+];
+_converted & _rest
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

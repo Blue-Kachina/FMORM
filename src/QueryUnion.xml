@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="3" visible="True" parameters="query;unionQuery;all" name="QueryUnion">
+        <Calculation><![CDATA[// Appends a UNION or UNION ALL clause combining two query results.
+// unionQuery is a fully-assembled fmorm query object.
+// all: pass 1 for UNION ALL (keeps duplicates), 0 for UNION (removes duplicates).
+// The union query's bindings are appended after the main query's bindings.
+// NOTE: UNION requires FileMaker 17+. Both queries must select the same number
+// of columns. ORDER BY on the combined result is not supported by all FM versions.
+Let
+(
+[
+_unionCount = If ( IsEmpty ( JSONGetElement ( query ; "unionCount" ) ) ; 0 ; JSONGetElement ( query ; "unionCount" ) ) ;
+_subSql = QueryToSQL ( unionQuery ) ;
+_subBindings = JSONGetElement ( unionQuery ; "bindings" ) ;
+_subBindingCount = JSONGetElement ( unionQuery ; "bindingCount" ) ;
+_unionObj = JSONSetElement ( "{}" ;
+	[ "sql" ; _subSql ; JSONString ] ;
+	[ "all" ; not IsEmpty ( all ) and all ; JSONBoolean ]
+	) ;
+_q1 = JSONSetElement ( query ; "unions[" & _unionCount & "]" ; _unionObj ; JSONObject ) ;
+_q2 = JSONSetElement ( _q1 ; "unionCount" ; _unionCount + 1 ; JSONNumber ) ;
+_q3 = If ( _subBindingCount > 0 ;
+	QueryMergeBindings ( _q2 ; _subBindings ; _subBindingCount ; 0 ) ;
+	_q2
+	)
+];
+_q3
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

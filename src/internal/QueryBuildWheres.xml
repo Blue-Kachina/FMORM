@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="3" visible="False" parameters="wheres;whereCount;index" name="QueryBuildWheres">
+        <Calculation><![CDATA[// Recursively builds the WHERE clause body (excluding the "WHERE" keyword).
+// Call with index = 0. wheres is the raw JSON array from the query object.
+// Supported types: basic, in, notIn, null, notNull, between, notBetween,
+//   column, raw, group, exists, notExists, inSubquery, notInSubquery.
+Let
+(
+[
+_where = JSONGetElement ( wheres ; "[" & index & "]" ) ;
+_type = JSONGetElement ( _where ; "type" ) ;
+_column = JSONGetElement ( _where ; "column" ) ;
+_operator = JSONGetElement ( _where ; "operator" ) ;
+_boolean = JSONGetElement ( _where ; "boolean" ) ;
+_valueCount = JSONGetElement ( _where ; "valueCount" ) ;
+_prefix = QueryBuildWhereBooleanPrefix ( _boolean ; index ) ;
+_clause = Case (
+	Exact ( _type ; "basic" ) ;
+		_prefix & _column & " " & _operator & " ?" ;
+	Exact ( _type ; "in" ) ;
+		_prefix & _column & " IN (" & QueryBuildInPlaceholders ( _valueCount ; 0 ) & ")" ;
+	Exact ( _type ; "notIn" ) ;
+		_prefix & _column & " NOT IN (" & QueryBuildInPlaceholders ( _valueCount ; 0 ) & ")" ;
+	Exact ( _type ; "null" ) ;
+		_prefix & _column & " IS NULL" ;
+	Exact ( _type ; "notNull" ) ;
+		_prefix & _column & " IS NOT NULL" ;
+	Exact ( _type ; "between" ) ;
+		_prefix & _column & " BETWEEN ? AND ?" ;
+	Exact ( _type ; "notBetween" ) ;
+		_prefix & _column & " NOT BETWEEN ? AND ?" ;
+	Exact ( _type ; "column" ) ;
+		_prefix & _column & " " & _operator & " " & JSONGetElement ( _where ; "second" ) ;
+	Exact ( _type ; "raw" ) ;
+		_prefix & "(" & JSONGetElement ( _where ; "sql" ) & ")" ;
+	Exact ( _type ; "group" ) ;
+		_prefix & "(" & QueryBuildWheres ( JSONGetElement ( _where ; "wheres" ) ; JSONGetElement ( _where ; "whereCount" ) ; 0 ) & ")" ;
+	Exact ( _type ; "exists" ) ;
+		_prefix & "EXISTS (" & JSONGetElement ( _where ; "sql" ) & ")" ;
+	Exact ( _type ; "notExists" ) ;
+		_prefix & "NOT EXISTS (" & JSONGetElement ( _where ; "sql" ) & ")" ;
+	Exact ( _type ; "inSubquery" ) ;
+		_prefix & _column & " IN (" & JSONGetElement ( _where ; "sql" ) & ")" ;
+	Exact ( _type ; "notInSubquery" ) ;
+		_prefix & _column & " NOT IN (" & JSONGetElement ( _where ; "sql" ) & ")" ;
+	""
+	) ;
+_rest = If ( index + 1 < whereCount ; QueryBuildWheres ( wheres ; whereCount ; index + 1 ) ; "" )
+];
+_clause & _rest
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

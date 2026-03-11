@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="3" visible="False" parameters="havings;havingCount;index" name="QueryBuildHavings">
+        <Calculation><![CDATA[// Recursively builds the HAVING clause body (excluding the "HAVING" keyword).
+// Call with index = 0. havings is the raw JSON array from the query object.
+// Supported types: basic (default), raw.
+// OR prefix supported via boolean = "or" on any having object.
+Let
+(
+[
+_having = JSONGetElement ( havings ; "[" & index & "]" ) ;
+_type = JSONGetElement ( _having ; "type" ) ;
+_column = JSONGetElement ( _having ; "column" ) ;
+_operator = JSONGetElement ( _having ; "operator" ) ;
+_boolean = JSONGetElement ( _having ; "boolean" ) ;
+_prefix = QueryBuildWhereBooleanPrefix ( _boolean ; index ) ;
+_clause = Case (
+	Exact ( _type ; "raw" ) ;
+		_prefix & "(" & JSONGetElement ( _having ; "sql" ) & ")" ;
+	// default: basic column operator ?
+	_prefix & _column & " " & _operator & " ?"
+	) ;
+_rest = If ( index + 1 < havingCount ; QueryBuildHavings ( havings ; havingCount ; index + 1 ) ; "" )
+];
+_clause & _rest
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="2" visible="True" parameters="query;rawSql" name="QueryGroupByRaw">
+        <Calculation><![CDATA[// Appends a raw SQL expression to the GROUP BY clause verbatim.
+// Useful for function-based grouping such as YEAR(dateField).
+// Example: QueryGroupByRaw ( query ; "YEAR(\"Invoice\".\"date\")" )
+Let
+(
+[
+_groupByCount = JSONGetElement ( query ; "groupByCount" ) ;
+_rawObj = JSONSetElement ( "{}" ;
+	[ "type" ; "raw" ; JSONString ] ;
+	[ "sql" ; rawSql ; JSONString ]
+	)
+];
+JSONSetElement (
+	JSONSetElement ( query ; "groupBys[" & _groupByCount & "]" ; _rawObj ; JSONObject ) ;
+	"groupByCount" ; _groupByCount + 1 ; JSONNumber
+)
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

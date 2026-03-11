@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="6" visible="False" parameters="result;rawResult;rowCount;keys;keyCount;rowIndex" name="QueryBuildJsonRows">
+        <Calculation><![CDATA[// Recursively appends row objects to a JSON array.
+// rawResult is the ExecuteSQL output with Char(28) field separators and ¶ row separators.
+// Call with rowIndex = 1 and result = "[]".
+Let
+(
+[
+_rawRow = GetValue ( rawResult ; rowIndex ) ;
+_fields = Substitute ( _rawRow ; Char ( 28 ) ; "¶" ) ;
+_rowObj = QueryBuildJsonRow ( "{}" ; _fields ; keys ; keyCount ; 1 ) ;
+_newResult = JSONSetElement ( result ; "[" & ( rowIndex - 1 ) & "]" ; _rowObj ; JSONObject )
+];
+If ( rowIndex < rowCount ;
+	QueryBuildJsonRows ( _newResult ; rawResult ; rowCount ; keys ; keyCount ; rowIndex + 1 ) ;
+// ELSE
+	_newResult
+)
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

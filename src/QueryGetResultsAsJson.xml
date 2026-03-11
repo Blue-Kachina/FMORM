@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="1" visible="True" parameters="query" name="QueryGetResultsAsJson">
+        <Calculation><![CDATA[// Executes the query and returns results as a JSON array of objects.
+// Property names are derived automatically from the selectKeys stored in the
+// query object, which QuerySelect populates from the original column input.
+// Returns "[]" when the query produces no rows or an error.
+Let
+(
+[
+_keys = JSONGetElement ( query ; "selectKeys" ) ;
+_keyCount = ValueCount ( _keys ) ;
+_rawResult = QueryGet ( query ; Char ( 28 ) ; "¶" ) ;
+_rowCount = If ( IsEmpty ( _rawResult ) ; 0 ; ValueCount ( _rawResult ) )
+];
+If ( _rowCount = 0 ;
+	"[]" ;
+// ELSE
+	QueryBuildJsonRows ( "[]" ; _rawResult ; _rowCount ; _keys ; _keyCount ; 1 )
+)
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="3" visible="True" parameters="query;rawSql;bindings" name="QueryOrHavingRaw">
+        <Calculation><![CDATA[// Appends OR (rawSql) to the HAVING clause verbatim.
+// bindings is an optional ¶-delimited list of values for any ? placeholders in rawSql.
+// Leave bindings empty if rawSql contains no placeholders.
+// Use QueryHavingRaw for AND prefix.
+Let
+(
+[
+_havingCount = JSONGetElement ( query ; "havingCount" ) ;
+_valueCount = If ( IsEmpty ( bindings ) ; 0 ; ValueCount ( bindings ) ) ;
+_havingObj = JSONSetElement ( "{}" ;
+	[ "type" ; "raw" ; JSONString ] ;
+	[ "sql" ; rawSql ; JSONString ] ;
+	[ "boolean" ; "or" ; JSONString ]
+	) ;
+_q1 = JSONSetElement ( query ; "havings[" & _havingCount & "]" ; _havingObj ; JSONObject ) ;
+_q2 = JSONSetElement ( _q1 ; "havingCount" ; _havingCount + 1 ; JSONNumber ) ;
+_q3 = If ( _valueCount > 0 ;
+	QueryAppendBindings ( _q2 ; bindings ; _valueCount ; 1 ) ;
+	_q2
+	)
+];
+_q3
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

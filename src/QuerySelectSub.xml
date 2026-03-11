@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="3" visible="True" parameters="query;subquery;alias" name="QuerySelectSub">
+        <Calculation><![CDATA[// Adds a subquery expression to the SELECT list: (SELECT ...) AS alias.
+// alias is a plain SQL identifier string (e.g. "totalAmount").
+// The subquery's bindings are prepended to the outer query's bindings because
+// the SELECT clause appears before WHERE in SQL, so its ? placeholders must
+// come first in the bindings array. Call this before adding WHERE conditions
+// if the subquery itself has bindings.
+// NOTE: Subqueries in SELECT require FileMaker 17+.
+Let
+(
+[
+_subSql = QueryToSQL ( subquery ) ;
+_subBindings = JSONGetElement ( subquery ; "bindings" ) ;
+_subBindingCount = JSONGetElement ( subquery ; "bindingCount" ) ;
+_subExpr = "(" & _subSql & ") AS " & Quote ( alias ) ;
+_existingSelects = JSONGetElement ( query ; "selects" ) ;
+_existingKeys = JSONGetElement ( query ; "selectKeys" ) ;
+_isWildcard = Exact ( _existingSelects ; "*" ) ;
+_finalSelects = If ( _isWildcard ; _subExpr ; _existingSelects & ", " & _subExpr ) ;
+_finalKeys = If ( _isWildcard ; alias ; _existingKeys & ¶ & alias ) ;
+_outerBindings = JSONGetElement ( query ; "bindings" ) ;
+_outerBindingCount = JSONGetElement ( query ; "bindingCount" ) ;
+_q1 = JSONSetElement ( query ; "selects" ; _finalSelects ; JSONString ) ;
+_q2 = JSONSetElement ( _q1 ; "selectKeys" ; _finalKeys ; JSONString ) ;
+_q3 = If ( _subBindingCount > 0 ;
+	QueryPrependBindings ( _q2 ; _subBindings ; _subBindingCount ; _outerBindings ; _outerBindingCount ; 0 ) ;
+	_q2
+	)
+];
+_q3
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

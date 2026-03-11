@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="4" visible="False" parameters="outerQuery;sourceBindings;sourceCount;index" name="QueryMergeBindings">
+        <Calculation><![CDATA[// Recursively appends bindings from a JSON array (sourceBindings) into
+// outerQuery's bindings array. Call with index = 0.
+// Analogous to QueryAppendBindings but reads from a JSON array rather
+// than a ¶-delimited list. Used by QueryWhereInSubquery.
+Let
+(
+[
+_bindingCount = JSONGetElement ( outerQuery ; "bindingCount" ) ;
+_value = JSONGetElement ( sourceBindings ; "[" & index & "]" ) ;
+_q1 = JSONSetElement ( outerQuery ; "bindings[" & _bindingCount & "]" ; _value ; JSONString ) ;
+_q2 = JSONSetElement ( _q1 ; "bindingCount" ; _bindingCount + 1 ; JSONNumber )
+];
+If ( index + 1 < sourceCount ;
+	QueryMergeBindings ( _q2 ; sourceBindings ; sourceCount ; index + 1 ) ;
+// ELSE
+	_q2
+)
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

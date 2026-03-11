@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="3" visible="False" parameters="bindings;bindingCount;index" name="QueryBuildBindingArgs">
+        <Calculation><![CDATA[// Recursively builds the binding argument string for use inside Evaluate().
+// Call with index = 0. bindings is the raw JSON array from the query object.
+// Each value is wrapped in Quote() to handle special characters safely.
+// Example output: "Active" ; "customer" ; "prospect"
+// This string is concatenated into the ExecuteSQL Evaluate expression.
+Let
+(
+[
+_value = JSONGetElement ( bindings ; "[" & index & "]" ) ;
+_quoted = Quote ( _value ) ;
+_rest = If ( index + 1 < bindingCount ; " ; " & QueryBuildBindingArgs ( bindings ; bindingCount ; index + 1 ) ; "" )
+];
+_quoted & _rest
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

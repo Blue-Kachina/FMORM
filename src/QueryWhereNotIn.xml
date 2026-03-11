@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="3" visible="True" parameters="query;column;values" name="QueryWhereNotIn">
+        <Calculation><![CDATA[// values is a ¶-delimited list of values.
+// Appends AND column NOT IN (?, ?, ...) and N bindings (one per value).
+Let
+(
+[
+_whereCount = JSONGetElement ( query ; "whereCount" ) ;
+_valueCount = ValueCount ( values ) ;
+_fqName = GetFieldName ( column ) ;
+_col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
+_column = QueryFieldFormat ( _col ) ;
+_whereObj = JSONSetElement ( "{}" ;
+	[ "type" ; "notIn" ; JSONString ] ;
+	[ "column" ; _column ; JSONString ] ;
+	[ "valueCount" ; _valueCount ; JSONNumber ] ;
+	[ "boolean" ; "and" ; JSONString ]
+	) ;
+_q1 = JSONSetElement ( query ; "wheres[" & _whereCount & "]" ; _whereObj ; JSONObject ) ;
+_q2 = JSONSetElement ( _q1 ; "whereCount" ; _whereCount + 1 ; JSONNumber ) ;
+_q3 = QueryAppendBindings ( _q2 ; values ; _valueCount ; 1 )
+];
+_q3
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

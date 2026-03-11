@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="3" visible="False" parameters="unions;unionCount;index" name="QueryBuildUnions">
+        <Calculation><![CDATA[// Recursively builds the UNION / UNION ALL clause string.
+// Call with index = 0. unions is the raw JSON array from the query object.
+// Each union item: {"sql": "SELECT ...", "all": true|false}
+// UNION removes duplicates; UNION ALL keeps them.
+Let
+(
+[
+_union = JSONGetElement ( unions ; "[" & index & "]" ) ;
+_sql = JSONGetElement ( _union ; "sql" ) ;
+_all = JSONGetElement ( _union ; "all" ) ;
+_keyword = If ( not IsEmpty ( _all ) and _all ; " UNION ALL " ; " UNION " ) ;
+_clause = _keyword & _sql ;
+_rest = If ( index + 1 < unionCount ; QueryBuildUnions ( unions ; unionCount ; index + 1 ) ; "" )
+];
+_clause & _rest
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

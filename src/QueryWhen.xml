@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="3" visible="True" parameters="query;condition;queryIfTrue" name="QueryWhen">
+        <Calculation><![CDATA[// Conditionally applies query modifications. Returns queryIfTrue when condition
+// is true (non-zero, non-empty), otherwise returns the original query unchanged.
+// Both query paths are evaluated by FileMaker before this function runs, so
+// queryIfTrue should be built from the same query object passed as the first param.
+// Example:
+//   QueryWhen (
+//     q ;
+//     not IsEmpty ( filterVal ) ;
+//     QueryWhere ( q ; MyTable::status ; "=" ; filterVal )
+//   )
+If ( condition ; queryIfTrue ; query )]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

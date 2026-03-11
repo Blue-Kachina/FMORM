@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="3" visible="True" parameters="query;column;direction" name="QueryOrderBy">
+        <Calculation><![CDATA[// direction defaults to "ASC" when empty.
+Let
+(
+[
+_orderByCount = JSONGetElement ( query ; "orderByCount" ) ;
+_dir = If ( IsEmpty ( direction ) ; "ASC" ; Upper ( direction ) ) ;
+_fqName = GetFieldName ( column ) ;
+_col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
+_column = QueryFieldFormat ( _col ) ;
+_orderByObj = JSONSetElement ( "{}" ;
+	[ "column" ; _column ; JSONString ] ;
+	[ "direction" ; _dir ; JSONString ]
+	) ;
+_q1 = JSONSetElement ( query ; "orderBys[" & _orderByCount & "]" ; _orderByObj ; JSONObject ) ;
+_q2 = JSONSetElement ( _q1 ; "orderByCount" ; _orderByCount + 1 ; JSONNumber )
+];
+_q2
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

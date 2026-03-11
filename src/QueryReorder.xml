@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="1" visible="True" parameters="query" name="QueryReorder">
+        <Calculation><![CDATA[// Clears all ORDER BY clauses from the query.
+// After calling this, new ORDER BY clauses can be added with QueryOrderBy.
+JSONSetElement (
+	JSONSetElement ( query ; "orderBys" ; "[]" ; JSONRaw ) ;
+	"orderByCount" ; 0 ; JSONNumber
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

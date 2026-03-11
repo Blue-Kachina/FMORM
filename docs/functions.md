@@ -8,67 +8,67 @@
 
 | Function | Purpose |
 |---|---|
-| [QueryNew\_cf](#querynew_cf) | Initialise a new query object |
-| [QuerySelect\_cf](#queryselect_cf) | Set or extend the SELECT column list |
-| [QuerySelectSub\_cf](#queryselectsub_cf) | Add a subquery expression to the SELECT list |
-| [QueryDistinct\_cf](#querydistinct_cf) | Add SELECT DISTINCT |
-| [QueryWhere\_cf](#querywhere_cf) | Append AND WHERE condition |
-| [QueryOrWhere\_cf](#queryorwhere_cf) | Append OR WHERE condition |
-| [QueryWhereIn\_cf](#querywherein_cf) | Append AND WHERE column IN (…) |
-| [QueryWhereNotIn\_cf](#querywherenotin_cf) | Append AND WHERE column NOT IN (…) |
-| [QueryOrWhereIn\_cf](#queryorwherein_cf) | Append OR WHERE column IN (…) |
-| [QueryWhereNull\_cf](#querywherenull_cf) | Append AND column IS NULL |
-| [QueryWhereNotNull\_cf](#querywherenotnull_cf) | Append AND column IS NOT NULL |
-| [QueryOrWhereNull\_cf](#queryorwherenull_cf) | Append OR column IS NULL |
-| [QueryOrWhereNotNull\_cf](#queryorwherenotnull_cf) | Append OR column IS NOT NULL |
-| [QueryWhereBetween\_cf](#querywherebetween_cf) | Append AND column BETWEEN low AND high |
-| [QueryWhereNotBetween\_cf](#querywherenotbetween_cf) | Append AND column NOT BETWEEN low AND high |
-| [QueryOrWhereBetween\_cf](#queryorwherebetween_cf) | Append OR column BETWEEN low AND high |
-| [QueryOrWhereNotBetween\_cf](#queryorwherenotbetween_cf) | Append OR column NOT BETWEEN low AND high |
-| [QueryWhereColumn\_cf](#querywherecolumn_cf) | Append AND column1 op column2 (column comparison, no binding) |
-| [QueryWhereGroup\_cf](#querywheregroup_cf) | Append AND (grouped conditions from another query) |
-| [QueryOrWhereGroup\_cf](#queryorwheregroup_cf) | Append OR (grouped conditions from another query) |
-| [QueryWhereRaw\_cf](#querywhereraw_cf) | Append AND (raw SQL expression) |
-| [QueryOrWhereRaw\_cf](#queryorwhereraw_cf) | Append OR (raw SQL expression) |
-| [QueryWhereInSubquery\_cf](#querywhereinsubquery_cf) | Append AND column IN (subquery) |
-| [QueryWhereNotInSubquery\_cf](#querywherenotinsubquery_cf) | Append AND column NOT IN (subquery) |
-| [QueryWhereExists\_cf](#querywhereexists_cf) | Append AND EXISTS (subquery) |
-| [QueryWhereNotExists\_cf](#querywherenotexists_cf) | Append AND NOT EXISTS (subquery) |
-| [QueryFromSubquery\_cf](#queryfromsubquery_cf) | Replace FROM table with a derived table (subquery) |
-| [QueryJoin\_cf](#queryjoin_cf) | Append INNER JOIN |
-| [QueryLeftJoin\_cf](#queryleftjoin_cf) | Append LEFT JOIN |
-| [QueryRightJoin\_cf](#queryrightjoin_cf) | Append RIGHT JOIN |
-| [QueryCrossJoin\_cf](#querycrossjoin_cf) | Append CROSS JOIN |
-| [QueryJoinSub\_cf](#queryjoinsub_cf) | Append INNER JOIN (subquery) |
-| [QueryLeftJoinSub\_cf](#queryleftjoinsub_cf) | Append LEFT JOIN (subquery) |
-| [QueryOrderBy\_cf](#queryorderby_cf) | Append ORDER BY column |
-| [QueryOrderByRaw\_cf](#queryorderbyraw_cf) | Append ORDER BY raw expression |
-| [QueryReorder\_cf](#queryreorder_cf) | Clear all ORDER BY clauses |
-| [QueryGroupBy\_cf](#querygroupby_cf) | Append GROUP BY column |
-| [QueryGroupByRaw\_cf](#querygroupbyraw_cf) | Append GROUP BY raw expression |
-| [QueryHaving\_cf](#queryhaving_cf) | Append AND HAVING condition |
-| [QueryOrHaving\_cf](#queryorhaving_cf) | Append OR HAVING condition |
-| [QueryHavingRaw\_cf](#queryhavingraw_cf) | Append AND HAVING raw expression |
-| [QueryOrHavingRaw\_cf](#queryorhavingraw_cf) | Append OR HAVING raw expression |
-| [QueryLimit\_cf](#querylimit_cf) | Set the row limit |
-| [QueryOffset\_cf](#queryoffset_cf) | Set the row offset |
-| [QueryForPage\_cf](#queryforpage_cf) | Set limit and offset for a specific page number |
-| [QueryUnion\_cf](#queryunion_cf) | Append UNION or UNION ALL |
-| [QueryGet\_cf](#queryget_cf) | Execute the query and return results |
-| [QueryGetResultsAsJson\_cf](#querygetresultsasjson_cf) | Execute the query and return results as a JSON array of objects |
-| [QueryToSQL\_cf](#querytosql_cf) | Return the assembled SQL string (debug) |
-| [QueryCount\_cf](#querycount_cf) | Execute SELECT COUNT(*) and return the count |
-| [QuerySum\_cf](#querysum_cf) | Execute SELECT SUM(column) and return the sum |
-| [QueryAvg\_cf](#queryavg_cf) | Execute SELECT AVG(column) and return the average |
-| [QueryMax\_cf](#querymax_cf) | Execute SELECT MAX(column) and return the maximum |
-| [QueryMin\_cf](#querymin_cf) | Execute SELECT MIN(column) and return the minimum |
-| [QueryWhen\_cf](#querywhen_cf) | Conditionally apply query modifications |
+| [QueryNew](#querynew) | Initialise a new query object |
+| [QuerySelect](#queryselect) | Set or extend the SELECT column list |
+| [QuerySelectSub](#queryselectsub) | Add a subquery expression to the SELECT list |
+| [QueryDistinct](#querydistinct) | Add SELECT DISTINCT |
+| [QueryWhere](#querywhere) | Append AND WHERE condition |
+| [QueryOrWhere](#queryorwhere) | Append OR WHERE condition |
+| [QueryWhereIn](#querywherein) | Append AND WHERE column IN (…) |
+| [QueryWhereNotIn](#querywherenotin) | Append AND WHERE column NOT IN (…) |
+| [QueryOrWhereIn](#queryorwherein) | Append OR WHERE column IN (…) |
+| [QueryWhereNull](#querywherenull) | Append AND column IS NULL |
+| [QueryWhereNotNull](#querywherenotnull) | Append AND column IS NOT NULL |
+| [QueryOrWhereNull](#queryorwherenull) | Append OR column IS NULL |
+| [QueryOrWhereNotNull](#queryorwherenotnull) | Append OR column IS NOT NULL |
+| [QueryWhereBetween](#querywherebetween) | Append AND column BETWEEN low AND high |
+| [QueryWhereNotBetween](#querywherenotbetween) | Append AND column NOT BETWEEN low AND high |
+| [QueryOrWhereBetween](#queryorwherebetween) | Append OR column BETWEEN low AND high |
+| [QueryOrWhereNotBetween](#queryorwherenotbetween) | Append OR column NOT BETWEEN low AND high |
+| [QueryWhereColumn](#querywherecolumn) | Append AND column1 op column2 (column comparison, no binding) |
+| [QueryWhereGroup](#querywheregroup) | Append AND (grouped conditions from another query) |
+| [QueryOrWhereGroup](#queryorwheregroup) | Append OR (grouped conditions from another query) |
+| [QueryWhereRaw](#querywhereraw) | Append AND (raw SQL expression) |
+| [QueryOrWhereRaw](#queryorwhereraw) | Append OR (raw SQL expression) |
+| [QueryWhereInSubquery](#querywhereinsubquery) | Append AND column IN (subquery) |
+| [QueryWhereNotInSubquery](#querywherenotinsubquery) | Append AND column NOT IN (subquery) |
+| [QueryWhereExists](#querywhereexists) | Append AND EXISTS (subquery) |
+| [QueryWhereNotExists](#querywherenotexists) | Append AND NOT EXISTS (subquery) |
+| [QueryFromSubquery](#queryfromsubquery) | Replace FROM table with a derived table (subquery) |
+| [QueryJoin](#queryjoin) | Append INNER JOIN |
+| [QueryLeftJoin](#queryleftjoin) | Append LEFT JOIN |
+| [QueryRightJoin](#queryrightjoin) | Append RIGHT JOIN |
+| [QueryCrossJoin](#querycrossjoin) | Append CROSS JOIN |
+| [QueryJoinSub](#queryjoinsub) | Append INNER JOIN (subquery) |
+| [QueryLeftJoinSub](#queryleftjoinsub) | Append LEFT JOIN (subquery) |
+| [QueryOrderBy](#queryorderby) | Append ORDER BY column |
+| [QueryOrderByRaw](#queryorderbyraw) | Append ORDER BY raw expression |
+| [QueryReorder](#queryreorder) | Clear all ORDER BY clauses |
+| [QueryGroupBy](#querygroupby) | Append GROUP BY column |
+| [QueryGroupByRaw](#querygroupbyraw) | Append GROUP BY raw expression |
+| [QueryHaving](#queryhaving) | Append AND HAVING condition |
+| [QueryOrHaving](#queryorhaving) | Append OR HAVING condition |
+| [QueryHavingRaw](#queryhavingraw) | Append AND HAVING raw expression |
+| [QueryOrHavingRaw](#queryorhavingraw) | Append OR HAVING raw expression |
+| [QueryLimit](#querylimit) | Set the row limit |
+| [QueryOffset](#queryoffset) | Set the row offset |
+| [QueryForPage](#queryforpage) | Set limit and offset for a specific page number |
+| [QueryUnion](#queryunion) | Append UNION or UNION ALL |
+| [QueryGet](#queryget) | Execute the query and return results |
+| [QueryGetResultsAsJson](#querygetresultsasjson) | Execute the query and return results as a JSON array of objects |
+| [QueryToSQL](#querytosql) | Return the assembled SQL string (debug) |
+| [QueryCount](#querycount) | Execute SELECT COUNT(*) and return the count |
+| [QuerySum](#querysum) | Execute SELECT SUM(column) and return the sum |
+| [QueryAvg](#queryavg) | Execute SELECT AVG(column) and return the average |
+| [QueryMax](#querymax) | Execute SELECT MAX(column) and return the maximum |
+| [QueryMin](#querymin) | Execute SELECT MIN(column) and return the minimum |
+| [QueryWhen](#querywhen) | Conditionally apply query modifications |
 
 ### Utility functions
 
 | Function | Purpose |
 |---|---|
-| [JSONGetElementLikeField\_cf](#jsongetelementlikefield_cf) | Get a JSON element using a FileMaker field reference or field-name string as the property key; optional index for array input |
+| [JSONGetElementNamedLikeField](#jsongetelementnamedlikefield) | Get a JSON element using a FileMaker field reference or field-name string as the property key; optional index for array input |
 
 ### Internal helpers
 
@@ -76,23 +76,23 @@ These functions are called by the public builders and are not intended to be cal
 
 | Function | Purpose |
 |---|---|
-| [QueryBuildJoins\_cf](#querybuildjoins_cf) | Recursively render JOIN clauses |
-| [QueryBuildWheres\_cf](#querybuildwheres_cf) | Recursively render WHERE clause body |
-| [QueryBuildInPlaceholders\_cf](#querybuildinplaceholders_cf) | Render N comma-separated `?` placeholders |
-| [QueryBuildGroupBys\_cf](#querybuildgroupbys_cf) | Recursively render GROUP BY column list |
-| [QueryBuildHavings\_cf](#querybuildhavings_cf) | Recursively render HAVING clause body |
-| [QueryBuildOrderBys\_cf](#querybuildorderbys_cf) | Recursively render ORDER BY column list |
-| [QueryBuildUnions\_cf](#querybuildunions_cf) | Recursively render UNION / UNION ALL clauses |
-| [QueryBuildBindingArgs\_cf](#querybuildbindingargs_cf) | Render binding values for Evaluate injection |
-| [QueryBuildWhereBooleanPrefix\_cf](#querybuildwherebooleanprefix_cf) | Render AND / OR / empty connector |
-| [QueryAppendBindings\_cf](#queryappendbindings_cf) | Recursively append N values to the bindings array |
-| [QueryMergeBindings\_cf](#querymergebindings_cf) | Append N bindings from a JSON array into the outer query |
-| [QueryPrependBindings\_cf](#queryprependbindings_cf) | Rebuild the bindings array with subquery bindings first |
-| [QueryBuildSelects\_cf](#querybuildselects_cf) | Convert ¶-delimited field names to quoted SQL column list |
-| [QueryConvertField\_cf](#queryconvertfield_cf) | Convert a single `Table::Field` name to quoted dot notation |
-| [QueryBuildJsonRow\_cf](#querybuildjsonrow_cf) | Build a single JSON object from a row of field values |
-| [QueryBuildJsonRows\_cf](#querybuildjsonrows_cf) | Recursively build a JSON array from all result rows |
-| [QueryBuildSelectKeys\_cf](#querybuildselectkeys_cf) | Extract plain key names from the original column input |
+| [QueryBuildJoins](#querybuildjoins) | Recursively render JOIN clauses |
+| [QueryBuildWheres](#querybuildwheres) | Recursively render WHERE clause body |
+| [QueryBuildInPlaceholders](#querybuildinplaceholders) | Render N comma-separated `?` placeholders |
+| [QueryBuildGroupBys](#querybuildgroupbys) | Recursively render GROUP BY column list |
+| [QueryBuildHavings](#querybuildhavings) | Recursively render HAVING clause body |
+| [QueryBuildOrderBys](#querybuildorderbys) | Recursively render ORDER BY column list |
+| [QueryBuildUnions](#querybuildunions) | Recursively render UNION / UNION ALL clauses |
+| [QueryBuildBindingArgs](#querybuildbindingargs) | Render binding values for Evaluate injection |
+| [QueryBuildWhereBooleanPrefix](#querybuildwherebooleanprefix) | Render AND / OR / empty connector |
+| [QueryAppendBindings](#queryappendbindings) | Recursively append N values to the bindings array |
+| [QueryMergeBindings](#querymergebindings) | Append N bindings from a JSON array into the outer query |
+| [QueryPrependBindings](#queryprependbindings) | Rebuild the bindings array with subquery bindings first |
+| [QueryBuildSelects](#querybuildselects) | Convert ¶-delimited field names to quoted SQL column list |
+| [QueryFieldFormat](#queryfieldformat) | Convert a single `Table::Field` name to quoted dot notation |
+| [QueryBuildJsonRow](#querybuildjsonrow) | Build a single JSON object from a row of field values |
+| [QueryBuildJsonRows](#querybuildjsonrows) | Recursively build a JSON array from all result rows |
+| [QueryBuildSelectKeys](#querybuildselectkeys) | Extract plain key names from the original column input |
 
 ---
 
@@ -100,7 +100,7 @@ These functions are called by the public builders and are not intended to be cal
 
 ---
 
-### QueryNew_cf
+### QueryNew
 
 Initialises a fresh query object for the given table occurrence. All clause arrays are set to empty, `selects` defaults to `*`, and all counts are set to `0`. Pass the returned object as the first argument to every subsequent builder call.
 
@@ -116,24 +116,24 @@ The table name is stored pre-quoted (`"Table"`) so the generated SQL consistentl
 
 ```
 // Direct field reference — no GetFieldName() wrapper needed
-_query = QueryNew_cf ( CONTACT::__kptID )
+_query = QueryNew ( CONTACT::__kptID )
 
 // GetFieldName() — rename-safe alternative
-_query = QueryNew_cf ( GetFieldName ( CONTACT::__kptID ) )
+_query = QueryNew ( GetFieldName ( CONTACT::__kptID ) )
 
 // Plain string — also valid
-_query = QueryNew_cf ( "CONTACT" )
+_query = QueryNew ( "CONTACT" )
 ```
 
 ---
 
-### QuerySelect_cf
+### QuerySelect
 
-Sets or extends the SELECT column list. The first call after `QueryNew_cf` replaces the default `SELECT *` sentinel. Each subsequent call **appends** to the existing column list.
+Sets or extends the SELECT column list. The first call after `QueryNew` replaces the default `SELECT *` sentinel. Each subsequent call **appends** to the existing column list.
 
-Accepts a ¶-delimited list (e.g. from `List()` and `GetFieldName()`) or a comma-separated string. `Table::Field` names are converted to `"Table"."Field"`. Expressions without `::` pass through unchanged — `*`, aggregates, `CASE`, raw SQL, etc. No separate `QuerySelectRaw_cf` is needed.
+Accepts a ¶-delimited list (e.g. from `List()` and `GetFieldName()`) or a comma-separated string. `Table::Field` names are converted to `"Table"."Field"`. Expressions without `::` pass through unchanged — `*`, aggregates, `CASE`, raw SQL, etc. No separate `QuerySelectRaw` is needed.
 
-Also stores `selectKeys` in the query object (plain field names, used by `QueryGetResultsAsJson_cf` to name JSON properties).
+Also stores `selectKeys` in the query object (plain field names, used by `QueryGetResultsAsJson` to name JSON properties).
 
 **Parameters**
 
@@ -145,19 +145,19 @@ Also stores `selectKeys` in the query object (plain field names, used by `QueryG
 **Example**
 
 ```
-_query = QuerySelect_cf ( _query ; List ( GetFieldName ( FMORM::PrimaryKey ) ; GetFieldName ( FMORM::CreatedBy ) ) )
+_query = QuerySelect ( _query ; List ( GetFieldName ( FMORM::PrimaryKey ) ; GetFieldName ( FMORM::CreatedBy ) ) )
 
 // Additive — two calls accumulate both columns
-_query = QuerySelect_cf ( _query ; GetFieldName ( FMORM::PrimaryKey ) ) ;
-_query = QuerySelect_cf ( _query ; "COUNT(*) AS total" )
+_query = QuerySelect ( _query ; GetFieldName ( FMORM::PrimaryKey ) ) ;
+_query = QuerySelect ( _query ; "COUNT(*) AS total" )
 // → SELECT "FMORM"."PrimaryKey", COUNT(*) AS total
 ```
 
 ---
 
-### QuerySelectSub_cf
+### QuerySelectSub
 
-Adds a subquery expression to the SELECT list: `(SELECT …) AS alias`. The alias becomes the JSON property name when using `QueryGetResultsAsJson_cf`. The subquery's bindings are prepended to the outer query's bindings (SELECT comes before WHERE in SQL).
+Adds a subquery expression to the SELECT list: `(SELECT …) AS alias`. The alias becomes the JSON property name when using `QueryGetResultsAsJson`. The subquery's bindings are prepended to the outer query's bindings (SELECT comes before WHERE in SQL).
 
 > **FileMaker compatibility:** Subqueries in SELECT require FileMaker 17+.
 
@@ -173,19 +173,19 @@ Adds a subquery expression to the SELECT list: `(SELECT …) AS alias`. The alia
 
 ```
 // Subquery: count of line items per invoice
-_inner = QueryNew_cf    ( "LINE_ITEM" ) ;
-_inner = QuerySelect_cf ( _inner ; "COUNT(*)" ) ;
-_inner = QueryWhereColumn_cf ( _inner ; "LINE_ITEM.invoiceId" ; "=" ; "INVOICE.id" ) ;
+_inner = QueryNew    ( "LINE_ITEM" ) ;
+_inner = QuerySelect ( _inner ; "COUNT(*)" ) ;
+_inner = QueryWhereColumn ( _inner ; "LINE_ITEM.invoiceId" ; "=" ; "INVOICE.id" ) ;
 
-_query = QueryNew_cf       ( "INVOICE" ) ;
-_query = QuerySelect_cf    ( _query ; GetFieldName ( INVOICE::id ) ) ;
-_query = QuerySelectSub_cf ( _query ; _inner ; "lineItemCount" )
+_query = QueryNew       ( "INVOICE" ) ;
+_query = QuerySelect    ( _query ; GetFieldName ( INVOICE::id ) ) ;
+_query = QuerySelectSub ( _query ; _inner ; "lineItemCount" )
 // → SELECT "INVOICE"."id", (SELECT COUNT(*) FROM "LINE_ITEM" …) AS "lineItemCount"
 ```
 
 ---
 
-### QueryDistinct_cf
+### QueryDistinct
 
 Adds `SELECT DISTINCT` to the query, eliminating duplicate rows from the result.
 
@@ -198,15 +198,15 @@ Adds `SELECT DISTINCT` to the query, eliminating duplicate rows from the result.
 **Example**
 
 ```
-_query = QueryNew_cf    ( "CONTACT" ) ;
-_query = QuerySelect_cf ( _query ; GetFieldName ( CONTACT::country ) ) ;
-_query = QueryDistinct_cf ( _query )
+_query = QueryNew    ( "CONTACT" ) ;
+_query = QuerySelect ( _query ; GetFieldName ( CONTACT::country ) ) ;
+_query = QueryDistinct ( _query )
 // → SELECT DISTINCT "CONTACT"."country" FROM "CONTACT"
 ```
 
 ---
 
-### QueryWhere_cf
+### QueryWhere
 
 Appends an AND WHERE condition with a bound parameter.
 
@@ -222,15 +222,15 @@ Appends an AND WHERE condition with a bound parameter.
 **Example**
 
 ```
-_query = QueryWhere_cf ( _query ; CONTACT::status ; "=" ; "Active" )
+_query = QueryWhere ( _query ; CONTACT::status ; "=" ; "Active" )
 // → WHERE "CONTACT"."status" = ?
 ```
 
 ---
 
-### QueryOrWhere_cf
+### QueryOrWhere
 
-Identical to `QueryWhere_cf` but joins with OR.
+Identical to `QueryWhere` but joins with OR.
 
 **Parameters**
 
@@ -244,14 +244,14 @@ Identical to `QueryWhere_cf` but joins with OR.
 **Example**
 
 ```
-_query = QueryWhere_cf   ( _query ; CONTACT::status ; "=" ; "Active" ) ;
-_query = QueryOrWhere_cf ( _query ; CONTACT::status ; "=" ; "Prospect" )
+_query = QueryWhere   ( _query ; CONTACT::status ; "=" ; "Active" ) ;
+_query = QueryOrWhere ( _query ; CONTACT::status ; "=" ; "Prospect" )
 // → WHERE "CONTACT"."status" = ? OR "CONTACT"."status" = ?
 ```
 
 ---
 
-### QueryWhereIn_cf
+### QueryWhereIn
 
 Appends AND column IN (?, ?, …). Each value in the ¶-delimited list becomes its own bound parameter.
 
@@ -266,13 +266,13 @@ Appends AND column IN (?, ?, …). Each value in the ¶-delimited list becomes i
 **Example**
 
 ```
-_query = QueryWhereIn_cf ( _query ; CONTACT::type ; "customer¶prospect¶partner" )
+_query = QueryWhereIn ( _query ; CONTACT::type ; "customer¶prospect¶partner" )
 // → WHERE "CONTACT"."type" IN (?, ?, ?)
 ```
 
 ---
 
-### QueryWhereNotIn_cf
+### QueryWhereNotIn
 
 Appends AND column NOT IN (?, ?, …). Each value becomes its own bound parameter.
 
@@ -287,13 +287,13 @@ Appends AND column NOT IN (?, ?, …). Each value becomes its own bound paramete
 **Example**
 
 ```
-_query = QueryWhereNotIn_cf ( _query ; CONTACT::status ; "Archived¶Deleted" )
+_query = QueryWhereNotIn ( _query ; CONTACT::status ; "Archived¶Deleted" )
 // → WHERE "CONTACT"."status" NOT IN (?, ?)
 ```
 
 ---
 
-### QueryOrWhereIn_cf
+### QueryOrWhereIn
 
 Appends OR column IN (?, ?, …).
 
@@ -308,14 +308,14 @@ Appends OR column IN (?, ?, …).
 **Example**
 
 ```
-_query = QueryWhere_cf     ( _query ; CONTACT::region ; "=" ; "West" ) ;
-_query = QueryOrWhereIn_cf ( _query ; CONTACT::type ; "partner¶reseller" )
+_query = QueryWhere     ( _query ; CONTACT::region ; "=" ; "West" ) ;
+_query = QueryOrWhereIn ( _query ; CONTACT::type ; "partner¶reseller" )
 // → WHERE "CONTACT"."region" = ? OR "CONTACT"."type" IN (?, ?)
 ```
 
 ---
 
-### QueryWhereNull_cf
+### QueryWhereNull
 
 Appends AND column IS NULL. No binding is added.
 
@@ -329,13 +329,13 @@ Appends AND column IS NULL. No binding is added.
 **Example**
 
 ```
-_query = QueryWhereNull_cf ( _query ; CONTACT::deletedAt )
+_query = QueryWhereNull ( _query ; CONTACT::deletedAt )
 // → WHERE "CONTACT"."deletedAt" IS NULL
 ```
 
 ---
 
-### QueryWhereNotNull_cf
+### QueryWhereNotNull
 
 Appends AND column IS NOT NULL. No binding is added.
 
@@ -349,13 +349,13 @@ Appends AND column IS NOT NULL. No binding is added.
 **Example**
 
 ```
-_query = QueryWhereNotNull_cf ( _query ; CONTACT::emailWork )
+_query = QueryWhereNotNull ( _query ; CONTACT::emailWork )
 // → WHERE "CONTACT"."emailWork" IS NOT NULL
 ```
 
 ---
 
-### QueryOrWhereNull_cf
+### QueryOrWhereNull
 
 Appends OR column IS NULL. No binding is added.
 
@@ -369,14 +369,14 @@ Appends OR column IS NULL. No binding is added.
 **Example**
 
 ```
-_query = QueryWhere_cf     ( _query ; CONTACT::status ; "=" ; "Active" ) ;
-_query = QueryOrWhereNull_cf ( _query ; CONTACT::status )
+_query = QueryWhere     ( _query ; CONTACT::status ; "=" ; "Active" ) ;
+_query = QueryOrWhereNull ( _query ; CONTACT::status )
 // → WHERE "CONTACT"."status" = ? OR "CONTACT"."status" IS NULL
 ```
 
 ---
 
-### QueryOrWhereNotNull_cf
+### QueryOrWhereNotNull
 
 Appends OR column IS NOT NULL. No binding is added.
 
@@ -390,13 +390,13 @@ Appends OR column IS NOT NULL. No binding is added.
 **Example**
 
 ```
-_query = QueryOrWhereNotNull_cf ( _query ; CONTACT::emailWork )
+_query = QueryOrWhereNotNull ( _query ; CONTACT::emailWork )
 // → OR "CONTACT"."emailWork" IS NOT NULL
 ```
 
 ---
 
-### QueryWhereBetween_cf
+### QueryWhereBetween
 
 Appends AND column BETWEEN low AND high. Two bindings are added.
 
@@ -412,13 +412,13 @@ Appends AND column BETWEEN low AND high. Two bindings are added.
 **Example**
 
 ```
-_query = QueryWhereBetween_cf ( _query ; INVOICE::amount ; 100 ; 500 )
+_query = QueryWhereBetween ( _query ; INVOICE::amount ; 100 ; 500 )
 // → WHERE "INVOICE"."amount" BETWEEN ? AND ?
 ```
 
 ---
 
-### QueryWhereNotBetween_cf
+### QueryWhereNotBetween
 
 Appends AND column NOT BETWEEN low AND high. Two bindings are added.
 
@@ -434,13 +434,13 @@ Appends AND column NOT BETWEEN low AND high. Two bindings are added.
 **Example**
 
 ```
-_query = QueryWhereNotBetween_cf ( _query ; INVOICE::amount ; 100 ; 500 )
+_query = QueryWhereNotBetween ( _query ; INVOICE::amount ; 100 ; 500 )
 // → WHERE "INVOICE"."amount" NOT BETWEEN ? AND ?
 ```
 
 ---
 
-### QueryOrWhereBetween_cf
+### QueryOrWhereBetween
 
 Appends OR column BETWEEN low AND high. Two bindings are added.
 
@@ -455,7 +455,7 @@ Appends OR column BETWEEN low AND high. Two bindings are added.
 
 ---
 
-### QueryOrWhereNotBetween_cf
+### QueryOrWhereNotBetween
 
 Appends OR column NOT BETWEEN low AND high. Two bindings are added.
 
@@ -470,7 +470,7 @@ Appends OR column NOT BETWEEN low AND high. Two bindings are added.
 
 ---
 
-### QueryWhereColumn_cf
+### QueryWhereColumn
 
 Appends AND first operator second comparing two columns directly. No binding is added — both sides are SQL identifiers. Both `first` and `second` accept the same field reference formats as other column parameters.
 
@@ -486,15 +486,15 @@ Appends AND first operator second comparing two columns directly. No binding is 
 **Example**
 
 ```
-_query = QueryWhereColumn_cf ( _query ; INVOICE::contactId ; "=" ; CONTACT::id )
+_query = QueryWhereColumn ( _query ; INVOICE::contactId ; "=" ; CONTACT::id )
 // → WHERE "INVOICE"."contactId" = "CONTACT"."id"
 ```
 
 ---
 
-### QueryWhereGroup_cf
+### QueryWhereGroup
 
-Appends AND (grouped conditions) by wrapping the WHERE conditions from `groupedQuery` in parentheses. Build `groupedQuery` using any combination of `QueryWhere_cf`, `QueryOrWhere_cf`, etc. on any query object — only its `wheres` array and bindings are used; its FROM, SELECT, and other clauses are ignored.
+Appends AND (grouped conditions) by wrapping the WHERE conditions from `groupedQuery` in parentheses. Build `groupedQuery` using any combination of `QueryWhere`, `QueryOrWhere`, etc. on any query object — only its `wheres` array and bindings are used; its FROM, SELECT, and other clauses are ignored.
 
 **Parameters**
 
@@ -507,22 +507,22 @@ Appends AND (grouped conditions) by wrapping the WHERE conditions from `groupedQ
 
 ```
 // Build the inner group: (status = ? OR priority = ?)
-_g = QueryNew_cf     ( "CONTACT" ) ;
-_g = QueryWhere_cf   ( _g ; CONTACT::status ; "=" ; "Active" ) ;
-_g = QueryOrWhere_cf ( _g ; CONTACT::priority ; "=" ; "High" ) ;
+_g = QueryNew     ( "CONTACT" ) ;
+_g = QueryWhere   ( _g ; CONTACT::status ; "=" ; "Active" ) ;
+_g = QueryOrWhere ( _g ; CONTACT::priority ; "=" ; "High" ) ;
 
 // Attach the group to the main query
-_query = QueryNew_cf       ( "CONTACT" ) ;
-_query = QueryWhere_cf     ( _query ; CONTACT::region ; "=" ; "West" ) ;
-_query = QueryWhereGroup_cf ( _query ; _g )
+_query = QueryNew       ( "CONTACT" ) ;
+_query = QueryWhere     ( _query ; CONTACT::region ; "=" ; "West" ) ;
+_query = QueryWhereGroup ( _query ; _g )
 // → WHERE "CONTACT"."region" = ? AND ("CONTACT"."status" = ? OR "CONTACT"."priority" = ?)
 ```
 
 ---
 
-### QueryOrWhereGroup_cf
+### QueryOrWhereGroup
 
-Identical to `QueryWhereGroup_cf` but joins the group with OR.
+Identical to `QueryWhereGroup` but joins the group with OR.
 
 **Parameters**
 
@@ -534,13 +534,13 @@ Identical to `QueryWhereGroup_cf` but joins the group with OR.
 **Example**
 
 ```
-_query = QueryOrWhereGroup_cf ( _query ; _g )
+_query = QueryOrWhereGroup ( _query ; _g )
 // → OR ("CONTACT"."status" = ? OR "CONTACT"."priority" = ?)
 ```
 
 ---
 
-### QueryWhereRaw_cf
+### QueryWhereRaw
 
 Appends AND (rawSql) inserting a raw SQL fragment verbatim into the WHERE clause. Useful for expressions that no builder covers (e.g. `CASE`, vendor functions, complex predicates).
 
@@ -556,19 +556,19 @@ Appends AND (rawSql) inserting a raw SQL fragment verbatim into the WHERE clause
 
 ```
 // No bindings
-_query = QueryWhereRaw_cf ( _query ; "MONTH(\"INVOICE\".\"date\") = MONTH(CURRENT_DATE)" ; "" )
+_query = QueryWhereRaw ( _query ; "MONTH(\"INVOICE\".\"date\") = MONTH(CURRENT_DATE)" ; "" )
 // → WHERE (MONTH("INVOICE"."date") = MONTH(CURRENT_DATE))
 
 // With bindings
-_query = QueryWhereRaw_cf ( _query ; "\"INVOICE\".\"total\" BETWEEN ? AND ?" ; "100¶500" )
+_query = QueryWhereRaw ( _query ; "\"INVOICE\".\"total\" BETWEEN ? AND ?" ; "100¶500" )
 // → WHERE ("INVOICE"."total" BETWEEN ? AND ?)
 ```
 
 ---
 
-### QueryOrWhereRaw_cf
+### QueryOrWhereRaw
 
-Identical to `QueryWhereRaw_cf` but joins with OR.
+Identical to `QueryWhereRaw` but joins with OR.
 
 **Parameters**
 
@@ -580,7 +580,7 @@ Identical to `QueryWhereRaw_cf` but joins with OR.
 
 ---
 
-### QueryWhereInSubquery_cf
+### QueryWhereInSubquery
 
 Appends AND column IN (SELECT …) using a fully-assembled fmorm subquery object. The subquery's bindings are appended after the outer query's existing WHERE bindings.
 
@@ -597,20 +597,20 @@ Appends AND column IN (SELECT …) using a fully-assembled fmorm subquery object
 **Example**
 
 ```
-_inner = QueryNew_cf    ( "CONTACT" ) ;
-_inner = QuerySelect_cf ( _inner ; "CONTACT.id" ) ;
-_inner = QueryWhere_cf  ( _inner ; CONTACT::status ; "=" ; "Active" ) ;
+_inner = QueryNew    ( "CONTACT" ) ;
+_inner = QuerySelect ( _inner ; "CONTACT.id" ) ;
+_inner = QueryWhere  ( _inner ; CONTACT::status ; "=" ; "Active" ) ;
 
-_query = QueryNew_cf             ( "INVOICE" ) ;
-_query = QueryWhereInSubquery_cf ( _query ; INVOICE::contactID ; _inner )
+_query = QueryNew             ( "INVOICE" ) ;
+_query = QueryWhereInSubquery ( _query ; INVOICE::contactID ; _inner )
 // → WHERE "INVOICE"."contactID" IN (SELECT CONTACT.id FROM "CONTACT" WHERE …)
 ```
 
 ---
 
-### QueryWhereNotInSubquery_cf
+### QueryWhereNotInSubquery
 
-Appends AND column NOT IN (SELECT …). Same binding semantics as `QueryWhereInSubquery_cf`.
+Appends AND column NOT IN (SELECT …). Same binding semantics as `QueryWhereInSubquery`.
 
 > **FileMaker compatibility:** Requires FileMaker 17+.
 
@@ -625,13 +625,13 @@ Appends AND column NOT IN (SELECT …). Same binding semantics as `QueryWhereInS
 **Example**
 
 ```
-_query = QueryWhereNotInSubquery_cf ( _query ; INVOICE::contactID ; _inner )
+_query = QueryWhereNotInSubquery ( _query ; INVOICE::contactID ; _inner )
 // → WHERE "INVOICE"."contactID" NOT IN (SELECT … )
 ```
 
 ---
 
-### QueryWhereExists_cf
+### QueryWhereExists
 
 Appends AND EXISTS (SELECT …). The subquery's bindings are appended.
 
@@ -647,19 +647,19 @@ Appends AND EXISTS (SELECT …). The subquery's bindings are appended.
 **Example**
 
 ```
-_inner = QueryNew_cf   ( "INVOICE" ) ;
-_inner = QueryWhere_cf ( _inner ; INVOICE::contactId ; "=" ; "some-id" ) ;
+_inner = QueryNew   ( "INVOICE" ) ;
+_inner = QueryWhere ( _inner ; INVOICE::contactId ; "=" ; "some-id" ) ;
 
-_query = QueryNew_cf        ( "CONTACT" ) ;
-_query = QueryWhereExists_cf ( _query ; _inner )
+_query = QueryNew        ( "CONTACT" ) ;
+_query = QueryWhereExists ( _query ; _inner )
 // → WHERE EXISTS (SELECT * FROM "INVOICE" WHERE …)
 ```
 
 ---
 
-### QueryWhereNotExists_cf
+### QueryWhereNotExists
 
-Appends AND NOT EXISTS (SELECT …). Same semantics as `QueryWhereExists_cf`.
+Appends AND NOT EXISTS (SELECT …). Same semantics as `QueryWhereExists`.
 
 **Parameters**
 
@@ -670,11 +670,11 @@ Appends AND NOT EXISTS (SELECT …). Same semantics as `QueryWhereExists_cf`.
 
 ---
 
-### QueryFromSubquery_cf
+### QueryFromSubquery
 
-Replaces the FROM table with a derived table: `FROM (SELECT …) alias`. The table name set in `QueryNew_cf` is discarded. The subquery's bindings are prepended automatically.
+Replaces the FROM table with a derived table: `FROM (SELECT …) alias`. The table name set in `QueryNew` is discarded. The subquery's bindings are prepended automatically.
 
-> **FileMaker compatibility:** Functional in FM 19.x; not formally documented by Claris. Avoid `QueryLimit_cf` / `QueryOffset_cf` on the inner query. See [FileMaker SQL Compatibility Notes](#filemaker-sql-compatibility-notes).
+> **FileMaker compatibility:** Functional in FM 19.x; not formally documented by Claris. Avoid `QueryLimit` / `QueryOffset` on the inner query. See [FileMaker SQL Compatibility Notes](#filemaker-sql-compatibility-notes).
 
 **Parameters**
 
@@ -687,18 +687,18 @@ Replaces the FROM table with a derived table: `FROM (SELECT …) alias`. The tab
 **Example**
 
 ```
-_inner = QueryNew_cf     ( "INVOICE" ) ;
-_inner = QuerySelect_cf  ( _inner ; "INVOICE.contactID, MAX(INVOICE.invoiceDate) AS lastDate" ) ;
-_inner = QueryGroupBy_cf ( _inner ; "INVOICE.contactID" ) ;
+_inner = QueryNew     ( "INVOICE" ) ;
+_inner = QuerySelect  ( _inner ; "INVOICE.contactID, MAX(INVOICE.invoiceDate) AS lastDate" ) ;
+_inner = QueryGroupBy ( _inner ; "INVOICE.contactID" ) ;
 
-_query = QueryNew_cf          ( "CONTACT" ) ;
-_query = QueryFromSubquery_cf ( _query ; _inner ; "recent" ) ;
-_query = QueryWhere_cf        ( _query ; "recent.lastDate" ; ">" ; Get ( CurrentDate ) - 30 )
+_query = QueryNew          ( "CONTACT" ) ;
+_query = QueryFromSubquery ( _query ; _inner ; "recent" ) ;
+_query = QueryWhere        ( _query ; "recent.lastDate" ; ">" ; Get ( CurrentDate ) - 30 )
 ```
 
 ---
 
-### QueryJoin_cf
+### QueryJoin
 
 Appends an INNER JOIN clause with an ON condition.
 
@@ -715,28 +715,28 @@ Appends an INNER JOIN clause with an ON condition.
 **Example**
 
 ```
-_query = QueryJoin_cf ( _query ; invoice__ITEM::__kptID ; CONTACT::_kftItemID ; "=" ; invoice__ITEM::__kptID )
+_query = QueryJoin ( _query ; invoice__ITEM::__kptID ; CONTACT::_kftItemID ; "=" ; invoice__ITEM::__kptID )
 // → INNER JOIN "invoice__ITEM" ON "CONTACT"."_kftItemID" = "invoice__ITEM"."__kptID"
 ```
 
 ---
 
-### QueryLeftJoin_cf
+### QueryLeftJoin
 
-Appends a LEFT JOIN clause. Same parameters as `QueryJoin_cf`.
+Appends a LEFT JOIN clause. Same parameters as `QueryJoin`.
 
 **Example**
 
 ```
-_query = QueryLeftJoin_cf ( _query ; contact__INVOICE::__kptID ; CONTACT::_kftInvoiceID ; "=" ; contact__INVOICE::__kptID )
+_query = QueryLeftJoin ( _query ; contact__INVOICE::__kptID ; CONTACT::_kftInvoiceID ; "=" ; contact__INVOICE::__kptID )
 // → LEFT JOIN "contact__INVOICE" ON "CONTACT"."_kftInvoiceID" = "contact__INVOICE"."__kptID"
 ```
 
 ---
 
-### QueryRightJoin_cf
+### QueryRightJoin
 
-Appends a RIGHT JOIN clause. Same parameters as `QueryJoin_cf`.
+Appends a RIGHT JOIN clause. Same parameters as `QueryJoin`.
 
 **Parameters**
 
@@ -751,13 +751,13 @@ Appends a RIGHT JOIN clause. Same parameters as `QueryJoin_cf`.
 **Example**
 
 ```
-_query = QueryRightJoin_cf ( _query ; "INVOICE" ; CONTACT::id ; "=" ; "INVOICE.contactId" )
+_query = QueryRightJoin ( _query ; "INVOICE" ; CONTACT::id ; "=" ; "INVOICE.contactId" )
 // → RIGHT JOIN "INVOICE" ON "CONTACT"."id" = INVOICE.contactId
 ```
 
 ---
 
-### QueryCrossJoin_cf
+### QueryCrossJoin
 
 Appends a CROSS JOIN (cartesian product). No ON condition.
 
@@ -771,13 +771,13 @@ Appends a CROSS JOIN (cartesian product). No ON condition.
 **Example**
 
 ```
-_query = QueryCrossJoin_cf ( _query ; "SIZE" )
+_query = QueryCrossJoin ( _query ; "SIZE" )
 // → CROSS JOIN "SIZE"
 ```
 
 ---
 
-### QueryJoinSub_cf
+### QueryJoinSub
 
 Appends INNER JOIN (SELECT …) alias ON condition. The subquery's bindings are appended after the outer query's existing bindings.
 
@@ -799,20 +799,20 @@ Appends INNER JOIN (SELECT …) alias ON condition. The subquery's bindings are 
 **Example**
 
 ```
-_inner = QueryNew_cf    ( "LINE_ITEM" ) ;
-_inner = QuerySelect_cf ( _inner ; "LINE_ITEM.invoiceId, SUM(LINE_ITEM.amount) AS total" ) ;
-_inner = QueryGroupBy_cf ( _inner ; "LINE_ITEM.invoiceId" ) ;
+_inner = QueryNew    ( "LINE_ITEM" ) ;
+_inner = QuerySelect ( _inner ; "LINE_ITEM.invoiceId, SUM(LINE_ITEM.amount) AS total" ) ;
+_inner = QueryGroupBy ( _inner ; "LINE_ITEM.invoiceId" ) ;
 
-_query = QueryNew_cf    ( "INVOICE" ) ;
-_query = QueryJoinSub_cf ( _query ; _inner ; "totals" ; "INVOICE.id" ; "=" ; "totals.invoiceId" )
+_query = QueryNew    ( "INVOICE" ) ;
+_query = QueryJoinSub ( _query ; _inner ; "totals" ; "INVOICE.id" ; "=" ; "totals.invoiceId" )
 // → INNER JOIN (SELECT … FROM "LINE_ITEM" GROUP BY …) totals ON INVOICE.id = totals.invoiceId
 ```
 
 ---
 
-### QueryLeftJoinSub_cf
+### QueryLeftJoinSub
 
-Appends LEFT JOIN (SELECT …) alias ON condition. Same semantics as `QueryJoinSub_cf` but uses a LEFT JOIN.
+Appends LEFT JOIN (SELECT …) alias ON condition. Same semantics as `QueryJoinSub` but uses a LEFT JOIN.
 
 **Parameters**
 
@@ -827,7 +827,7 @@ Appends LEFT JOIN (SELECT …) alias ON condition. Same semantics as `QueryJoinS
 
 ---
 
-### QueryOrderBy_cf
+### QueryOrderBy
 
 Appends an ORDER BY column. Call multiple times to sort by multiple columns in order.
 
@@ -842,16 +842,16 @@ Appends an ORDER BY column. Call multiple times to sort by multiple columns in o
 **Example**
 
 ```
-_query = QueryOrderBy_cf ( _query ; CONTACT::lastName ; "ASC" ) ;
-_query = QueryOrderBy_cf ( _query ; CONTACT::firstName ; "ASC" )
+_query = QueryOrderBy ( _query ; CONTACT::lastName ; "ASC" ) ;
+_query = QueryOrderBy ( _query ; CONTACT::firstName ; "ASC" )
 // → ORDER BY "CONTACT"."lastName" ASC, "CONTACT"."firstName" ASC
 ```
 
 ---
 
-### QueryOrderByRaw_cf
+### QueryOrderByRaw
 
-Appends a raw SQL expression to the ORDER BY clause. Useful for `RAND()`, `CASE` expressions, or function-based ordering not supported by `QueryOrderBy_cf`.
+Appends a raw SQL expression to the ORDER BY clause. Useful for `RAND()`, `CASE` expressions, or function-based ordering not supported by `QueryOrderBy`.
 
 **Parameters**
 
@@ -863,13 +863,13 @@ Appends a raw SQL expression to the ORDER BY clause. Useful for `RAND()`, `CASE`
 **Example**
 
 ```
-_query = QueryOrderByRaw_cf ( _query ; "RAND()" )
+_query = QueryOrderByRaw ( _query ; "RAND()" )
 // → ORDER BY RAND()
 ```
 
 ---
 
-### QueryReorder_cf
+### QueryReorder
 
 Clears all existing ORDER BY clauses from the query, allowing a fresh ordering to be applied.
 
@@ -882,15 +882,15 @@ Clears all existing ORDER BY clauses from the query, allowing a fresh ordering t
 **Example**
 
 ```
-_query = QueryOrderBy_cf ( _query ; CONTACT::lastName ; "ASC" ) ;
-_query = QueryReorder_cf ( _query ) ;
-_query = QueryOrderBy_cf ( _query ; CONTACT::createdAt ; "DESC" )
+_query = QueryOrderBy ( _query ; CONTACT::lastName ; "ASC" ) ;
+_query = QueryReorder ( _query ) ;
+_query = QueryOrderBy ( _query ; CONTACT::createdAt ; "DESC" )
 // Previous ORDER BY discarded; now sorts by createdAt DESC only
 ```
 
 ---
 
-### QueryGroupBy_cf
+### QueryGroupBy
 
 Appends a GROUP BY column. Call multiple times for multiple grouping columns.
 
@@ -904,13 +904,13 @@ Appends a GROUP BY column. Call multiple times for multiple grouping columns.
 **Example**
 
 ```
-_query = QueryGroupBy_cf ( _query ; CONTACT::type )
+_query = QueryGroupBy ( _query ; CONTACT::type )
 // → GROUP BY "CONTACT"."type"
 ```
 
 ---
 
-### QueryGroupByRaw_cf
+### QueryGroupByRaw
 
 Appends a raw SQL expression to the GROUP BY clause. Useful for function-based grouping.
 
@@ -924,15 +924,15 @@ Appends a raw SQL expression to the GROUP BY clause. Useful for function-based g
 **Example**
 
 ```
-_query = QueryGroupByRaw_cf ( _query ; "YEAR(\"INVOICE\".\"date\")" )
+_query = QueryGroupByRaw ( _query ; "YEAR(\"INVOICE\".\"date\")" )
 // → GROUP BY YEAR("INVOICE"."date")
 ```
 
 ---
 
-### QueryHaving_cf
+### QueryHaving
 
-Appends an AND HAVING condition with a bound parameter. Must be used after `QueryGroupBy_cf`.
+Appends an AND HAVING condition with a bound parameter. Must be used after `QueryGroupBy`.
 
 **Parameters**
 
@@ -946,16 +946,16 @@ Appends an AND HAVING condition with a bound parameter. Must be used after `Quer
 **Example**
 
 ```
-_query = QueryGroupBy_cf ( _query ; "CONTACT.type" ) ;
-_query = QueryHaving_cf  ( _query ; "COUNT(*)" ; ">" ; 5 )
+_query = QueryGroupBy ( _query ; "CONTACT.type" ) ;
+_query = QueryHaving  ( _query ; "COUNT(*)" ; ">" ; 5 )
 // → GROUP BY CONTACT.type HAVING COUNT(*) > ?
 ```
 
 ---
 
-### QueryOrHaving_cf
+### QueryOrHaving
 
-Identical to `QueryHaving_cf` but joins with OR.
+Identical to `QueryHaving` but joins with OR.
 
 **Parameters**
 
@@ -969,14 +969,14 @@ Identical to `QueryHaving_cf` but joins with OR.
 **Example**
 
 ```
-_query = QueryHaving_cf   ( _query ; "COUNT(*)" ; ">" ; 5 ) ;
-_query = QueryOrHaving_cf ( _query ; "SUM(amount)" ; ">" ; 1000 )
+_query = QueryHaving   ( _query ; "COUNT(*)" ; ">" ; 5 ) ;
+_query = QueryOrHaving ( _query ; "SUM(amount)" ; ">" ; 1000 )
 // → HAVING COUNT(*) > ? OR SUM(amount) > ?
 ```
 
 ---
 
-### QueryHavingRaw_cf
+### QueryHavingRaw
 
 Appends AND (rawSql) to the HAVING clause verbatim.
 
@@ -991,15 +991,15 @@ Appends AND (rawSql) to the HAVING clause verbatim.
 **Example**
 
 ```
-_query = QueryHavingRaw_cf ( _query ; "COUNT(*) BETWEEN ? AND ?" ; "5¶20" )
+_query = QueryHavingRaw ( _query ; "COUNT(*) BETWEEN ? AND ?" ; "5¶20" )
 // → HAVING (COUNT(*) BETWEEN ? AND ?)
 ```
 
 ---
 
-### QueryOrHavingRaw_cf
+### QueryOrHavingRaw
 
-Identical to `QueryHavingRaw_cf` but joins with OR.
+Identical to `QueryHavingRaw` but joins with OR.
 
 **Parameters**
 
@@ -1011,7 +1011,7 @@ Identical to `QueryHavingRaw_cf` but joins with OR.
 
 ---
 
-### QueryLimit_cf
+### QueryLimit
 
 Sets the maximum number of rows to return. Emits `FETCH FIRST n ROWS ONLY` (FileMaker's SQL dialect — `LIMIT` is not valid).
 
@@ -1025,13 +1025,13 @@ Sets the maximum number of rows to return. Emits `FETCH FIRST n ROWS ONLY` (File
 **Example**
 
 ```
-_query = QueryLimit_cf ( _query ; 50 )
+_query = QueryLimit ( _query ; 50 )
 // → FETCH FIRST 50 ROWS ONLY
 ```
 
 ---
 
-### QueryOffset_cf
+### QueryOffset
 
 Sets the number of rows to skip. Emits `OFFSET n ROWS`.
 
@@ -1045,15 +1045,15 @@ Sets the number of rows to skip. Emits `OFFSET n ROWS`.
 **Example**
 
 ```
-_query = QueryOffset_cf ( _query ; 100 )
+_query = QueryOffset ( _query ; 100 )
 // → OFFSET 100 ROWS
 ```
 
 ---
 
-### QueryForPage_cf
+### QueryForPage
 
-Convenience function: sets both limit and offset for a specific 1-based page number. Equivalent to calling `QueryLimit_cf` and `QueryOffset_cf` with `offset = (page - 1) * perPage`.
+Convenience function: sets both limit and offset for a specific 1-based page number. Equivalent to calling `QueryLimit` and `QueryOffset` with `offset = (page - 1) * perPage`.
 
 **Parameters**
 
@@ -1066,13 +1066,13 @@ Convenience function: sets both limit and offset for a specific 1-based page num
 **Example**
 
 ```
-_query = QueryForPage_cf ( _query ; 3 ; 25 )
+_query = QueryForPage ( _query ; 3 ; 25 )
 // → FETCH FIRST 25 ROWS ONLY OFFSET 50 ROWS   (page 3 of 25)
 ```
 
 ---
 
-### QueryUnion_cf
+### QueryUnion
 
 Appends a UNION or UNION ALL clause, combining the results of two queries. The union query's bindings are appended after the main query's bindings.
 
@@ -1089,20 +1089,20 @@ Appends a UNION or UNION ALL clause, combining the results of two queries. The u
 **Example**
 
 ```
-_q1 = QueryNew_cf    ( "CONTACT" ) ;
-_q1 = QuerySelect_cf ( _q1 ; "CONTACT.name, CONTACT.email" ) ;
-_q1 = QueryWhere_cf  ( _q1 ; CONTACT::type ; "=" ; "customer" ) ;
+_q1 = QueryNew    ( "CONTACT" ) ;
+_q1 = QuerySelect ( _q1 ; "CONTACT.name, CONTACT.email" ) ;
+_q1 = QueryWhere  ( _q1 ; CONTACT::type ; "=" ; "customer" ) ;
 
-_q2 = QueryNew_cf    ( "PROSPECT" ) ;
-_q2 = QuerySelect_cf ( _q2 ; "PROSPECT.name, PROSPECT.email" ) ;
+_q2 = QueryNew    ( "PROSPECT" ) ;
+_q2 = QuerySelect ( _q2 ; "PROSPECT.name, PROSPECT.email" ) ;
 
-_q1 = QueryUnion_cf ( _q1 ; _q2 ; 0 )
+_q1 = QueryUnion ( _q1 ; _q2 ; 0 )
 // → SELECT … FROM "CONTACT" WHERE … UNION SELECT … FROM "PROSPECT"
 ```
 
 ---
 
-### QueryGet_cf
+### QueryGet
 
 Executes the assembled query via `ExecuteSQL`. Bound values are injected using `Evaluate ( ExecuteSQL ( … ) )`. Returns `""` on error (when `ExecuteSQL` returns a value beginning with `?`).
 
@@ -1117,14 +1117,14 @@ Executes the assembled query via `ExecuteSQL`. Bound values are injected using `
 **Example**
 
 ```
-_result = QueryGet_cf ( _query ; "," ; "¶" )
+_result = QueryGet ( _query ; "," ; "¶" )
 ```
 
 ---
 
-### QueryGetResultsAsJson_cf
+### QueryGetResultsAsJson
 
-Executes the query and returns results as a JSON array of objects, one object per row. Property names come from `selectKeys` stored by `QuerySelect_cf`. Returns `"[]"` on no rows or error. All values are stored as JSON strings.
+Executes the query and returns results as a JSON array of objects, one object per row. Property names come from `selectKeys` stored by `QuerySelect`. Returns `"[]"` on no rows or error. All values are stored as JSON strings.
 
 **Parameters**
 
@@ -1135,13 +1135,13 @@ Executes the query and returns results as a JSON array of objects, one object pe
 **Example**
 
 ```
-_result = QueryGetResultsAsJson_cf ( _query )
+_result = QueryGetResultsAsJson ( _query )
 // → [{"PrimaryKey":"1","FullName":"Jane Smith","Status":"Active"},…]
 ```
 
 ---
 
-### QueryToSQL_cf
+### QueryToSQL
 
 Returns the assembled SQL string without executing it. Bound parameters appear as `?`. Output is pretty-printed. Useful during development for verifying query structure.
 
@@ -1154,7 +1154,7 @@ Returns the assembled SQL string without executing it. Bound parameters appear a
 **Example**
 
 ```
-_sql = QueryToSQL_cf ( _query )
+_sql = QueryToSQL ( _query )
 // →
 // SELECT
 //     "CONTACT"."id",
@@ -1169,7 +1169,7 @@ _sql = QueryToSQL_cf ( _query )
 
 ---
 
-### QueryCount_cf
+### QueryCount
 
 Executes `SELECT COUNT(*)` for the assembled query and returns the count as a number. The original query object is not modified. Returns `0` on error or empty result.
 
@@ -1182,14 +1182,14 @@ Executes `SELECT COUNT(*)` for the assembled query and returns the count as a nu
 **Example**
 
 ```
-_count = QueryCount_cf ( _query )
+_count = QueryCount ( _query )
 // Executes: SELECT COUNT(*) FROM … WHERE …
 // Returns: 42
 ```
 
 ---
 
-### QuerySum_cf
+### QuerySum
 
 Executes `SELECT SUM(column)` and returns the sum as a number. Returns `0` on error or empty result.
 
@@ -1203,13 +1203,13 @@ Executes `SELECT SUM(column)` and returns the sum as a number. Returns `0` on er
 **Example**
 
 ```
-_total = QuerySum_cf ( _query ; INVOICE::amount )
+_total = QuerySum ( _query ; INVOICE::amount )
 // Executes: SELECT SUM("INVOICE"."amount") FROM … WHERE …
 ```
 
 ---
 
-### QueryAvg_cf
+### QueryAvg
 
 Executes `SELECT AVG(column)` and returns the average as a number. Returns `0` on error or empty result.
 
@@ -1223,12 +1223,12 @@ Executes `SELECT AVG(column)` and returns the average as a number. Returns `0` o
 **Example**
 
 ```
-_avg = QueryAvg_cf ( _query ; INVOICE::amount )
+_avg = QueryAvg ( _query ; INVOICE::amount )
 ```
 
 ---
 
-### QueryMax_cf
+### QueryMax
 
 Executes `SELECT MAX(column)` and returns the maximum value as a string. Returns `""` on error or empty result.
 
@@ -1242,12 +1242,12 @@ Executes `SELECT MAX(column)` and returns the maximum value as a string. Returns
 **Example**
 
 ```
-_latest = QueryMax_cf ( _query ; INVOICE::invoiceDate )
+_latest = QueryMax ( _query ; INVOICE::invoiceDate )
 ```
 
 ---
 
-### QueryMin_cf
+### QueryMin
 
 Executes `SELECT MIN(column)` and returns the minimum value as a string. Returns `""` on error or empty result.
 
@@ -1261,12 +1261,12 @@ Executes `SELECT MIN(column)` and returns the minimum value as a string. Returns
 **Example**
 
 ```
-_earliest = QueryMin_cf ( _query ; INVOICE::invoiceDate )
+_earliest = QueryMin ( _query ; INVOICE::invoiceDate )
 ```
 
 ---
 
-### QueryWhen_cf
+### QueryWhen
 
 Conditionally applies query modifications. Returns `queryIfTrue` when `condition` is truthy (non-zero, non-empty), otherwise returns the original `query` unchanged.
 
@@ -1283,11 +1283,11 @@ Because FileMaker evaluates all parameters before calling the function, both bra
 **Example**
 
 ```
-_query = QueryNew_cf ( "CONTACT" ) ;
-_query = QueryWhen_cf (
+_query = QueryNew ( "CONTACT" ) ;
+_query = QueryWhen (
     _query ;
     not IsEmpty ( $$filterStatus ) ;
-    QueryWhere_cf ( _query ; CONTACT::status ; "=" ; $$filterStatus )
+    QueryWhere ( _query ; CONTACT::status ; "=" ; $$filterStatus )
 )
 // Adds the WHERE clause only when $$filterStatus is non-empty
 ```
@@ -1300,7 +1300,7 @@ These functions are called automatically by the public builders and are marked `
 
 ---
 
-### QueryBuildJoins_cf
+### QueryBuildJoins
 
 Recursively walks the `joins` array and renders the full JOIN clause string. Supports types: `inner`, `left`, `right`, `cross`, `subJoin`, `leftSubJoin`.
 
@@ -1314,7 +1314,7 @@ Recursively walks the `joins` array and renders the full JOIN clause string. Sup
 
 ---
 
-### QueryBuildWheres_cf
+### QueryBuildWheres
 
 Recursively walks the `wheres` array and renders the WHERE clause body (excluding the `WHERE` keyword). Supports types: `basic`, `in`, `notIn`, `null`, `notNull`, `between`, `notBetween`, `column`, `raw`, `group`, `exists`, `notExists`, `inSubquery`, `notInSubquery`.
 
@@ -1328,7 +1328,7 @@ Recursively walks the `wheres` array and renders the WHERE clause body (excludin
 
 ---
 
-### QueryBuildInPlaceholders_cf
+### QueryBuildInPlaceholders
 
 Recursively produces N comma-separated `?` placeholders for IN clauses.
 
@@ -1342,13 +1342,13 @@ Recursively produces N comma-separated `?` placeholders for IN clauses.
 **Example**
 
 ```
-QueryBuildInPlaceholders_cf ( 3 ; 0 )
+QueryBuildInPlaceholders ( 3 ; 0 )
 // → "?, ?, ?"
 ```
 
 ---
 
-### QueryBuildGroupBys_cf
+### QueryBuildGroupBys
 
 Recursively walks the `groupBys` array. Regular columns are plain JSON strings; raw expressions are JSON objects `{"type":"raw","sql":"…"}` identified by `Left(item;1)="{"`.
 
@@ -1362,7 +1362,7 @@ Recursively walks the `groupBys` array. Regular columns are plain JSON strings; 
 
 ---
 
-### QueryBuildHavings_cf
+### QueryBuildHavings
 
 Recursively walks the `havings` array. Supports types: default (basic column/operator), `raw`. Handles AND/OR boolean prefix.
 
@@ -1376,7 +1376,7 @@ Recursively walks the `havings` array. Supports types: default (basic column/ope
 
 ---
 
-### QueryBuildOrderBys_cf
+### QueryBuildOrderBys
 
 Recursively walks the `orderBys` array. Supports default (column + direction) and `raw` type entries.
 
@@ -1390,7 +1390,7 @@ Recursively walks the `orderBys` array. Supports default (column + direction) an
 
 ---
 
-### QueryBuildUnions_cf
+### QueryBuildUnions
 
 Recursively walks the `unions` array and renders the UNION / UNION ALL clause string. Each union item stores `{sql, all}` where `all` is a boolean.
 
@@ -1404,7 +1404,7 @@ Recursively walks the `unions` array and renders the UNION / UNION ALL clause st
 
 ---
 
-### QueryBuildBindingArgs_cf
+### QueryBuildBindingArgs
 
 Recursively walks the `bindings` array and renders the bound values as a text fragment for insertion into an `Evaluate` expression. Each value is wrapped in `Quote()`.
 
@@ -1418,7 +1418,7 @@ Recursively walks the `bindings` array and renders the bound values as a text fr
 
 ---
 
-### QueryBuildWhereBooleanPrefix_cf
+### QueryBuildWhereBooleanPrefix
 
 Returns the boolean connector that precedes a WHERE or HAVING clause. Returns `""` for the first clause, `" AND "` or `" OR "` for subsequent ones.
 
@@ -1431,7 +1431,7 @@ Returns the boolean connector that precedes a WHERE or HAVING clause. Returns `"
 
 ---
 
-### QueryAppendBindings_cf
+### QueryAppendBindings
 
 Recursively appends values from a ¶-delimited list to the `bindings` array, incrementing `bindingCount` with each addition.
 
@@ -1446,7 +1446,7 @@ Recursively appends values from a ¶-delimited list to the `bindings` array, inc
 
 ---
 
-### QueryMergeBindings_cf
+### QueryMergeBindings
 
 Recursively appends binding values from a JSON array into the outer query's `bindings` array.
 
@@ -1461,7 +1461,7 @@ Recursively appends binding values from a JSON array into the outer query's `bin
 
 ---
 
-### QueryPrependBindings_cf
+### QueryPrependBindings
 
 Rebuilds the outer query's `bindings` array as `[prefixBindings…][suffixBindings…]`, ensuring subquery bindings appear before outer-query WHERE bindings when the subquery is in FROM or SELECT position.
 
@@ -1478,9 +1478,9 @@ Rebuilds the outer query's `bindings` array as `[prefixBindings…][suffixBindin
 
 ---
 
-### QueryBuildSelects_cf
+### QueryBuildSelects
 
-Recursively converts a ¶-delimited column list to a SQL column expression string. Delegates to `QueryConvertField_cf`.
+Recursively converts a ¶-delimited column list to a SQL column expression string. Delegates to `QueryFieldFormat`.
 
 **Parameters**
 
@@ -1492,7 +1492,7 @@ Recursively converts a ¶-delimited column list to a SQL column expression strin
 
 ---
 
-### QueryConvertField_cf
+### QueryFieldFormat
 
 Converts a `Table::Field` string to `"Table"."Field"`. Expressions without `::` pass through unchanged. Called by all public builders that accept column references.
 
@@ -1505,14 +1505,14 @@ Converts a `Table::Field` string to `"Table"."Field"`. Expressions without `::` 
 **Example**
 
 ```
-QueryConvertField_cf ( FMORM::PrimaryKey )                  // → "FMORM"."PrimaryKey"
-QueryConvertField_cf ( "*" )                                // → *  (pass-through)
-QueryConvertField_cf ( "COUNT(*)" )                         // → COUNT(*)  (pass-through)
+QueryFieldFormat ( FMORM::PrimaryKey )                  // → "FMORM"."PrimaryKey"
+QueryFieldFormat ( "*" )                                // → *  (pass-through)
+QueryFieldFormat ( "COUNT(*)" )                         // → COUNT(*)  (pass-through)
 ```
 
 ---
 
-### QueryBuildJsonRow_cf
+### QueryBuildJsonRow
 
 Builds a single JSON object from parallel ¶-delimited lists of field values and key names.
 
@@ -1528,9 +1528,9 @@ Builds a single JSON object from parallel ¶-delimited lists of field values and
 
 ---
 
-### QueryBuildJsonRows_cf
+### QueryBuildJsonRows
 
-Recursively appends row objects to a JSON array. Called by `QueryGetResultsAsJson_cf`.
+Recursively appends row objects to a JSON array. Called by `QueryGetResultsAsJson`.
 
 **Parameters**
 
@@ -1545,7 +1545,7 @@ Recursively appends row objects to a JSON array. Called by `QueryGetResultsAsJso
 
 ---
 
-### QueryBuildSelectKeys_cf
+### QueryBuildSelectKeys
 
 Extracts plain key names from the original column input for use as JSON property names.
 
@@ -1565,7 +1565,7 @@ Rules: `Table::Field` → `Field`, `Table.field` → `field`, anything else → 
 
 ---
 
-### JSONGetElementLikeField_cf
+### JSONGetElementNamedLikeField
 
 Retrieves a value from a JSON object by deriving the property name from a FileMaker field reference or field-name string.
 
@@ -1588,17 +1588,17 @@ When `index` is non-empty, `JSONGetElement( json ; index )` is called first to e
 
 ```
 // Plain object
-JSONGetElementLikeField_cf ( _json ; GetFieldName ( CONTACT::firstName ) ; "" )
+JSONGetElementNamedLikeField ( _json ; GetFieldName ( CONTACT::firstName ) ; "" )
 // → value of "firstName" property
 
 // Array — index 0
-JSONGetElementLikeField_cf ( _jsonArray ; GetFieldName ( CONTACT::firstName ) ; 0 )
+JSONGetElementNamedLikeField ( _jsonArray ; GetFieldName ( CONTACT::firstName ) ; 0 )
 
 // Path 2 — qualified string
-JSONGetElementLikeField_cf ( _json ; "CONTACT::firstName" ; "" )
+JSONGetElementNamedLikeField ( _json ; "CONTACT::firstName" ; "" )
 
 // Path 3 — plain property name
-JSONGetElementLikeField_cf ( _json ; "firstName" ; "" )
+JSONGetElementNamedLikeField ( _json ; "firstName" ; "" )
 ```
 
 ---
@@ -1616,11 +1616,11 @@ FileMaker's `ExecuteSQL` uses a restricted subset of SQL-92.
 | UNION / UNION ALL | FileMaker 17+ |
 | Derived tables — `FROM (SELECT …) AS alias` | Functional in FM 19.x; not formally documented by Claris |
 | Correlated subqueries | Not reliably supported — avoid |
-| `FETCH FIRST` / `OFFSET` inside a subquery | Unreliable; avoid `QueryLimit_cf` / `QueryOffset_cf` on inner queries |
+| `FETCH FIRST` / `OFFSET` inside a subquery | Unreliable; avoid `QueryLimit` / `QueryOffset` on inner queries |
 | RIGHT JOIN | Supported in standard FileMaker SQL |
 | CROSS JOIN | Supported in standard FileMaker SQL |
 | Window functions / CTEs | Not supported by FileMaker's ExecuteSQL |
 
-**Binding order** is handled automatically. `QueryFromSubquery_cf` and `QuerySelectSub_cf` prepend the subquery's bindings. `QueryWhereInSubquery_cf`, `QueryJoinSub_cf`, and similar functions append bindings. For `QueryJoinSub_cf` and `QueryLeftJoinSub_cf`, call before adding WHERE conditions to preserve left-to-right binding order.
+**Binding order** is handled automatically. `QueryFromSubquery` and `QuerySelectSub` prepend the subquery's bindings. `QueryWhereInSubquery`, `QueryJoinSub`, and similar functions append bindings. For `QueryJoinSub` and `QueryLeftJoinSub`, call before adding WHERE conditions to preserve left-to-right binding order.
 
-**Testing:** Use `QueryToSQL_cf` to inspect the assembled SQL before executing. If `QueryGet_cf` returns `""`, the SQL contains an error — inspect the SQL string and verify it against your FM version's supported syntax.
+**Testing:** Use `QueryToSQL` to inspect the assembled SQL before executing. If `QueryGet` returns `""`, the SQL contains an error — inspect the SQL string and verify it against your FM version's supported syntax.

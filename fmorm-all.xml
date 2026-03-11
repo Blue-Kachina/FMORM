@@ -18,7 +18,7 @@
     <!-- ============================================================ -->
 
     <!-- 1 of 73 -->
-    <CustomFunction id="1" functionArity="2" visible="False" parameters="boolean;index" name="QueryBuildWhereBooleanPrefix_cf">
+    <CustomFunction id="1" functionArity="2" visible="False" parameters="boolean;index" name="QueryBuildWhereBooleanPrefix">
         <Calculation><![CDATA[// Returns "" for the first clause (index = 0),
 // " AND " or " OR " for subsequent clauses.
 If ( index = 0 ;
@@ -33,21 +33,21 @@ If ( index = 0 ;
     </CustomFunction>
 
     <!-- 2 of 73 -->
-    <CustomFunction id="2" functionArity="2" visible="False" parameters="count;index" name="QueryBuildInPlaceholders_cf">
+    <CustomFunction id="2" functionArity="2" visible="False" parameters="count;index" name="QueryBuildInPlaceholders">
         <Calculation><![CDATA[// Recursively builds N comma-separated ? placeholders for IN clauses.
 // Call with index = 0. Example: count=3 → "?, ?, ?"
 If ( index + 1 < count ;
-	"?, " & QueryBuildInPlaceholders_cf ( count ; index + 1 ) ;
+	"?, " & QueryBuildInPlaceholders ( count ; index + 1 ) ;
 // ELSE
 	"?"
 )]]></Calculation>
     </CustomFunction>
 
     <!-- 3 of 73 -->
-    <CustomFunction id="3" functionArity="4" visible="False" parameters="query;values;valueCount;index" name="QueryAppendBindings_cf">
+    <CustomFunction id="3" functionArity="4" visible="False" parameters="query;values;valueCount;index" name="QueryAppendBindings">
         <Calculation><![CDATA[// Recursively appends values from a ¶-delimited list to the query's
 // bindings array. Call with index = 1 (GetValue is 1-based).
-// Used by QueryWhereIn_cf to add N bindings in one pass.
+// Used by QueryWhereIn to add N bindings in one pass.
 Let
 (
 [
@@ -57,7 +57,7 @@ _q1 = JSONSetElement ( query ; "bindings[" & _bindingCount & "]" ; _value ; JSON
 _q2 = JSONSetElement ( _q1 ; "bindingCount" ; _bindingCount + 1 ; JSONNumber )
 ];
 If ( index < valueCount ;
-	QueryAppendBindings_cf ( _q2 ; values ; valueCount ; index + 1 ) ;
+	QueryAppendBindings ( _q2 ; values ; valueCount ; index + 1 ) ;
 // ELSE
 	_q2
 )
@@ -65,11 +65,11 @@ If ( index < valueCount ;
     </CustomFunction>
 
     <!-- 4 of 73 -->
-    <CustomFunction id="33" functionArity="4" visible="False" parameters="outerQuery;sourceBindings;sourceCount;index" name="QueryMergeBindings_cf">
+    <CustomFunction id="33" functionArity="4" visible="False" parameters="outerQuery;sourceBindings;sourceCount;index" name="QueryMergeBindings">
         <Calculation><![CDATA[// Recursively appends bindings from a JSON array (sourceBindings) into
 // outerQuery's bindings array. Call with index = 0.
-// Analogous to QueryAppendBindings_cf but reads from a JSON array rather
-// than a ¶-delimited list. Used by QueryWhereInSubquery_cf.
+// Analogous to QueryAppendBindings but reads from a JSON array rather
+// than a ¶-delimited list. Used by QueryWhereInSubquery.
 Let
 (
 [
@@ -79,7 +79,7 @@ _q1 = JSONSetElement ( outerQuery ; "bindings[" & _bindingCount & "]" ; _value ;
 _q2 = JSONSetElement ( _q1 ; "bindingCount" ; _bindingCount + 1 ; JSONNumber )
 ];
 If ( index + 1 < sourceCount ;
-	QueryMergeBindings_cf ( _q2 ; sourceBindings ; sourceCount ; index + 1 ) ;
+	QueryMergeBindings ( _q2 ; sourceBindings ; sourceCount ; index + 1 ) ;
 // ELSE
 	_q2
 )
@@ -87,13 +87,13 @@ If ( index + 1 < sourceCount ;
     </CustomFunction>
 
     <!-- 5 of 73 -->
-    <CustomFunction id="34" functionArity="6" visible="False" parameters="outerQuery;prefixBindings;prefixCount;suffixBindings;suffixCount;index" name="QueryPrependBindings_cf">
+    <CustomFunction id="34" functionArity="6" visible="False" parameters="outerQuery;prefixBindings;prefixCount;suffixBindings;suffixCount;index" name="QueryPrependBindings">
         <Calculation><![CDATA[// Rebuilds outerQuery's bindings array as [prefixBindings...][suffixBindings...].
 // prefixBindings is a subquery's bindings JSON array (written first because
 // the subquery appears in FROM, before WHERE in SQL). suffixBindings is the
 // outer query's existing bindings JSON array. Call with index = 0.
 // On the final iteration writes the new bindingCount = prefixCount + suffixCount.
-// Used by QueryFromSubquery_cf to ensure correct ? placeholder order.
+// Used by QueryFromSubquery to ensure correct ? placeholder order.
 Let
 (
 [
@@ -105,7 +105,7 @@ _value = If ( index < prefixCount ;
 _q1 = JSONSetElement ( outerQuery ; "bindings[" & index & "]" ; _value ; JSONString )
 ];
 If ( index + 1 < _total ;
-	QueryPrependBindings_cf ( _q1 ; prefixBindings ; prefixCount ; suffixBindings ; suffixCount ; index + 1 ) ;
+	QueryPrependBindings ( _q1 ; prefixBindings ; prefixCount ; suffixBindings ; suffixCount ; index + 1 ) ;
 // ELSE last element: write final bindingCount
 	JSONSetElement ( _q1 ; "bindingCount" ; _total ; JSONNumber )
 )
@@ -113,7 +113,7 @@ If ( index + 1 < _total ;
     </CustomFunction>
 
     <!-- 6 of 73 -->
-    <CustomFunction id="4" functionArity="3" visible="False" parameters="joins;joinCount;index" name="QueryBuildJoins_cf">
+    <CustomFunction id="4" functionArity="3" visible="False" parameters="joins;joinCount;index" name="QueryBuildJoins">
         <Calculation><![CDATA[// Recursively builds the JOIN clause string.
 // Call with index = 0. joins is the raw JSON array from the query object.
 // Supported types: inner (default), left, right, cross, subJoin, leftSubJoin.
@@ -144,14 +144,14 @@ _onClause = If ( Exact ( _type ; "cross" ) ;
 	" ON " & _first & " " & _operator & " " & _second
 	) ;
 _clause = _keyword & " " & _tableExpr & _onClause ;
-_rest = If ( index + 1 < joinCount ; " " & QueryBuildJoins_cf ( joins ; joinCount ; index + 1 ) ; "" )
+_rest = If ( index + 1 < joinCount ; " " & QueryBuildJoins ( joins ; joinCount ; index + 1 ) ; "" )
 ];
 _clause & _rest
 )]]></Calculation>
     </CustomFunction>
 
     <!-- 7 of 73 -->
-    <CustomFunction id="5" functionArity="3" visible="False" parameters="wheres;whereCount;index" name="QueryBuildWheres_cf">
+    <CustomFunction id="5" functionArity="3" visible="False" parameters="wheres;whereCount;index" name="QueryBuildWheres">
         <Calculation><![CDATA[// Recursively builds the WHERE clause body (excluding the "WHERE" keyword).
 // Call with index = 0. wheres is the raw JSON array from the query object.
 // Supported types: basic, in, notIn, null, notNull, between, notBetween,
@@ -165,14 +165,14 @@ _column = JSONGetElement ( _where ; "column" ) ;
 _operator = JSONGetElement ( _where ; "operator" ) ;
 _boolean = JSONGetElement ( _where ; "boolean" ) ;
 _valueCount = JSONGetElement ( _where ; "valueCount" ) ;
-_prefix = QueryBuildWhereBooleanPrefix_cf ( _boolean ; index ) ;
+_prefix = QueryBuildWhereBooleanPrefix ( _boolean ; index ) ;
 _clause = Case (
 	Exact ( _type ; "basic" ) ;
 		_prefix & _column & " " & _operator & " ?" ;
 	Exact ( _type ; "in" ) ;
-		_prefix & _column & " IN (" & QueryBuildInPlaceholders_cf ( _valueCount ; 0 ) & ")" ;
+		_prefix & _column & " IN (" & QueryBuildInPlaceholders ( _valueCount ; 0 ) & ")" ;
 	Exact ( _type ; "notIn" ) ;
-		_prefix & _column & " NOT IN (" & QueryBuildInPlaceholders_cf ( _valueCount ; 0 ) & ")" ;
+		_prefix & _column & " NOT IN (" & QueryBuildInPlaceholders ( _valueCount ; 0 ) & ")" ;
 	Exact ( _type ; "null" ) ;
 		_prefix & _column & " IS NULL" ;
 	Exact ( _type ; "notNull" ) ;
@@ -186,7 +186,7 @@ _clause = Case (
 	Exact ( _type ; "raw" ) ;
 		_prefix & "(" & JSONGetElement ( _where ; "sql" ) & ")" ;
 	Exact ( _type ; "group" ) ;
-		_prefix & "(" & QueryBuildWheres_cf ( JSONGetElement ( _where ; "wheres" ) ; JSONGetElement ( _where ; "whereCount" ) ; 0 ) & ")" ;
+		_prefix & "(" & QueryBuildWheres ( JSONGetElement ( _where ; "wheres" ) ; JSONGetElement ( _where ; "whereCount" ) ; 0 ) & ")" ;
 	Exact ( _type ; "exists" ) ;
 		_prefix & "EXISTS (" & JSONGetElement ( _where ; "sql" ) & ")" ;
 	Exact ( _type ; "notExists" ) ;
@@ -197,14 +197,14 @@ _clause = Case (
 		_prefix & _column & " NOT IN (" & JSONGetElement ( _where ; "sql" ) & ")" ;
 	""
 	) ;
-_rest = If ( index + 1 < whereCount ; QueryBuildWheres_cf ( wheres ; whereCount ; index + 1 ) ; "" )
+_rest = If ( index + 1 < whereCount ; QueryBuildWheres ( wheres ; whereCount ; index + 1 ) ; "" )
 ];
 _clause & _rest
 )]]></Calculation>
     </CustomFunction>
 
     <!-- 8 of 73 -->
-    <CustomFunction id="6" functionArity="3" visible="False" parameters="groupBys;groupByCount;index" name="QueryBuildGroupBys_cf">
+    <CustomFunction id="6" functionArity="3" visible="False" parameters="groupBys;groupByCount;index" name="QueryBuildGroupBys">
         <Calculation><![CDATA[// Recursively builds the GROUP BY column list.
 // Call with index = 0. groupBys is the raw JSON array from the query object.
 // Regular columns are stored as plain JSON strings; raw expressions are stored
@@ -220,14 +220,14 @@ _col = Case (
 	_isObj and Exact ( _type ; "raw" ) ; JSONGetElement ( _item ; "sql" ) ;
 	_item
 	) ;
-_rest = If ( index + 1 < groupByCount ; ", " & QueryBuildGroupBys_cf ( groupBys ; groupByCount ; index + 1 ) ; "" )
+_rest = If ( index + 1 < groupByCount ; ", " & QueryBuildGroupBys ( groupBys ; groupByCount ; index + 1 ) ; "" )
 ];
 _col & _rest
 )]]></Calculation>
     </CustomFunction>
 
     <!-- 9 of 73 -->
-    <CustomFunction id="7" functionArity="3" visible="False" parameters="havings;havingCount;index" name="QueryBuildHavings_cf">
+    <CustomFunction id="7" functionArity="3" visible="False" parameters="havings;havingCount;index" name="QueryBuildHavings">
         <Calculation><![CDATA[// Recursively builds the HAVING clause body (excluding the "HAVING" keyword).
 // Call with index = 0. havings is the raw JSON array from the query object.
 // Supported types: basic (default), raw.
@@ -240,21 +240,21 @@ _type = JSONGetElement ( _having ; "type" ) ;
 _column = JSONGetElement ( _having ; "column" ) ;
 _operator = JSONGetElement ( _having ; "operator" ) ;
 _boolean = JSONGetElement ( _having ; "boolean" ) ;
-_prefix = QueryBuildWhereBooleanPrefix_cf ( _boolean ; index ) ;
+_prefix = QueryBuildWhereBooleanPrefix ( _boolean ; index ) ;
 _clause = Case (
 	Exact ( _type ; "raw" ) ;
 		_prefix & "(" & JSONGetElement ( _having ; "sql" ) & ")" ;
 	// default: basic column operator ?
 	_prefix & _column & " " & _operator & " ?"
 	) ;
-_rest = If ( index + 1 < havingCount ; QueryBuildHavings_cf ( havings ; havingCount ; index + 1 ) ; "" )
+_rest = If ( index + 1 < havingCount ; QueryBuildHavings ( havings ; havingCount ; index + 1 ) ; "" )
 ];
 _clause & _rest
 )]]></Calculation>
     </CustomFunction>
 
     <!-- 10 of 73 -->
-    <CustomFunction id="8" functionArity="3" visible="False" parameters="orderBys;orderByCount;index" name="QueryBuildOrderBys_cf">
+    <CustomFunction id="8" functionArity="3" visible="False" parameters="orderBys;orderByCount;index" name="QueryBuildOrderBys">
         <Calculation><![CDATA[// Recursively builds the ORDER BY column list.
 // Call with index = 0. orderBys is the raw JSON array from the query object.
 // Supported types: column+direction (default), raw.
@@ -270,14 +270,14 @@ _clause = Case (
 	// default: column direction
 	JSONGetElement ( _orderBy ; "column" ) & " " & JSONGetElement ( _orderBy ; "direction" )
 	) ;
-_rest = If ( index + 1 < orderByCount ; ", " & QueryBuildOrderBys_cf ( orderBys ; orderByCount ; index + 1 ) ; "" )
+_rest = If ( index + 1 < orderByCount ; ", " & QueryBuildOrderBys ( orderBys ; orderByCount ; index + 1 ) ; "" )
 ];
 _clause & _rest
 )]]></Calculation>
     </CustomFunction>
 
     <!-- 11 of 73 -->
-    <CustomFunction id="9" functionArity="3" visible="False" parameters="bindings;bindingCount;index" name="QueryBuildBindingArgs_cf">
+    <CustomFunction id="9" functionArity="3" visible="False" parameters="bindings;bindingCount;index" name="QueryBuildBindingArgs">
         <Calculation><![CDATA[// Recursively builds the binding argument string for use inside Evaluate().
 // Call with index = 0. bindings is the raw JSON array from the query object.
 // Each value is wrapped in Quote() to handle special characters safely.
@@ -288,14 +288,14 @@ Let
 [
 _value = JSONGetElement ( bindings ; "[" & index & "]" ) ;
 _quoted = Quote ( _value ) ;
-_rest = If ( index + 1 < bindingCount ; " ; " & QueryBuildBindingArgs_cf ( bindings ; bindingCount ; index + 1 ) ; "" )
+_rest = If ( index + 1 < bindingCount ; " ; " & QueryBuildBindingArgs ( bindings ; bindingCount ; index + 1 ) ; "" )
 ];
 _quoted & _rest
 )]]></Calculation>
     </CustomFunction>
 
     <!-- 12 of 73 -->
-    <CustomFunction id="37" functionArity="3" visible="False" parameters="unions;unionCount;index" name="QueryBuildUnions_cf">
+    <CustomFunction id="37" functionArity="3" visible="False" parameters="unions;unionCount;index" name="QueryBuildUnions">
         <Calculation><![CDATA[// Recursively builds the UNION / UNION ALL clause string.
 // Call with index = 0. unions is the raw JSON array from the query object.
 // Each union item: {"sql": "SELECT ...", "all": true|false}
@@ -308,25 +308,25 @@ _sql = JSONGetElement ( _union ; "sql" ) ;
 _all = JSONGetElement ( _union ; "all" ) ;
 _keyword = If ( not IsEmpty ( _all ) and _all ; " UNION ALL " ; " UNION " ) ;
 _clause = _keyword & _sql ;
-_rest = If ( index + 1 < unionCount ; QueryBuildUnions_cf ( unions ; unionCount ; index + 1 ) ; "" )
+_rest = If ( index + 1 < unionCount ; QueryBuildUnions ( unions ; unionCount ; index + 1 ) ; "" )
 ];
 _clause & _rest
 )]]></Calculation>
     </CustomFunction>
 
     <!-- 13 of 73 -->
-    <CustomFunction id="26" functionArity="3" visible="False" parameters="columns;columnCount;index" name="QueryBuildSelects_cf">
+    <CustomFunction id="26" functionArity="3" visible="False" parameters="columns;columnCount;index" name="QueryBuildSelects">
         <Calculation><![CDATA[// Recursively converts a ¶-delimited column list to SQL column expressions.
-// Delegates individual field conversion to QueryConvertField_cf.
+// Delegates individual field conversion to QueryFieldFormat.
 // Other expressions (*, COUNT(*), already-dotted names, etc.) pass through unchanged.
 // Call with index = 1 (GetValue is 1-based).
 Let
 (
 [
 _field = Trim ( GetValue ( columns ; index ) ) ;
-_converted = QueryConvertField_cf ( _field ) ;
+_converted = QueryFieldFormat ( _field ) ;
 _rest = If ( index < columnCount ;
-	", " & QueryBuildSelects_cf ( columns ; columnCount ; index + 1 ) ;
+	", " & QueryBuildSelects ( columns ; columnCount ; index + 1 ) ;
 // ELSE
 	""
 	)
@@ -336,7 +336,7 @@ _converted & _rest
     </CustomFunction>
 
     <!-- 14 of 73 -->
-    <CustomFunction id="27" functionArity="1" visible="False" parameters="field" name="QueryConvertField_cf">
+    <CustomFunction id="27" functionArity="1" visible="False" parameters="field" name="QueryFieldFormat">
         <Calculation><![CDATA[// Converts a FileMaker fully-qualified field name (Table::Field) to a
 // quoted SQL dot-notation identifier ("Table"."Field"). Quote() is used for
 // readability and automatic escaping. Expressions without :: pass through
@@ -357,7 +357,7 @@ If ( _sepPos > 0 ;
     </CustomFunction>
 
     <!-- 15 of 73 -->
-    <CustomFunction id="31" functionArity="3" visible="False" parameters="columns;columnCount;index" name="QueryBuildSelectKeys_cf">
+    <CustomFunction id="31" functionArity="3" visible="False" parameters="columns;columnCount;index" name="QueryBuildSelectKeys">
         <Calculation><![CDATA[// Recursively extracts a plain key name from each column expression in a
 // ¶-delimited list, for use as JSON object property names.
 // Extraction rules (applied to the original input before SQL conversion):
@@ -377,7 +377,7 @@ _key = Case (
 	_expr
 	) ;
 _rest = If ( index < columnCount ;
-	"¶" & QueryBuildSelectKeys_cf ( columns ; columnCount ; index + 1 ) ;
+	"¶" & QueryBuildSelectKeys ( columns ; columnCount ; index + 1 ) ;
 // ELSE
 	""
 	)
@@ -387,7 +387,7 @@ _key & _rest
     </CustomFunction>
 
     <!-- 16 of 73 -->
-    <CustomFunction id="28" functionArity="5" visible="False" parameters="obj;fields;keys;keyCount;index" name="QueryBuildJsonRow_cf">
+    <CustomFunction id="28" functionArity="5" visible="False" parameters="obj;fields;keys;keyCount;index" name="QueryBuildJsonRow">
         <Calculation><![CDATA[// Recursively builds a single JSON object from parallel ¶-delimited lists
 // of field values and key names. Call with index = 1 and obj = "{}".
 // All values are stored as JSONString; numeric/date coercion is left to the caller.
@@ -399,7 +399,7 @@ _value = GetValue ( fields ; index ) ;
 _newObj = JSONSetElement ( obj ; _key ; _value ; JSONString )
 ];
 If ( index < keyCount ;
-	QueryBuildJsonRow_cf ( _newObj ; fields ; keys ; keyCount ; index + 1 ) ;
+	QueryBuildJsonRow ( _newObj ; fields ; keys ; keyCount ; index + 1 ) ;
 // ELSE
 	_newObj
 )
@@ -407,7 +407,7 @@ If ( index < keyCount ;
     </CustomFunction>
 
     <!-- 17 of 73 -->
-    <CustomFunction id="29" functionArity="6" visible="False" parameters="result;rawResult;rowCount;keys;keyCount;rowIndex" name="QueryBuildJsonRows_cf">
+    <CustomFunction id="29" functionArity="6" visible="False" parameters="result;rawResult;rowCount;keys;keyCount;rowIndex" name="QueryBuildJsonRows">
         <Calculation><![CDATA[// Recursively appends row objects to a JSON array.
 // rawResult is the ExecuteSQL output with Char(28) field separators and ¶ row separators.
 // Call with rowIndex = 1 and result = "[]".
@@ -416,11 +416,11 @@ Let
 [
 _rawRow = GetValue ( rawResult ; rowIndex ) ;
 _fields = Substitute ( _rawRow ; Char ( 28 ) ; "¶" ) ;
-_rowObj = QueryBuildJsonRow_cf ( "{}" ; _fields ; keys ; keyCount ; 1 ) ;
+_rowObj = QueryBuildJsonRow ( "{}" ; _fields ; keys ; keyCount ; 1 ) ;
 _newResult = JSONSetElement ( result ; "[" & ( rowIndex - 1 ) & "]" ; _rowObj ; JSONObject )
 ];
 If ( rowIndex < rowCount ;
-	QueryBuildJsonRows_cf ( _newResult ; rawResult ; rowCount ; keys ; keyCount ; rowIndex + 1 ) ;
+	QueryBuildJsonRows ( _newResult ; rawResult ; rowCount ; keys ; keyCount ; rowIndex + 1 ) ;
 // ELSE
 	_newResult
 )
@@ -432,7 +432,7 @@ If ( rowIndex < rowCount ;
     <!-- ============================================================ -->
 
     <!-- 18 of 73 -->
-    <CustomFunction id="10" functionArity="1" visible="True" parameters="table" name="QueryNew_cf">
+    <CustomFunction id="10" functionArity="1" visible="True" parameters="table" name="QueryNew">
         <Calculation><![CDATA[Let
 (
 [
@@ -468,21 +468,21 @@ JSONSetElement ( "{}" ;
     </CustomFunction>
 
     <!-- 19 of 73 -->
-    <CustomFunction id="11" functionArity="2" visible="True" parameters="query;columns" name="QuerySelect_cf">
+    <CustomFunction id="11" functionArity="2" visible="True" parameters="query;columns" name="QuerySelect">
         <Calculation><![CDATA[// Accepts a ¶-delimited list (e.g. from List() / GetFieldName()) or a
 // comma-separated string. FileMaker fully-qualified names (Table::Field) are
 // converted to quoted SQL dot notation ("Table"."Field"). Other expressions
 // (*, COUNT(*), already-dotted names, raw SQL expressions, etc.) pass through
-// unchanged — no separate QuerySelectRaw_cf is needed.
-// Calls are additive: the first call after QueryNew_cf replaces the initial
+// unchanged — no separate QuerySelectRaw is needed.
+// Calls are additive: the first call after QueryNew replaces the initial
 // "*" sentinel; subsequent calls append to the existing column list.
 Let
 (
 [
 _normalized = Substitute ( Substitute ( columns ; ", " ; "¶" ) ; "," ; "¶" ) ;
 _columnCount = ValueCount ( _normalized ) ;
-_newSelects = QueryBuildSelects_cf ( _normalized ; _columnCount ; 1 ) ;
-_newKeys = QueryBuildSelectKeys_cf ( _normalized ; _columnCount ; 1 ) ;
+_newSelects = QueryBuildSelects ( _normalized ; _columnCount ; 1 ) ;
+_newKeys = QueryBuildSelectKeys ( _normalized ; _columnCount ; 1 ) ;
 _existingSelects = JSONGetElement ( query ; "selects" ) ;
 _existingKeys = JSONGetElement ( query ; "selectKeys" ) ;
 _isWildcard = Exact ( _existingSelects ; "*" ) ;
@@ -495,7 +495,7 @@ JSONSetElement ( _q1 ; "selectKeys" ; _finalKeys ; JSONString )
     </CustomFunction>
 
     <!-- 20 of 73 -->
-    <CustomFunction id="38" functionArity="3" visible="True" parameters="query;subquery;alias" name="QuerySelectSub_cf">
+    <CustomFunction id="38" functionArity="3" visible="True" parameters="query;subquery;alias" name="QuerySelectSub">
         <Calculation><![CDATA[// Adds a subquery expression to the SELECT list: (SELECT ...) AS alias.
 // alias is a plain SQL identifier string (e.g. "totalAmount").
 // The subquery's bindings are prepended to the outer query's bindings because
@@ -506,7 +506,7 @@ JSONSetElement ( _q1 ; "selectKeys" ; _finalKeys ; JSONString )
 Let
 (
 [
-_subSql = QueryToSQL_cf ( subquery ) ;
+_subSql = QueryToSQL ( subquery ) ;
 _subBindings = JSONGetElement ( subquery ; "bindings" ) ;
 _subBindingCount = JSONGetElement ( subquery ; "bindingCount" ) ;
 _subExpr = "(" & _subSql & ") AS " & Quote ( alias ) ;
@@ -520,7 +520,7 @@ _outerBindingCount = JSONGetElement ( query ; "bindingCount" ) ;
 _q1 = JSONSetElement ( query ; "selects" ; _finalSelects ; JSONString ) ;
 _q2 = JSONSetElement ( _q1 ; "selectKeys" ; _finalKeys ; JSONString ) ;
 _q3 = If ( _subBindingCount > 0 ;
-	QueryPrependBindings_cf ( _q2 ; _subBindings ; _subBindingCount ; _outerBindings ; _outerBindingCount ; 0 ) ;
+	QueryPrependBindings ( _q2 ; _subBindings ; _subBindingCount ; _outerBindings ; _outerBindingCount ; 0 ) ;
 	_q2
 	)
 ];
@@ -529,13 +529,13 @@ _q3
     </CustomFunction>
 
     <!-- 21 of 73 -->
-    <CustomFunction id="39" functionArity="1" visible="True" parameters="query" name="QueryDistinct_cf">
+    <CustomFunction id="39" functionArity="1" visible="True" parameters="query" name="QueryDistinct">
         <Calculation><![CDATA[// Adds SELECT DISTINCT to the query. Applies to all selected columns.
 JSONSetElement ( query ; "distinct" ; 1 ; JSONBoolean )]]></Calculation>
     </CustomFunction>
 
     <!-- 22 of 73 -->
-    <CustomFunction id="12" functionArity="4" visible="True" parameters="query;column;operator;value" name="QueryWhere_cf">
+    <CustomFunction id="12" functionArity="4" visible="True" parameters="query;column;operator;value" name="QueryWhere">
         <Calculation><![CDATA[Let
 (
 [
@@ -543,7 +543,7 @@ _whereCount = JSONGetElement ( query ; "whereCount" ) ;
 _bindingCount = JSONGetElement ( query ; "bindingCount" ) ;
 _fqName = GetFieldName ( column ) ;
 _col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
-_column = QueryConvertField_cf ( _col ) ;
+_column = QueryFieldFormat ( _col ) ;
 _whereObj = JSONSetElement ( "{}" ;
 	[ "type" ; "basic" ; JSONString ] ;
 	[ "column" ; _column ; JSONString ] ;
@@ -560,7 +560,7 @@ _q4
     </CustomFunction>
 
     <!-- 23 of 73 -->
-    <CustomFunction id="13" functionArity="4" visible="True" parameters="query;column;operator;value" name="QueryOrWhere_cf">
+    <CustomFunction id="13" functionArity="4" visible="True" parameters="query;column;operator;value" name="QueryOrWhere">
         <Calculation><![CDATA[Let
 (
 [
@@ -568,7 +568,7 @@ _whereCount = JSONGetElement ( query ; "whereCount" ) ;
 _bindingCount = JSONGetElement ( query ; "bindingCount" ) ;
 _fqName = GetFieldName ( column ) ;
 _col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
-_column = QueryConvertField_cf ( _col ) ;
+_column = QueryFieldFormat ( _col ) ;
 _whereObj = JSONSetElement ( "{}" ;
 	[ "type" ; "basic" ; JSONString ] ;
 	[ "column" ; _column ; JSONString ] ;
@@ -585,7 +585,7 @@ _q4
     </CustomFunction>
 
     <!-- 24 of 73 -->
-    <CustomFunction id="14" functionArity="3" visible="True" parameters="query;column;values" name="QueryWhereIn_cf">
+    <CustomFunction id="14" functionArity="3" visible="True" parameters="query;column;values" name="QueryWhereIn">
         <Calculation><![CDATA[// values is a ¶-delimited list of values.
 // Appends an IN where clause and N bindings (one per value).
 Let
@@ -595,7 +595,7 @@ _whereCount = JSONGetElement ( query ; "whereCount" ) ;
 _valueCount = ValueCount ( values ) ;
 _fqName = GetFieldName ( column ) ;
 _col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
-_column = QueryConvertField_cf ( _col ) ;
+_column = QueryFieldFormat ( _col ) ;
 _whereObj = JSONSetElement ( "{}" ;
 	[ "type" ; "in" ; JSONString ] ;
 	[ "column" ; _column ; JSONString ] ;
@@ -604,14 +604,14 @@ _whereObj = JSONSetElement ( "{}" ;
 	) ;
 _q1 = JSONSetElement ( query ; "wheres[" & _whereCount & "]" ; _whereObj ; JSONObject ) ;
 _q2 = JSONSetElement ( _q1 ; "whereCount" ; _whereCount + 1 ; JSONNumber ) ;
-_q3 = QueryAppendBindings_cf ( _q2 ; values ; _valueCount ; 1 )
+_q3 = QueryAppendBindings ( _q2 ; values ; _valueCount ; 1 )
 ];
 _q3
 )]]></Calculation>
     </CustomFunction>
 
     <!-- 25 of 73 -->
-    <CustomFunction id="40" functionArity="3" visible="True" parameters="query;column;values" name="QueryWhereNotIn_cf">
+    <CustomFunction id="40" functionArity="3" visible="True" parameters="query;column;values" name="QueryWhereNotIn">
         <Calculation><![CDATA[// values is a ¶-delimited list of values.
 // Appends AND column NOT IN (?, ?, ...) and N bindings (one per value).
 Let
@@ -621,7 +621,7 @@ _whereCount = JSONGetElement ( query ; "whereCount" ) ;
 _valueCount = ValueCount ( values ) ;
 _fqName = GetFieldName ( column ) ;
 _col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
-_column = QueryConvertField_cf ( _col ) ;
+_column = QueryFieldFormat ( _col ) ;
 _whereObj = JSONSetElement ( "{}" ;
 	[ "type" ; "notIn" ; JSONString ] ;
 	[ "column" ; _column ; JSONString ] ;
@@ -630,14 +630,14 @@ _whereObj = JSONSetElement ( "{}" ;
 	) ;
 _q1 = JSONSetElement ( query ; "wheres[" & _whereCount & "]" ; _whereObj ; JSONObject ) ;
 _q2 = JSONSetElement ( _q1 ; "whereCount" ; _whereCount + 1 ; JSONNumber ) ;
-_q3 = QueryAppendBindings_cf ( _q2 ; values ; _valueCount ; 1 )
+_q3 = QueryAppendBindings ( _q2 ; values ; _valueCount ; 1 )
 ];
 _q3
 )]]></Calculation>
     </CustomFunction>
 
     <!-- 26 of 73 -->
-    <CustomFunction id="41" functionArity="3" visible="True" parameters="query;column;values" name="QueryOrWhereIn_cf">
+    <CustomFunction id="41" functionArity="3" visible="True" parameters="query;column;values" name="QueryOrWhereIn">
         <Calculation><![CDATA[// values is a ¶-delimited list of values.
 // Appends OR column IN (?, ?, ...) and N bindings (one per value).
 Let
@@ -647,7 +647,7 @@ _whereCount = JSONGetElement ( query ; "whereCount" ) ;
 _valueCount = ValueCount ( values ) ;
 _fqName = GetFieldName ( column ) ;
 _col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
-_column = QueryConvertField_cf ( _col ) ;
+_column = QueryFieldFormat ( _col ) ;
 _whereObj = JSONSetElement ( "{}" ;
 	[ "type" ; "in" ; JSONString ] ;
 	[ "column" ; _column ; JSONString ] ;
@@ -656,21 +656,21 @@ _whereObj = JSONSetElement ( "{}" ;
 	) ;
 _q1 = JSONSetElement ( query ; "wheres[" & _whereCount & "]" ; _whereObj ; JSONObject ) ;
 _q2 = JSONSetElement ( _q1 ; "whereCount" ; _whereCount + 1 ; JSONNumber ) ;
-_q3 = QueryAppendBindings_cf ( _q2 ; values ; _valueCount ; 1 )
+_q3 = QueryAppendBindings ( _q2 ; values ; _valueCount ; 1 )
 ];
 _q3
 )]]></Calculation>
     </CustomFunction>
 
     <!-- 27 of 73 -->
-    <CustomFunction id="15" functionArity="2" visible="True" parameters="query;column" name="QueryWhereNull_cf">
+    <CustomFunction id="15" functionArity="2" visible="True" parameters="query;column" name="QueryWhereNull">
         <Calculation><![CDATA[Let
 (
 [
 _whereCount = JSONGetElement ( query ; "whereCount" ) ;
 _fqName = GetFieldName ( column ) ;
 _col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
-_column = QueryConvertField_cf ( _col ) ;
+_column = QueryFieldFormat ( _col ) ;
 _whereObj = JSONSetElement ( "{}" ;
 	[ "type" ; "null" ; JSONString ] ;
 	[ "column" ; _column ; JSONString ] ;
@@ -685,14 +685,14 @@ JSONSetElement (
     </CustomFunction>
 
     <!-- 28 of 73 -->
-    <CustomFunction id="16" functionArity="2" visible="True" parameters="query;column" name="QueryWhereNotNull_cf">
+    <CustomFunction id="16" functionArity="2" visible="True" parameters="query;column" name="QueryWhereNotNull">
         <Calculation><![CDATA[Let
 (
 [
 _whereCount = JSONGetElement ( query ; "whereCount" ) ;
 _fqName = GetFieldName ( column ) ;
 _col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
-_column = QueryConvertField_cf ( _col ) ;
+_column = QueryFieldFormat ( _col ) ;
 _whereObj = JSONSetElement ( "{}" ;
 	[ "type" ; "notNull" ; JSONString ] ;
 	[ "column" ; _column ; JSONString ] ;
@@ -707,7 +707,7 @@ JSONSetElement (
     </CustomFunction>
 
     <!-- 29 of 73 -->
-    <CustomFunction id="42" functionArity="2" visible="True" parameters="query;column" name="QueryOrWhereNull_cf">
+    <CustomFunction id="42" functionArity="2" visible="True" parameters="query;column" name="QueryOrWhereNull">
         <Calculation><![CDATA[// Appends OR column IS NULL.
 Let
 (
@@ -715,7 +715,7 @@ Let
 _whereCount = JSONGetElement ( query ; "whereCount" ) ;
 _fqName = GetFieldName ( column ) ;
 _col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
-_column = QueryConvertField_cf ( _col ) ;
+_column = QueryFieldFormat ( _col ) ;
 _whereObj = JSONSetElement ( "{}" ;
 	[ "type" ; "null" ; JSONString ] ;
 	[ "column" ; _column ; JSONString ] ;
@@ -730,7 +730,7 @@ JSONSetElement (
     </CustomFunction>
 
     <!-- 30 of 73 -->
-    <CustomFunction id="43" functionArity="2" visible="True" parameters="query;column" name="QueryOrWhereNotNull_cf">
+    <CustomFunction id="43" functionArity="2" visible="True" parameters="query;column" name="QueryOrWhereNotNull">
         <Calculation><![CDATA[// Appends OR column IS NOT NULL.
 Let
 (
@@ -738,7 +738,7 @@ Let
 _whereCount = JSONGetElement ( query ; "whereCount" ) ;
 _fqName = GetFieldName ( column ) ;
 _col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
-_column = QueryConvertField_cf ( _col ) ;
+_column = QueryFieldFormat ( _col ) ;
 _whereObj = JSONSetElement ( "{}" ;
 	[ "type" ; "notNull" ; JSONString ] ;
 	[ "column" ; _column ; JSONString ] ;
@@ -753,9 +753,9 @@ JSONSetElement (
     </CustomFunction>
 
     <!-- 31 of 73 -->
-    <CustomFunction id="44" functionArity="4" visible="True" parameters="query;column;low;high" name="QueryWhereBetween_cf">
+    <CustomFunction id="44" functionArity="4" visible="True" parameters="query;column;low;high" name="QueryWhereBetween">
         <Calculation><![CDATA[// Appends AND column BETWEEN low AND high. Two bindings are added.
-// Use QueryWhereNotBetween_cf for NOT BETWEEN.
+// Use QueryWhereNotBetween for NOT BETWEEN.
 Let
 (
 [
@@ -763,7 +763,7 @@ _whereCount = JSONGetElement ( query ; "whereCount" ) ;
 _bindingCount = JSONGetElement ( query ; "bindingCount" ) ;
 _fqName = GetFieldName ( column ) ;
 _col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
-_column = QueryConvertField_cf ( _col ) ;
+_column = QueryFieldFormat ( _col ) ;
 _whereObj = JSONSetElement ( "{}" ;
 	[ "type" ; "between" ; JSONString ] ;
 	[ "column" ; _column ; JSONString ] ;
@@ -781,7 +781,7 @@ _q6
     </CustomFunction>
 
     <!-- 32 of 73 -->
-    <CustomFunction id="45" functionArity="4" visible="True" parameters="query;column;low;high" name="QueryWhereNotBetween_cf">
+    <CustomFunction id="45" functionArity="4" visible="True" parameters="query;column;low;high" name="QueryWhereNotBetween">
         <Calculation><![CDATA[// Appends AND column NOT BETWEEN low AND high. Two bindings are added.
 Let
 (
@@ -790,7 +790,7 @@ _whereCount = JSONGetElement ( query ; "whereCount" ) ;
 _bindingCount = JSONGetElement ( query ; "bindingCount" ) ;
 _fqName = GetFieldName ( column ) ;
 _col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
-_column = QueryConvertField_cf ( _col ) ;
+_column = QueryFieldFormat ( _col ) ;
 _whereObj = JSONSetElement ( "{}" ;
 	[ "type" ; "notBetween" ; JSONString ] ;
 	[ "column" ; _column ; JSONString ] ;
@@ -808,7 +808,7 @@ _q6
     </CustomFunction>
 
     <!-- 33 of 73 -->
-    <CustomFunction id="46" functionArity="4" visible="True" parameters="query;column;low;high" name="QueryOrWhereBetween_cf">
+    <CustomFunction id="46" functionArity="4" visible="True" parameters="query;column;low;high" name="QueryOrWhereBetween">
         <Calculation><![CDATA[// Appends OR column BETWEEN low AND high. Two bindings are added.
 Let
 (
@@ -817,7 +817,7 @@ _whereCount = JSONGetElement ( query ; "whereCount" ) ;
 _bindingCount = JSONGetElement ( query ; "bindingCount" ) ;
 _fqName = GetFieldName ( column ) ;
 _col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
-_column = QueryConvertField_cf ( _col ) ;
+_column = QueryFieldFormat ( _col ) ;
 _whereObj = JSONSetElement ( "{}" ;
 	[ "type" ; "between" ; JSONString ] ;
 	[ "column" ; _column ; JSONString ] ;
@@ -835,7 +835,7 @@ _q6
     </CustomFunction>
 
     <!-- 34 of 73 -->
-    <CustomFunction id="47" functionArity="4" visible="True" parameters="query;column;low;high" name="QueryOrWhereNotBetween_cf">
+    <CustomFunction id="47" functionArity="4" visible="True" parameters="query;column;low;high" name="QueryOrWhereNotBetween">
         <Calculation><![CDATA[// Appends OR column NOT BETWEEN low AND high. Two bindings are added.
 Let
 (
@@ -844,7 +844,7 @@ _whereCount = JSONGetElement ( query ; "whereCount" ) ;
 _bindingCount = JSONGetElement ( query ; "bindingCount" ) ;
 _fqName = GetFieldName ( column ) ;
 _col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
-_column = QueryConvertField_cf ( _col ) ;
+_column = QueryFieldFormat ( _col ) ;
 _whereObj = JSONSetElement ( "{}" ;
 	[ "type" ; "notBetween" ; JSONString ] ;
 	[ "column" ; _column ; JSONString ] ;
@@ -862,7 +862,7 @@ _q6
     </CustomFunction>
 
     <!-- 35 of 73 -->
-    <CustomFunction id="48" functionArity="4" visible="True" parameters="query;first;operator;second" name="QueryWhereColumn_cf">
+    <CustomFunction id="48" functionArity="4" visible="True" parameters="query;first;operator;second" name="QueryWhereColumn">
         <Calculation><![CDATA[// Appends AND first operator second comparing two columns directly (no binding).
 // Both first and second accept Table::Field references, GetFieldName() strings,
 // or plain SQL expressions. Example: WHERE "Invoice"."id" = "LineItem"."invoiceId"
@@ -871,9 +871,9 @@ Let
 [
 _whereCount = JSONGetElement ( query ; "whereCount" ) ;
 _fqFirst = GetFieldName ( first ) ;
-_first = QueryConvertField_cf ( If ( Position ( _fqFirst ; "::" ; 1 ; 1 ) > 0 ; _fqFirst ; first ) ) ;
+_first = QueryFieldFormat ( If ( Position ( _fqFirst ; "::" ; 1 ; 1 ) > 0 ; _fqFirst ; first ) ) ;
 _fqSecond = GetFieldName ( second ) ;
-_second = QueryConvertField_cf ( If ( Position ( _fqSecond ; "::" ; 1 ; 1 ) > 0 ; _fqSecond ; second ) ) ;
+_second = QueryFieldFormat ( If ( Position ( _fqSecond ; "::" ; 1 ; 1 ) > 0 ; _fqSecond ; second ) ) ;
 _whereObj = JSONSetElement ( "{}" ;
 	[ "type" ; "column" ; JSONString ] ;
 	[ "column" ; _first ; JSONString ] ;
@@ -890,12 +890,12 @@ JSONSetElement (
     </CustomFunction>
 
     <!-- 36 of 73 -->
-    <CustomFunction id="49" functionArity="2" visible="True" parameters="query;groupedQuery" name="QueryWhereGroup_cf">
+    <CustomFunction id="49" functionArity="2" visible="True" parameters="query;groupedQuery" name="QueryWhereGroup">
         <Calculation><![CDATA[// Appends AND (inner conditions...) wrapping the WHERE conditions from groupedQuery.
-// Build groupedQuery on any query object using QueryWhere_cf / QueryOrWhere_cf etc.
+// Build groupedQuery on any query object using QueryWhere / QueryOrWhere etc.
 // Only the wheres and bindings of groupedQuery are used; its FROM/SELECT/etc. are ignored.
 // Example: AND (status = ? OR priority = ?)
-// Use QueryOrWhereGroup_cf to prefix the group with OR instead of AND.
+// Use QueryOrWhereGroup to prefix the group with OR instead of AND.
 Let
 (
 [
@@ -913,7 +913,7 @@ _whereObj = JSONSetElement ( "{}" ;
 _q1 = JSONSetElement ( query ; "wheres[" & _whereCount & "]" ; _whereObj ; JSONObject ) ;
 _q2 = JSONSetElement ( _q1 ; "whereCount" ; _whereCount + 1 ; JSONNumber ) ;
 _q3 = If ( _groupBindingCount > 0 ;
-	QueryMergeBindings_cf ( _q2 ; _groupBindings ; _groupBindingCount ; 0 ) ;
+	QueryMergeBindings ( _q2 ; _groupBindings ; _groupBindingCount ; 0 ) ;
 	_q2
 	)
 ];
@@ -922,12 +922,12 @@ _q3
     </CustomFunction>
 
     <!-- 37 of 73 -->
-    <CustomFunction id="50" functionArity="2" visible="True" parameters="query;groupedQuery" name="QueryOrWhereGroup_cf">
+    <CustomFunction id="50" functionArity="2" visible="True" parameters="query;groupedQuery" name="QueryOrWhereGroup">
         <Calculation><![CDATA[// Appends OR (inner conditions...) wrapping the WHERE conditions from groupedQuery.
-// Build groupedQuery on any query object using QueryWhere_cf / QueryOrWhere_cf etc.
+// Build groupedQuery on any query object using QueryWhere / QueryOrWhere etc.
 // Only the wheres and bindings of groupedQuery are used; its FROM/SELECT/etc. are ignored.
 // Example: OR (status = ? OR priority = ?)
-// Use QueryWhereGroup_cf to prefix the group with AND instead of OR.
+// Use QueryWhereGroup to prefix the group with AND instead of OR.
 Let
 (
 [
@@ -945,7 +945,7 @@ _whereObj = JSONSetElement ( "{}" ;
 _q1 = JSONSetElement ( query ; "wheres[" & _whereCount & "]" ; _whereObj ; JSONObject ) ;
 _q2 = JSONSetElement ( _q1 ; "whereCount" ; _whereCount + 1 ; JSONNumber ) ;
 _q3 = If ( _groupBindingCount > 0 ;
-	QueryMergeBindings_cf ( _q2 ; _groupBindings ; _groupBindingCount ; 0 ) ;
+	QueryMergeBindings ( _q2 ; _groupBindings ; _groupBindingCount ; 0 ) ;
 	_q2
 	)
 ];
@@ -954,11 +954,11 @@ _q3
     </CustomFunction>
 
     <!-- 38 of 73 -->
-    <CustomFunction id="51" functionArity="3" visible="True" parameters="query;rawSql;bindings" name="QueryWhereRaw_cf">
+    <CustomFunction id="51" functionArity="3" visible="True" parameters="query;rawSql;bindings" name="QueryWhereRaw">
         <Calculation><![CDATA[// Appends AND (rawSql) inserting the expression verbatim into the WHERE clause.
 // bindings is an optional ¶-delimited list of values for any ? placeholders in rawSql.
 // Leave bindings empty if rawSql contains no placeholders.
-// Use QueryOrWhereRaw_cf for OR prefix.
+// Use QueryOrWhereRaw for OR prefix.
 Let
 (
 [
@@ -972,7 +972,7 @@ _whereObj = JSONSetElement ( "{}" ;
 _q1 = JSONSetElement ( query ; "wheres[" & _whereCount & "]" ; _whereObj ; JSONObject ) ;
 _q2 = JSONSetElement ( _q1 ; "whereCount" ; _whereCount + 1 ; JSONNumber ) ;
 _q3 = If ( _valueCount > 0 ;
-	QueryAppendBindings_cf ( _q2 ; bindings ; _valueCount ; 1 ) ;
+	QueryAppendBindings ( _q2 ; bindings ; _valueCount ; 1 ) ;
 	_q2
 	)
 ];
@@ -981,11 +981,11 @@ _q3
     </CustomFunction>
 
     <!-- 39 of 73 -->
-    <CustomFunction id="52" functionArity="3" visible="True" parameters="query;rawSql;bindings" name="QueryOrWhereRaw_cf">
+    <CustomFunction id="52" functionArity="3" visible="True" parameters="query;rawSql;bindings" name="QueryOrWhereRaw">
         <Calculation><![CDATA[// Appends OR (rawSql) inserting the expression verbatim into the WHERE clause.
 // bindings is an optional ¶-delimited list of values for any ? placeholders in rawSql.
 // Leave bindings empty if rawSql contains no placeholders.
-// Use QueryWhereRaw_cf for AND prefix.
+// Use QueryWhereRaw for AND prefix.
 Let
 (
 [
@@ -999,7 +999,7 @@ _whereObj = JSONSetElement ( "{}" ;
 _q1 = JSONSetElement ( query ; "wheres[" & _whereCount & "]" ; _whereObj ; JSONObject ) ;
 _q2 = JSONSetElement ( _q1 ; "whereCount" ; _whereCount + 1 ; JSONNumber ) ;
 _q3 = If ( _valueCount > 0 ;
-	QueryAppendBindings_cf ( _q2 ; bindings ; _valueCount ; 1 ) ;
+	QueryAppendBindings ( _q2 ; bindings ; _valueCount ; 1 ) ;
 	_q2
 	)
 ];
@@ -1008,7 +1008,7 @@ _q3
     </CustomFunction>
 
     <!-- 40 of 73 -->
-    <CustomFunction id="35" functionArity="3" visible="True" parameters="query;column;subquery" name="QueryWhereInSubquery_cf">
+    <CustomFunction id="35" functionArity="3" visible="True" parameters="query;column;subquery" name="QueryWhereInSubquery">
         <Calculation><![CDATA[// Appends WHERE column IN (SELECT ...) using a fully-assembled fmorm
 // subquery object. The subquery's SQL is embedded directly; its bindings
 // are appended to the outer query's bindings in WHERE-clause order (correct
@@ -1021,8 +1021,8 @@ Let
 _whereCount = JSONGetElement ( query ; "whereCount" ) ;
 _fqName = GetFieldName ( column ) ;
 _col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
-_column = QueryConvertField_cf ( _col ) ;
-_subSql = QueryToSQL_cf ( subquery ) ;
+_column = QueryFieldFormat ( _col ) ;
+_subSql = QueryToSQL ( subquery ) ;
 _subBindings = JSONGetElement ( subquery ; "bindings" ) ;
 _subBindingCount = JSONGetElement ( subquery ; "bindingCount" ) ;
 _whereObj = JSONSetElement ( "{}" ;
@@ -1034,7 +1034,7 @@ _whereObj = JSONSetElement ( "{}" ;
 _q1 = JSONSetElement ( query ; "wheres[" & _whereCount & "]" ; _whereObj ; JSONObject ) ;
 _q2 = JSONSetElement ( _q1 ; "whereCount" ; _whereCount + 1 ; JSONNumber ) ;
 _q3 = If ( _subBindingCount > 0 ;
-	QueryMergeBindings_cf ( _q2 ; _subBindings ; _subBindingCount ; 0 ) ;
+	QueryMergeBindings ( _q2 ; _subBindings ; _subBindingCount ; 0 ) ;
 	_q2
 	)
 ];
@@ -1043,19 +1043,19 @@ _q3
     </CustomFunction>
 
     <!-- 41 of 73 -->
-    <CustomFunction id="53" functionArity="3" visible="True" parameters="query;column;subquery" name="QueryWhereNotInSubquery_cf">
+    <CustomFunction id="53" functionArity="3" visible="True" parameters="query;column;subquery" name="QueryWhereNotInSubquery">
         <Calculation><![CDATA[// Appends WHERE column NOT IN (SELECT ...) using a fully-assembled fmorm subquery object.
 // The subquery's SQL is embedded directly; its bindings are appended.
 // NOTE: NOT IN subqueries require FileMaker 17+.
-// Use QueryWhereInSubquery_cf for IN (subquery).
+// Use QueryWhereInSubquery for IN (subquery).
 Let
 (
 [
 _whereCount = JSONGetElement ( query ; "whereCount" ) ;
 _fqName = GetFieldName ( column ) ;
 _col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
-_column = QueryConvertField_cf ( _col ) ;
-_subSql = QueryToSQL_cf ( subquery ) ;
+_column = QueryFieldFormat ( _col ) ;
+_subSql = QueryToSQL ( subquery ) ;
 _subBindings = JSONGetElement ( subquery ; "bindings" ) ;
 _subBindingCount = JSONGetElement ( subquery ; "bindingCount" ) ;
 _whereObj = JSONSetElement ( "{}" ;
@@ -1067,7 +1067,7 @@ _whereObj = JSONSetElement ( "{}" ;
 _q1 = JSONSetElement ( query ; "wheres[" & _whereCount & "]" ; _whereObj ; JSONObject ) ;
 _q2 = JSONSetElement ( _q1 ; "whereCount" ; _whereCount + 1 ; JSONNumber ) ;
 _q3 = If ( _subBindingCount > 0 ;
-	QueryMergeBindings_cf ( _q2 ; _subBindings ; _subBindingCount ; 0 ) ;
+	QueryMergeBindings ( _q2 ; _subBindings ; _subBindingCount ; 0 ) ;
 	_q2
 	)
 ];
@@ -1076,17 +1076,17 @@ _q3
     </CustomFunction>
 
     <!-- 42 of 73 -->
-    <CustomFunction id="54" functionArity="2" visible="True" parameters="query;subquery" name="QueryWhereExists_cf">
+    <CustomFunction id="54" functionArity="2" visible="True" parameters="query;subquery" name="QueryWhereExists">
         <Calculation><![CDATA[// Appends AND EXISTS (SELECT ...) using a fully-assembled fmorm subquery object.
 // The subquery's SQL is embedded directly; its bindings are appended.
 // NOTE: EXISTS subqueries require FileMaker 17+. Correlated subqueries (referencing
 // an outer column) are not reliably supported by FileMaker's ExecuteSQL.
-// Use QueryWhereNotExists_cf for NOT EXISTS.
+// Use QueryWhereNotExists for NOT EXISTS.
 Let
 (
 [
 _whereCount = JSONGetElement ( query ; "whereCount" ) ;
-_subSql = QueryToSQL_cf ( subquery ) ;
+_subSql = QueryToSQL ( subquery ) ;
 _subBindings = JSONGetElement ( subquery ; "bindings" ) ;
 _subBindingCount = JSONGetElement ( subquery ; "bindingCount" ) ;
 _whereObj = JSONSetElement ( "{}" ;
@@ -1097,7 +1097,7 @@ _whereObj = JSONSetElement ( "{}" ;
 _q1 = JSONSetElement ( query ; "wheres[" & _whereCount & "]" ; _whereObj ; JSONObject ) ;
 _q2 = JSONSetElement ( _q1 ; "whereCount" ; _whereCount + 1 ; JSONNumber ) ;
 _q3 = If ( _subBindingCount > 0 ;
-	QueryMergeBindings_cf ( _q2 ; _subBindings ; _subBindingCount ; 0 ) ;
+	QueryMergeBindings ( _q2 ; _subBindings ; _subBindingCount ; 0 ) ;
 	_q2
 	)
 ];
@@ -1106,16 +1106,16 @@ _q3
     </CustomFunction>
 
     <!-- 43 of 73 -->
-    <CustomFunction id="55" functionArity="2" visible="True" parameters="query;subquery" name="QueryWhereNotExists_cf">
+    <CustomFunction id="55" functionArity="2" visible="True" parameters="query;subquery" name="QueryWhereNotExists">
         <Calculation><![CDATA[// Appends AND NOT EXISTS (SELECT ...) using a fully-assembled fmorm subquery object.
 // The subquery's SQL is embedded directly; its bindings are appended.
 // NOTE: NOT EXISTS subqueries require FileMaker 17+.
-// Use QueryWhereExists_cf for EXISTS.
+// Use QueryWhereExists for EXISTS.
 Let
 (
 [
 _whereCount = JSONGetElement ( query ; "whereCount" ) ;
-_subSql = QueryToSQL_cf ( subquery ) ;
+_subSql = QueryToSQL ( subquery ) ;
 _subBindings = JSONGetElement ( subquery ; "bindings" ) ;
 _subBindingCount = JSONGetElement ( subquery ; "bindingCount" ) ;
 _whereObj = JSONSetElement ( "{}" ;
@@ -1126,7 +1126,7 @@ _whereObj = JSONSetElement ( "{}" ;
 _q1 = JSONSetElement ( query ; "wheres[" & _whereCount & "]" ; _whereObj ; JSONObject ) ;
 _q2 = JSONSetElement ( _q1 ; "whereCount" ; _whereCount + 1 ; JSONNumber ) ;
 _q3 = If ( _subBindingCount > 0 ;
-	QueryMergeBindings_cf ( _q2 ; _subBindings ; _subBindingCount ; 0 ) ;
+	QueryMergeBindings ( _q2 ; _subBindings ; _subBindingCount ; 0 ) ;
 	_q2
 	)
 ];
@@ -1135,7 +1135,7 @@ _q3
     </CustomFunction>
 
     <!-- 44 of 73 -->
-    <CustomFunction id="17" functionArity="5" visible="True" parameters="query;table;first;operator;second" name="QueryJoin_cf">
+    <CustomFunction id="17" functionArity="5" visible="True" parameters="query;table;first;operator;second" name="QueryJoin">
         <Calculation><![CDATA[Let
 (
 [
@@ -1149,9 +1149,9 @@ _table = Quote (
 		_tableName
 	)) ;
 _fqFirst = GetFieldName ( first ) ;
-_first = QueryConvertField_cf ( If ( Position ( _fqFirst ; "::" ; 1 ; 1 ) > 0 ; _fqFirst ; first ) ) ;
+_first = QueryFieldFormat ( If ( Position ( _fqFirst ; "::" ; 1 ; 1 ) > 0 ; _fqFirst ; first ) ) ;
 _fqSecond = GetFieldName ( second ) ;
-_second = QueryConvertField_cf ( If ( Position ( _fqSecond ; "::" ; 1 ; 1 ) > 0 ; _fqSecond ; second ) ) ;
+_second = QueryFieldFormat ( If ( Position ( _fqSecond ; "::" ; 1 ; 1 ) > 0 ; _fqSecond ; second ) ) ;
 _joinObj = JSONSetElement ( "{}" ;
 	[ "type" ; "inner" ; JSONString ] ;
 	[ "table" ; _table ; JSONString ] ;
@@ -1167,7 +1167,7 @@ _q2
     </CustomFunction>
 
     <!-- 45 of 73 -->
-    <CustomFunction id="18" functionArity="5" visible="True" parameters="query;table;first;operator;second" name="QueryLeftJoin_cf">
+    <CustomFunction id="18" functionArity="5" visible="True" parameters="query;table;first;operator;second" name="QueryLeftJoin">
         <Calculation><![CDATA[Let
 (
 [
@@ -1181,9 +1181,9 @@ _table = Quote (
 		_tableName
 	)) ;
 _fqFirst = GetFieldName ( first ) ;
-_first = QueryConvertField_cf ( If ( Position ( _fqFirst ; "::" ; 1 ; 1 ) > 0 ; _fqFirst ; first ) ) ;
+_first = QueryFieldFormat ( If ( Position ( _fqFirst ; "::" ; 1 ; 1 ) > 0 ; _fqFirst ; first ) ) ;
 _fqSecond = GetFieldName ( second ) ;
-_second = QueryConvertField_cf ( If ( Position ( _fqSecond ; "::" ; 1 ; 1 ) > 0 ; _fqSecond ; second ) ) ;
+_second = QueryFieldFormat ( If ( Position ( _fqSecond ; "::" ; 1 ; 1 ) > 0 ; _fqSecond ; second ) ) ;
 _joinObj = JSONSetElement ( "{}" ;
 	[ "type" ; "left" ; JSONString ] ;
 	[ "table" ; _table ; JSONString ] ;
@@ -1199,7 +1199,7 @@ _q2
     </CustomFunction>
 
     <!-- 46 of 73 -->
-    <CustomFunction id="56" functionArity="5" visible="True" parameters="query;table;first;operator;second" name="QueryRightJoin_cf">
+    <CustomFunction id="56" functionArity="5" visible="True" parameters="query;table;first;operator;second" name="QueryRightJoin">
         <Calculation><![CDATA[// Appends a RIGHT JOIN clause. table, first, and second accept plain strings,
 // direct FM field references, or GetFieldName() results.
 Let
@@ -1215,9 +1215,9 @@ _table = Quote (
 		_tableName
 	)) ;
 _fqFirst = GetFieldName ( first ) ;
-_first = QueryConvertField_cf ( If ( Position ( _fqFirst ; "::" ; 1 ; 1 ) > 0 ; _fqFirst ; first ) ) ;
+_first = QueryFieldFormat ( If ( Position ( _fqFirst ; "::" ; 1 ; 1 ) > 0 ; _fqFirst ; first ) ) ;
 _fqSecond = GetFieldName ( second ) ;
-_second = QueryConvertField_cf ( If ( Position ( _fqSecond ; "::" ; 1 ; 1 ) > 0 ; _fqSecond ; second ) ) ;
+_second = QueryFieldFormat ( If ( Position ( _fqSecond ; "::" ; 1 ; 1 ) > 0 ; _fqSecond ; second ) ) ;
 _joinObj = JSONSetElement ( "{}" ;
 	[ "type" ; "right" ; JSONString ] ;
 	[ "table" ; _table ; JSONString ] ;
@@ -1233,7 +1233,7 @@ _q2
     </CustomFunction>
 
     <!-- 47 of 73 -->
-    <CustomFunction id="57" functionArity="2" visible="True" parameters="query;table" name="QueryCrossJoin_cf">
+    <CustomFunction id="57" functionArity="2" visible="True" parameters="query;table" name="QueryCrossJoin">
         <Calculation><![CDATA[// Appends a CROSS JOIN (cartesian product) with no ON condition.
 // table accepts a plain string, direct FM field reference, or GetFieldName() result.
 Let
@@ -1260,7 +1260,7 @@ _q2
     </CustomFunction>
 
     <!-- 48 of 73 -->
-    <CustomFunction id="58" functionArity="6" visible="True" parameters="query;subquery;alias;first;operator;second" name="QueryJoinSub_cf">
+    <CustomFunction id="58" functionArity="6" visible="True" parameters="query;subquery;alias;first;operator;second" name="QueryJoinSub">
         <Calculation><![CDATA[// Appends INNER JOIN (SELECT ...) alias ON first operator second.
 // alias is a plain SQL identifier string (e.g. "sub").
 // first and second accept Table::Field references, GetFieldName() strings,
@@ -1269,18 +1269,18 @@ _q2
 // IMPORTANT: Call this before adding WHERE conditions to ensure correct
 // binding order (JOIN bindings must precede WHERE bindings in the SQL).
 // NOTE: JOIN subqueries require FileMaker 17+.
-// Use QueryLeftJoinSub_cf for a LEFT JOIN variant.
+// Use QueryLeftJoinSub for a LEFT JOIN variant.
 Let
 (
 [
 _joinCount = JSONGetElement ( query ; "joinCount" ) ;
-_subSql = QueryToSQL_cf ( subquery ) ;
+_subSql = QueryToSQL ( subquery ) ;
 _subBindings = JSONGetElement ( subquery ; "bindings" ) ;
 _subBindingCount = JSONGetElement ( subquery ; "bindingCount" ) ;
 _fqFirst = GetFieldName ( first ) ;
-_first = QueryConvertField_cf ( If ( Position ( _fqFirst ; "::" ; 1 ; 1 ) > 0 ; _fqFirst ; first ) ) ;
+_first = QueryFieldFormat ( If ( Position ( _fqFirst ; "::" ; 1 ; 1 ) > 0 ; _fqFirst ; first ) ) ;
 _fqSecond = GetFieldName ( second ) ;
-_second = QueryConvertField_cf ( If ( Position ( _fqSecond ; "::" ; 1 ; 1 ) > 0 ; _fqSecond ; second ) ) ;
+_second = QueryFieldFormat ( If ( Position ( _fqSecond ; "::" ; 1 ; 1 ) > 0 ; _fqSecond ; second ) ) ;
 _joinObj = JSONSetElement ( "{}" ;
 	[ "type" ; "subJoin" ; JSONString ] ;
 	[ "sql" ; _subSql ; JSONString ] ;
@@ -1292,7 +1292,7 @@ _joinObj = JSONSetElement ( "{}" ;
 _q1 = JSONSetElement ( query ; "joins[" & _joinCount & "]" ; _joinObj ; JSONObject ) ;
 _q2 = JSONSetElement ( _q1 ; "joinCount" ; _joinCount + 1 ; JSONNumber ) ;
 _q3 = If ( _subBindingCount > 0 ;
-	QueryMergeBindings_cf ( _q2 ; _subBindings ; _subBindingCount ; 0 ) ;
+	QueryMergeBindings ( _q2 ; _subBindings ; _subBindingCount ; 0 ) ;
 	_q2
 	)
 ];
@@ -1301,7 +1301,7 @@ _q3
     </CustomFunction>
 
     <!-- 49 of 73 -->
-    <CustomFunction id="59" functionArity="6" visible="True" parameters="query;subquery;alias;first;operator;second" name="QueryLeftJoinSub_cf">
+    <CustomFunction id="59" functionArity="6" visible="True" parameters="query;subquery;alias;first;operator;second" name="QueryLeftJoinSub">
         <Calculation><![CDATA[// Appends LEFT JOIN (SELECT ...) alias ON first operator second.
 // alias is a plain SQL identifier string (e.g. "sub").
 // first and second accept Table::Field references, GetFieldName() strings,
@@ -1310,18 +1310,18 @@ _q3
 // IMPORTANT: Call this before adding WHERE conditions to ensure correct
 // binding order (JOIN bindings must precede WHERE bindings in the SQL).
 // NOTE: LEFT JOIN subqueries require FileMaker 17+.
-// Use QueryJoinSub_cf for an INNER JOIN variant.
+// Use QueryJoinSub for an INNER JOIN variant.
 Let
 (
 [
 _joinCount = JSONGetElement ( query ; "joinCount" ) ;
-_subSql = QueryToSQL_cf ( subquery ) ;
+_subSql = QueryToSQL ( subquery ) ;
 _subBindings = JSONGetElement ( subquery ; "bindings" ) ;
 _subBindingCount = JSONGetElement ( subquery ; "bindingCount" ) ;
 _fqFirst = GetFieldName ( first ) ;
-_first = QueryConvertField_cf ( If ( Position ( _fqFirst ; "::" ; 1 ; 1 ) > 0 ; _fqFirst ; first ) ) ;
+_first = QueryFieldFormat ( If ( Position ( _fqFirst ; "::" ; 1 ; 1 ) > 0 ; _fqFirst ; first ) ) ;
 _fqSecond = GetFieldName ( second ) ;
-_second = QueryConvertField_cf ( If ( Position ( _fqSecond ; "::" ; 1 ; 1 ) > 0 ; _fqSecond ; second ) ) ;
+_second = QueryFieldFormat ( If ( Position ( _fqSecond ; "::" ; 1 ; 1 ) > 0 ; _fqSecond ; second ) ) ;
 _joinObj = JSONSetElement ( "{}" ;
 	[ "type" ; "leftSubJoin" ; JSONString ] ;
 	[ "sql" ; _subSql ; JSONString ] ;
@@ -1333,7 +1333,7 @@ _joinObj = JSONSetElement ( "{}" ;
 _q1 = JSONSetElement ( query ; "joins[" & _joinCount & "]" ; _joinObj ; JSONObject ) ;
 _q2 = JSONSetElement ( _q1 ; "joinCount" ; _joinCount + 1 ; JSONNumber ) ;
 _q3 = If ( _subBindingCount > 0 ;
-	QueryMergeBindings_cf ( _q2 ; _subBindings ; _subBindingCount ; 0 ) ;
+	QueryMergeBindings ( _q2 ; _subBindings ; _subBindingCount ; 0 ) ;
 	_q2
 	)
 ];
@@ -1342,7 +1342,7 @@ _q3
     </CustomFunction>
 
     <!-- 50 of 73 -->
-    <CustomFunction id="19" functionArity="3" visible="True" parameters="query;column;direction" name="QueryOrderBy_cf">
+    <CustomFunction id="19" functionArity="3" visible="True" parameters="query;column;direction" name="QueryOrderBy">
         <Calculation><![CDATA[// direction defaults to "ASC" when empty.
 Let
 (
@@ -1351,7 +1351,7 @@ _orderByCount = JSONGetElement ( query ; "orderByCount" ) ;
 _dir = If ( IsEmpty ( direction ) ; "ASC" ; Upper ( direction ) ) ;
 _fqName = GetFieldName ( column ) ;
 _col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
-_column = QueryConvertField_cf ( _col ) ;
+_column = QueryFieldFormat ( _col ) ;
 _orderByObj = JSONSetElement ( "{}" ;
 	[ "column" ; _column ; JSONString ] ;
 	[ "direction" ; _dir ; JSONString ]
@@ -1364,10 +1364,10 @@ _q2
     </CustomFunction>
 
     <!-- 51 of 73 -->
-    <CustomFunction id="60" functionArity="2" visible="True" parameters="query;rawSql" name="QueryOrderByRaw_cf">
+    <CustomFunction id="60" functionArity="2" visible="True" parameters="query;rawSql" name="QueryOrderByRaw">
         <Calculation><![CDATA[// Appends a raw SQL expression to the ORDER BY clause verbatim.
 // Useful for RAND(), CASE expressions, or function-based ordering.
-// Example: QueryOrderByRaw_cf ( query ; "RAND()" )
+// Example: QueryOrderByRaw ( query ; "RAND()" )
 Let
 (
 [
@@ -1384,9 +1384,9 @@ _q2
     </CustomFunction>
 
     <!-- 52 of 73 -->
-    <CustomFunction id="61" functionArity="1" visible="True" parameters="query" name="QueryReorder_cf">
+    <CustomFunction id="61" functionArity="1" visible="True" parameters="query" name="QueryReorder">
         <Calculation><![CDATA[// Clears all ORDER BY clauses from the query.
-// After calling this, new ORDER BY clauses can be added with QueryOrderBy_cf.
+// After calling this, new ORDER BY clauses can be added with QueryOrderBy.
 JSONSetElement (
 	JSONSetElement ( query ; "orderBys" ; "[]" ; JSONRaw ) ;
 	"orderByCount" ; 0 ; JSONNumber
@@ -1394,14 +1394,14 @@ JSONSetElement (
     </CustomFunction>
 
     <!-- 53 of 73 -->
-    <CustomFunction id="20" functionArity="2" visible="True" parameters="query;column" name="QueryGroupBy_cf">
+    <CustomFunction id="20" functionArity="2" visible="True" parameters="query;column" name="QueryGroupBy">
         <Calculation><![CDATA[Let
 (
 [
 _groupByCount = JSONGetElement ( query ; "groupByCount" ) ;
 _fqName = GetFieldName ( column ) ;
 _col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
-_column = QueryConvertField_cf ( _col )
+_column = QueryFieldFormat ( _col )
 ];
 JSONSetElement (
 	JSONSetElement ( query ; "groupBys[" & _groupByCount & "]" ; _column ; JSONString ) ;
@@ -1411,10 +1411,10 @@ JSONSetElement (
     </CustomFunction>
 
     <!-- 54 of 73 -->
-    <CustomFunction id="62" functionArity="2" visible="True" parameters="query;rawSql" name="QueryGroupByRaw_cf">
+    <CustomFunction id="62" functionArity="2" visible="True" parameters="query;rawSql" name="QueryGroupByRaw">
         <Calculation><![CDATA[// Appends a raw SQL expression to the GROUP BY clause verbatim.
 // Useful for function-based grouping such as YEAR(dateField).
-// Example: QueryGroupByRaw_cf ( query ; "YEAR(\"Invoice\".\"date\")" )
+// Example: QueryGroupByRaw ( query ; "YEAR(\"Invoice\".\"date\")" )
 Let
 (
 [
@@ -1432,7 +1432,7 @@ JSONSetElement (
     </CustomFunction>
 
     <!-- 55 of 73 -->
-    <CustomFunction id="21" functionArity="4" visible="True" parameters="query;column;operator;value" name="QueryHaving_cf">
+    <CustomFunction id="21" functionArity="4" visible="True" parameters="query;column;operator;value" name="QueryHaving">
         <Calculation><![CDATA[Let
 (
 [
@@ -1440,7 +1440,7 @@ _havingCount = JSONGetElement ( query ; "havingCount" ) ;
 _bindingCount = JSONGetElement ( query ; "bindingCount" ) ;
 _fqName = GetFieldName ( column ) ;
 _col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
-_column = QueryConvertField_cf ( _col ) ;
+_column = QueryFieldFormat ( _col ) ;
 _havingObj = JSONSetElement ( "{}" ;
 	[ "column" ; _column ; JSONString ] ;
 	[ "operator" ; operator ; JSONString ] ;
@@ -1456,10 +1456,10 @@ _q4
     </CustomFunction>
 
     <!-- 56 of 73 -->
-    <CustomFunction id="63" functionArity="4" visible="True" parameters="query;column;operator;value" name="QueryOrHaving_cf">
+    <CustomFunction id="63" functionArity="4" visible="True" parameters="query;column;operator;value" name="QueryOrHaving">
         <Calculation><![CDATA[// Appends OR column operator value to the HAVING clause. One binding is added.
-// Must be used after QueryGroupBy_cf.
-// Use QueryHaving_cf for AND HAVING.
+// Must be used after QueryGroupBy.
+// Use QueryHaving for AND HAVING.
 Let
 (
 [
@@ -1467,7 +1467,7 @@ _havingCount = JSONGetElement ( query ; "havingCount" ) ;
 _bindingCount = JSONGetElement ( query ; "bindingCount" ) ;
 _fqName = GetFieldName ( column ) ;
 _col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
-_column = QueryConvertField_cf ( _col ) ;
+_column = QueryFieldFormat ( _col ) ;
 _havingObj = JSONSetElement ( "{}" ;
 	[ "column" ; _column ; JSONString ] ;
 	[ "operator" ; operator ; JSONString ] ;
@@ -1483,11 +1483,11 @@ _q4
     </CustomFunction>
 
     <!-- 57 of 73 -->
-    <CustomFunction id="64" functionArity="3" visible="True" parameters="query;rawSql;bindings" name="QueryHavingRaw_cf">
+    <CustomFunction id="64" functionArity="3" visible="True" parameters="query;rawSql;bindings" name="QueryHavingRaw">
         <Calculation><![CDATA[// Appends AND (rawSql) to the HAVING clause verbatim.
 // bindings is an optional ¶-delimited list of values for any ? placeholders in rawSql.
 // Leave bindings empty if rawSql contains no placeholders.
-// Use QueryOrHavingRaw_cf for OR prefix.
+// Use QueryOrHavingRaw for OR prefix.
 Let
 (
 [
@@ -1501,7 +1501,7 @@ _havingObj = JSONSetElement ( "{}" ;
 _q1 = JSONSetElement ( query ; "havings[" & _havingCount & "]" ; _havingObj ; JSONObject ) ;
 _q2 = JSONSetElement ( _q1 ; "havingCount" ; _havingCount + 1 ; JSONNumber ) ;
 _q3 = If ( _valueCount > 0 ;
-	QueryAppendBindings_cf ( _q2 ; bindings ; _valueCount ; 1 ) ;
+	QueryAppendBindings ( _q2 ; bindings ; _valueCount ; 1 ) ;
 	_q2
 	)
 ];
@@ -1510,11 +1510,11 @@ _q3
     </CustomFunction>
 
     <!-- 58 of 73 -->
-    <CustomFunction id="65" functionArity="3" visible="True" parameters="query;rawSql;bindings" name="QueryOrHavingRaw_cf">
+    <CustomFunction id="65" functionArity="3" visible="True" parameters="query;rawSql;bindings" name="QueryOrHavingRaw">
         <Calculation><![CDATA[// Appends OR (rawSql) to the HAVING clause verbatim.
 // bindings is an optional ¶-delimited list of values for any ? placeholders in rawSql.
 // Leave bindings empty if rawSql contains no placeholders.
-// Use QueryHavingRaw_cf for AND prefix.
+// Use QueryHavingRaw for AND prefix.
 Let
 (
 [
@@ -1528,7 +1528,7 @@ _havingObj = JSONSetElement ( "{}" ;
 _q1 = JSONSetElement ( query ; "havings[" & _havingCount & "]" ; _havingObj ; JSONObject ) ;
 _q2 = JSONSetElement ( _q1 ; "havingCount" ; _havingCount + 1 ; JSONNumber ) ;
 _q3 = If ( _valueCount > 0 ;
-	QueryAppendBindings_cf ( _q2 ; bindings ; _valueCount ; 1 ) ;
+	QueryAppendBindings ( _q2 ; bindings ; _valueCount ; 1 ) ;
 	_q2
 	)
 ];
@@ -1537,20 +1537,20 @@ _q3
     </CustomFunction>
 
     <!-- 59 of 73 -->
-    <CustomFunction id="22" functionArity="2" visible="True" parameters="query;value" name="QueryLimit_cf">
+    <CustomFunction id="22" functionArity="2" visible="True" parameters="query;value" name="QueryLimit">
         <Calculation><![CDATA[JSONSetElement ( query ; "limit" ; value ; JSONNumber )]]></Calculation>
     </CustomFunction>
 
     <!-- 60 of 73 -->
-    <CustomFunction id="23" functionArity="2" visible="True" parameters="query;value" name="QueryOffset_cf">
+    <CustomFunction id="23" functionArity="2" visible="True" parameters="query;value" name="QueryOffset">
         <Calculation><![CDATA[JSONSetElement ( query ; "offset" ; value ; JSONNumber )]]></Calculation>
     </CustomFunction>
 
     <!-- 61 of 73 -->
-    <CustomFunction id="66" functionArity="3" visible="True" parameters="query;page;perPage" name="QueryForPage_cf">
+    <CustomFunction id="66" functionArity="3" visible="True" parameters="query;page;perPage" name="QueryForPage">
         <Calculation><![CDATA[// Convenience function: sets LIMIT and OFFSET for a specific page number.
 // page is 1-based. Equivalent to:
-//   QueryLimit_cf ( QueryOffset_cf ( query ; (page - 1) * perPage ) ; perPage )
+//   QueryLimit ( QueryOffset ( query ; (page - 1) * perPage ) ; perPage )
 // Example: page=2, perPage=25 → FETCH FIRST 25 ROWS ONLY OFFSET 25 ROWS
 Let
 (
@@ -1564,21 +1564,21 @@ _q2
     </CustomFunction>
 
     <!-- 62 of 73 -->
-    <CustomFunction id="36" functionArity="3" visible="True" parameters="outerQuery;subquery;alias" name="QueryFromSubquery_cf">
+    <CustomFunction id="36" functionArity="3" visible="True" parameters="outerQuery;subquery;alias" name="QueryFromSubquery">
         <Calculation><![CDATA[// Replaces the FROM table with a derived table: FROM (SELECT ...) alias.
-// The table name set in QueryNew_cf is discarded and replaced by the subquery
+// The table name set in QueryNew is discarded and replaced by the subquery
 // expression. alias is a plain SQL identifier — use a simple string like "sub".
 // The subquery's bindings are prepended to any existing outer bindings because
 // the FROM clause appears before WHERE in the SQL string, so its ? placeholders
 // must come first in the bindings array for ExecuteSQL to match them correctly.
 // NOTE: Derived tables (subqueries in FROM) are functional in FileMaker 19.x
 // but are not formally documented by Claris. Test in your target FM version.
-// Avoid QueryLimit_cf / QueryOffset_cf on the inner query — FETCH FIRST inside
+// Avoid QueryLimit / QueryOffset on the inner query — FETCH FIRST inside
 // a subquery is not supported in all FM versions.
 Let
 (
 [
-_subSql = QueryToSQL_cf ( subquery ) ;
+_subSql = QueryToSQL ( subquery ) ;
 _derivedTable = "(" & _subSql & ") " & alias ;
 _subBindings = JSONGetElement ( subquery ; "bindings" ) ;
 _subBindingCount = JSONGetElement ( subquery ; "bindingCount" ) ;
@@ -1586,7 +1586,7 @@ _outerBindings = JSONGetElement ( outerQuery ; "bindings" ) ;
 _outerBindingCount = JSONGetElement ( outerQuery ; "bindingCount" ) ;
 _q1 = JSONSetElement ( outerQuery ; "table" ; _derivedTable ; JSONString ) ;
 _q2 = If ( _subBindingCount > 0 ;
-	QueryPrependBindings_cf ( _q1 ; _subBindings ; _subBindingCount ; _outerBindings ; _outerBindingCount ; 0 ) ;
+	QueryPrependBindings ( _q1 ; _subBindings ; _subBindingCount ; _outerBindings ; _outerBindingCount ; 0 ) ;
 	_q1
 	)
 ];
@@ -1595,7 +1595,7 @@ _q2
     </CustomFunction>
 
     <!-- 63 of 73 -->
-    <CustomFunction id="67" functionArity="3" visible="True" parameters="query;unionQuery;all" name="QueryUnion_cf">
+    <CustomFunction id="67" functionArity="3" visible="True" parameters="query;unionQuery;all" name="QueryUnion">
         <Calculation><![CDATA[// Appends a UNION or UNION ALL clause combining two query results.
 // unionQuery is a fully-assembled fmorm query object.
 // all: pass 1 for UNION ALL (keeps duplicates), 0 for UNION (removes duplicates).
@@ -1606,7 +1606,7 @@ Let
 (
 [
 _unionCount = If ( IsEmpty ( JSONGetElement ( query ; "unionCount" ) ) ; 0 ; JSONGetElement ( query ; "unionCount" ) ) ;
-_subSql = QueryToSQL_cf ( unionQuery ) ;
+_subSql = QueryToSQL ( unionQuery ) ;
 _subBindings = JSONGetElement ( unionQuery ; "bindings" ) ;
 _subBindingCount = JSONGetElement ( unionQuery ; "bindingCount" ) ;
 _unionObj = JSONSetElement ( "{}" ;
@@ -1616,7 +1616,7 @@ _unionObj = JSONSetElement ( "{}" ;
 _q1 = JSONSetElement ( query ; "unions[" & _unionCount & "]" ; _unionObj ; JSONObject ) ;
 _q2 = JSONSetElement ( _q1 ; "unionCount" ; _unionCount + 1 ; JSONNumber ) ;
 _q3 = If ( _subBindingCount > 0 ;
-	QueryMergeBindings_cf ( _q2 ; _subBindings ; _subBindingCount ; 0 ) ;
+	QueryMergeBindings ( _q2 ; _subBindings ; _subBindingCount ; 0 ) ;
 	_q2
 	)
 ];
@@ -1625,7 +1625,7 @@ _q3
     </CustomFunction>
 
     <!-- 64 of 73 -->
-    <CustomFunction id="24" functionArity="1" visible="True" parameters="query" name="QueryToSQL_cf">
+    <CustomFunction id="24" functionArity="1" visible="True" parameters="query" name="QueryToSQL">
         <Calculation><![CDATA[// Assembles and returns the full SQL string without executing it.
 // Useful for debugging. Bindings are represented as ? placeholders.
 // Output is pretty-printed: each major clause on its own line,
@@ -1653,7 +1653,7 @@ _unionCount = JSONGetElement ( query ; "unionCount" ) ;
 _in = "    " ;
 _selectKeyword = If ( not IsEmpty ( _distinct ) and _distinct ; "SELECT DISTINCT" ; "SELECT" ) ;
 _selectFields = Substitute ( _selects ; ", " ; "," & ¶ & _in ) ;
-_joinRaw = If ( _joinCount > 0 ; QueryBuildJoins_cf ( _joins ; _joinCount ; 0 ) ; "" ) ;
+_joinRaw = If ( _joinCount > 0 ; QueryBuildJoins ( _joins ; _joinCount ; 0 ) ; "" ) ;
 _joinSplit = Substitute ( Substitute ( Substitute ( Substitute ( _joinRaw ;
 	" INNER JOIN " ; ¶ & "INNER JOIN " ) ;
 	" LEFT JOIN " ; ¶ & "LEFT JOIN " ) ;
@@ -1667,22 +1667,22 @@ _joinClause = If ( _joinCount > 0 ;
 		"CROSS JOIN " ; "CROSS JOIN" & ¶ & _in ) ;
 	""
 ) ;
-_whereRaw = If ( _whereCount > 0 ; QueryBuildWheres_cf ( _wheres ; _whereCount ; 0 ) ; "" ) ;
+_whereRaw = If ( _whereCount > 0 ; QueryBuildWheres ( _wheres ; _whereCount ; 0 ) ; "" ) ;
 _whereClause = If ( _whereCount > 0 ;
 	¶ & "WHERE" & ¶ & _in & Substitute ( Substitute ( _whereRaw ; " AND " ; ¶ & _in & "AND" & ¶ & _in ) ; " OR " ; ¶ & _in & "OR" & ¶ & _in ) ;
 	""
 ) ;
-_groupByRaw = If ( _groupByCount > 0 ; QueryBuildGroupBys_cf ( _groupBys ; _groupByCount ; 0 ) ; "" ) ;
+_groupByRaw = If ( _groupByCount > 0 ; QueryBuildGroupBys ( _groupBys ; _groupByCount ; 0 ) ; "" ) ;
 _groupByClause = If ( _groupByCount > 0 ;
 	¶ & "GROUP BY" & ¶ & _in & Substitute ( _groupByRaw ; ", " ; "," & ¶ & _in ) ;
 	""
 ) ;
-_havingRaw = If ( _havingCount > 0 ; QueryBuildHavings_cf ( _havings ; _havingCount ; 0 ) ; "" ) ;
+_havingRaw = If ( _havingCount > 0 ; QueryBuildHavings ( _havings ; _havingCount ; 0 ) ; "" ) ;
 _havingClause = If ( _havingCount > 0 ;
 	¶ & "HAVING" & ¶ & _in & Substitute ( Substitute ( _havingRaw ; " AND " ; ¶ & _in & "AND" & ¶ & _in ) ; " OR " ; ¶ & _in & "OR" & ¶ & _in ) ;
 	""
 ) ;
-_orderByRaw = If ( _orderByCount > 0 ; QueryBuildOrderBys_cf ( _orderBys ; _orderByCount ; 0 ) ; "" ) ;
+_orderByRaw = If ( _orderByCount > 0 ; QueryBuildOrderBys ( _orderBys ; _orderByCount ; 0 ) ; "" ) ;
 _orderByClause = If ( _orderByCount > 0 ;
 	¶ & "ORDER BY" & ¶ & _in & Substitute ( _orderByRaw ; ", " ; "," & ¶ & _in ) ;
 	""
@@ -1690,7 +1690,7 @@ _orderByClause = If ( _orderByCount > 0 ;
 _offsetClause = If ( not IsEmpty ( _offset ) ; ¶ & "OFFSET " & _offset & " ROWS" ; "" ) ;
 _limitClause = If ( not IsEmpty ( _limit ) ; ¶ & "FETCH FIRST " & _limit & " ROWS ONLY" ; "" ) ;
 _unionClause = If ( not IsEmpty ( _unionCount ) and _unionCount > 0 ;
-	QueryBuildUnions_cf ( _unions ; _unionCount ; 0 ) ;
+	QueryBuildUnions ( _unions ; _unionCount ; 0 ) ;
 	""
 )
 ];
@@ -1708,17 +1708,17 @@ _unionClause
     </CustomFunction>
 
     <!-- 65 of 73 -->
-    <CustomFunction id="25" functionArity="3" visible="True" parameters="query;fieldSeparator;rowSeparator" name="QueryGet_cf">
+    <CustomFunction id="25" functionArity="3" visible="True" parameters="query;fieldSeparator;rowSeparator" name="QueryGet">
         <Calculation><![CDATA[// Executes the assembled query via ExecuteSQL using Evaluate to
 // dynamically bind the stored parameter values.
 // Returns "" if ExecuteSQL returns an error (result starting with "?").
 Let
 (
 [
-_sql = QueryToSQL_cf ( query ) ;
+_sql = QueryToSQL ( query ) ;
 _bindings = JSONGetElement ( query ; "bindings" ) ;
 _bindingCount = JSONGetElement ( query ; "bindingCount" ) ;
-_bindingArgs = QueryBuildBindingArgs_cf ( _bindings ; _bindingCount ; 0 ) ;
+_bindingArgs = QueryBuildBindingArgs ( _bindings ; _bindingCount ; 0 ) ;
 _exprBase = "ExecuteSQL ( " & Quote ( _sql ) & " ; " & Quote ( fieldSeparator ) & " ; " & Quote ( rowSeparator ) ;
 _expr = _exprBase & If ( _bindingCount > 0 ; " ; " & _bindingArgs ; "" ) & " )" ;
 _result = Evaluate ( _expr )
@@ -1728,29 +1728,29 @@ If ( Left ( _result ; 1 ) = "?" ; "" ; _result )
     </CustomFunction>
 
     <!-- 66 of 73 -->
-    <CustomFunction id="30" functionArity="1" visible="True" parameters="query" name="QueryGetResultsAsJson_cf">
+    <CustomFunction id="30" functionArity="1" visible="True" parameters="query" name="QueryGetResultsAsJson">
         <Calculation><![CDATA[// Executes the query and returns results as a JSON array of objects.
 // Property names are derived automatically from the selectKeys stored in the
-// query object, which QuerySelect_cf populates from the original column input.
+// query object, which QuerySelect populates from the original column input.
 // Returns "[]" when the query produces no rows or an error.
 Let
 (
 [
 _keys = JSONGetElement ( query ; "selectKeys" ) ;
 _keyCount = ValueCount ( _keys ) ;
-_rawResult = QueryGet_cf ( query ; Char ( 28 ) ; "¶" ) ;
+_rawResult = QueryGet ( query ; Char ( 28 ) ; "¶" ) ;
 _rowCount = If ( IsEmpty ( _rawResult ) ; 0 ; ValueCount ( _rawResult ) )
 ];
 If ( _rowCount = 0 ;
 	"[]" ;
 // ELSE
-	QueryBuildJsonRows_cf ( "[]" ; _rawResult ; _rowCount ; _keys ; _keyCount ; 1 )
+	QueryBuildJsonRows ( "[]" ; _rawResult ; _rowCount ; _keys ; _keyCount ; 1 )
 )
 )]]></Calculation>
     </CustomFunction>
 
     <!-- 67 of 73 -->
-    <CustomFunction id="68" functionArity="1" visible="True" parameters="query" name="QueryCount_cf">
+    <CustomFunction id="68" functionArity="1" visible="True" parameters="query" name="QueryCount">
         <Calculation><![CDATA[// Executes SELECT COUNT(*) for the assembled query and returns the count as a number.
 // The original query object is not modified.
 // Returns 0 on error or empty result.
@@ -1758,14 +1758,14 @@ Let
 (
 [
 _q = JSONSetElement ( query ; "selects" ; "COUNT(*)" ; JSONString ) ;
-_result = QueryGet_cf ( _q ; ¶ ; Char ( 28 ) )
+_result = QueryGet ( _q ; ¶ ; Char ( 28 ) )
 ];
 GetAsNumber ( GetValue ( _result ; 1 ) )
 )]]></Calculation>
     </CustomFunction>
 
     <!-- 68 of 73 -->
-    <CustomFunction id="69" functionArity="2" visible="True" parameters="query;column" name="QuerySum_cf">
+    <CustomFunction id="69" functionArity="2" visible="True" parameters="query;column" name="QuerySum">
         <Calculation><![CDATA[// Executes SELECT SUM(column) for the assembled query and returns the sum as a number.
 // column accepts Table::Field references, GetFieldName() strings, or SQL expressions.
 // The original query object is not modified.
@@ -1775,16 +1775,16 @@ Let
 [
 _fqName = GetFieldName ( column ) ;
 _col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
-_column = QueryConvertField_cf ( _col ) ;
+_column = QueryFieldFormat ( _col ) ;
 _q = JSONSetElement ( query ; "selects" ; "SUM(" & _column & ")" ; JSONString ) ;
-_result = QueryGet_cf ( _q ; ¶ ; Char ( 28 ) )
+_result = QueryGet ( _q ; ¶ ; Char ( 28 ) )
 ];
 GetAsNumber ( GetValue ( _result ; 1 ) )
 )]]></Calculation>
     </CustomFunction>
 
     <!-- 69 of 73 -->
-    <CustomFunction id="70" functionArity="2" visible="True" parameters="query;column" name="QueryAvg_cf">
+    <CustomFunction id="70" functionArity="2" visible="True" parameters="query;column" name="QueryAvg">
         <Calculation><![CDATA[// Executes SELECT AVG(column) for the assembled query and returns the average as a number.
 // column accepts Table::Field references, GetFieldName() strings, or SQL expressions.
 // The original query object is not modified.
@@ -1794,16 +1794,16 @@ Let
 [
 _fqName = GetFieldName ( column ) ;
 _col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
-_column = QueryConvertField_cf ( _col ) ;
+_column = QueryFieldFormat ( _col ) ;
 _q = JSONSetElement ( query ; "selects" ; "AVG(" & _column & ")" ; JSONString ) ;
-_result = QueryGet_cf ( _q ; ¶ ; Char ( 28 ) )
+_result = QueryGet ( _q ; ¶ ; Char ( 28 ) )
 ];
 GetAsNumber ( GetValue ( _result ; 1 ) )
 )]]></Calculation>
     </CustomFunction>
 
     <!-- 70 of 73 -->
-    <CustomFunction id="71" functionArity="2" visible="True" parameters="query;column" name="QueryMax_cf">
+    <CustomFunction id="71" functionArity="2" visible="True" parameters="query;column" name="QueryMax">
         <Calculation><![CDATA[// Executes SELECT MAX(column) for the assembled query and returns the maximum value.
 // column accepts Table::Field references, GetFieldName() strings, or SQL expressions.
 // The original query object is not modified.
@@ -1813,16 +1813,16 @@ Let
 [
 _fqName = GetFieldName ( column ) ;
 _col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
-_column = QueryConvertField_cf ( _col ) ;
+_column = QueryFieldFormat ( _col ) ;
 _q = JSONSetElement ( query ; "selects" ; "MAX(" & _column & ")" ; JSONString ) ;
-_result = QueryGet_cf ( _q ; ¶ ; Char ( 28 ) )
+_result = QueryGet ( _q ; ¶ ; Char ( 28 ) )
 ];
 GetValue ( _result ; 1 )
 )]]></Calculation>
     </CustomFunction>
 
     <!-- 71 of 73 -->
-    <CustomFunction id="72" functionArity="2" visible="True" parameters="query;column" name="QueryMin_cf">
+    <CustomFunction id="72" functionArity="2" visible="True" parameters="query;column" name="QueryMin">
         <Calculation><![CDATA[// Executes SELECT MIN(column) for the assembled query and returns the minimum value.
 // column accepts Table::Field references, GetFieldName() strings, or SQL expressions.
 // The original query object is not modified.
@@ -1832,25 +1832,25 @@ Let
 [
 _fqName = GetFieldName ( column ) ;
 _col = If ( Position ( _fqName ; "::" ; 1 ; 1 ) > 0 ; _fqName ; column ) ;
-_column = QueryConvertField_cf ( _col ) ;
+_column = QueryFieldFormat ( _col ) ;
 _q = JSONSetElement ( query ; "selects" ; "MIN(" & _column & ")" ; JSONString ) ;
-_result = QueryGet_cf ( _q ; ¶ ; Char ( 28 ) )
+_result = QueryGet ( _q ; ¶ ; Char ( 28 ) )
 ];
 GetValue ( _result ; 1 )
 )]]></Calculation>
     </CustomFunction>
 
     <!-- 72 of 73 -->
-    <CustomFunction id="73" functionArity="3" visible="True" parameters="query;condition;queryIfTrue" name="QueryWhen_cf">
+    <CustomFunction id="73" functionArity="3" visible="True" parameters="query;condition;queryIfTrue" name="QueryWhen">
         <Calculation><![CDATA[// Conditionally applies query modifications. Returns queryIfTrue when condition
 // is true (non-zero, non-empty), otherwise returns the original query unchanged.
 // Both query paths are evaluated by FileMaker before this function runs, so
 // queryIfTrue should be built from the same query object passed as the first param.
 // Example:
-//   QueryWhen_cf (
+//   QueryWhen (
 //     q ;
 //     not IsEmpty ( filterVal ) ;
-//     QueryWhere_cf ( q ; MyTable::status ; "=" ; filterVal )
+//     QueryWhere ( q ; MyTable::status ; "=" ; filterVal )
 //   )
 If ( condition ; queryIfTrue ; query )]]></Calculation>
     </CustomFunction>
@@ -1860,7 +1860,7 @@ If ( condition ; queryIfTrue ; query )]]></Calculation>
     <!-- ============================================================ -->
 
     <!-- 73 of 73 -->
-    <CustomFunction id="32" functionArity="3" visible="True" parameters="json;field;index" name="JSONGetElementLikeField_cf">
+    <CustomFunction id="32" functionArity="3" visible="True" parameters="json;field;index" name="JSONGetElementNamedLikeField">
         <Calculation><![CDATA[// Returns JSONGetElement( json ; property ) where property is resolved from
 // the field argument using this priority order:
 //   1. GetFieldName( field ) — works when field is a real FM field reference;

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="3" visible="True" parameters="outerQuery;subquery;alias" name="QueryFromSubquery">
+        <Calculation><![CDATA[// Replaces the FROM table with a derived table: FROM (SELECT ...) alias.
+// The table name set in QueryNew is discarded and replaced by the subquery
+// expression. alias is a plain SQL identifier — use a simple string like "sub".
+// The subquery's bindings are prepended to any existing outer bindings because
+// the FROM clause appears before WHERE in the SQL string, so its ? placeholders
+// must come first in the bindings array for ExecuteSQL to match them correctly.
+// NOTE: Derived tables (subqueries in FROM) are functional in FileMaker 19.x
+// but are not formally documented by Claris. Test in your target FM version.
+// Avoid QueryLimit / QueryOffset on the inner query — FETCH FIRST inside
+// a subquery is not supported in all FM versions.
+Let
+(
+[
+_subSql = QueryToSQL ( subquery ) ;
+_derivedTable = "(" & _subSql & ") " & alias ;
+_subBindings = JSONGetElement ( subquery ; "bindings" ) ;
+_subBindingCount = JSONGetElement ( subquery ; "bindingCount" ) ;
+_outerBindings = JSONGetElement ( outerQuery ; "bindings" ) ;
+_outerBindingCount = JSONGetElement ( outerQuery ; "bindingCount" ) ;
+_q1 = JSONSetElement ( outerQuery ; "table" ; _derivedTable ; JSONString ) ;
+_q2 = If ( _subBindingCount > 0 ;
+	QueryPrependBindings ( _q1 ; _subBindings ; _subBindingCount ; _outerBindings ; _outerBindingCount ; 0 ) ;
+	_q1
+	)
+];
+_q2
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

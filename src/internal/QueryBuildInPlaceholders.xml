@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="2" visible="False" parameters="count;index" name="QueryBuildInPlaceholders">
+        <Calculation><![CDATA[// Recursively builds N comma-separated ? placeholders for IN clauses.
+// Call with index = 0. Example: count=3 → "?, ?, ?"
+If ( index + 1 < count ;
+	"?, " & QueryBuildInPlaceholders ( count ; index + 1 ) ;
+// ELSE
+	"?"
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>
