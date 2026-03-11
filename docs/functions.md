@@ -1,4 +1,4 @@
-# fmorm Function Reference
+# FMORM Function Reference
 
 ---
 
