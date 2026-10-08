@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <fmxmlsnippet type="FMObjectList">
-    <CustomFunction id="1" functionArity="3" visible="False" parameters="colList;count;index" name="QueryParseSelectKeysSQL">
+    <CustomFunction id="1" functionArity="3" visible="False" parameters="colList;itemCount;index" name="QueryParseSelectKeysSQL">
         <Calculation><![CDATA[// Recursively extracts JSON property key names from a ¶-delimited list of
 // SQL column expressions (already in SQL form, e.g. "Table"."Field").
 // Delegates single-expression extraction to QueryParseSelectKey.
@@ -10,8 +10,8 @@ Let
 [
 _expr = Trim ( GetValue ( colList ; index ) ) ;
 _key = QueryParseSelectKey ( _expr ) ;
-_rest = If ( index < count ;
-	"¶" & QueryParseSelectKeysSQL ( colList ; count ; index + 1 ) ;
+_rest = If ( index < itemCount ;
+	"¶" & QueryParseSelectKeysSQL ( colList ; itemCount ; index + 1 ) ;
 	""
 	)
 ] ;
