@@ -57,6 +57,7 @@
 | [QueryGet](#queryget)                                | Execute the query and return results                             |
 | [QueryGetResultsAsJson](#querygetresultsasjson)      | Execute the query and return results as a JSON array of objects  |
 | [QueryToSQL](#querytosql)                            | Return the assembled SQL string (debug)                          |
+| [QueryFromSQL](#queryfromsql)                        | Reconstruct a query object from a QueryToSQL-formatted SQL string |
 | [QueryCount](#querycount)                            | Execute SELECT COUNT(*) and return the count                     |
 | [QuerySum](#querysum)                                | Execute SELECT SUM(column) and return the sum                    |
 | [QueryAvg](#queryavg)                                | Execute SELECT AVG(column) and return the average                |
@@ -93,6 +94,21 @@ These functions are called by the public builders and are not intended to be cal
 | [QueryBuildJsonRow](#querybuildjsonrow)                        | Build a single JSON object from a row of field values        |
 | [QueryBuildJsonRows](#querybuildjsonrows)                      | Recursively build a JSON array from all result rows          |
 | [QueryBuildSelectKeys](#querybuildselectkeys)                  | Extract plain key names from the original column input       |
+| [QueryParseSplitBooleans](#queryparsesplitbooleans)            | Depth-aware AND/OR splitter for WHERE/HAVING parsing         |
+| [QueryParseSplitComma](#querysplitcomma)                       | Depth-aware comma splitter                                    |
+| [QueryParseClause](#queryparseclause)                          | Extract a named clause body from QueryToSQL output            |
+| [QueryParseSelectKey](#queryparseelectkey)                     | Extract JSON key name from a SQL column expression            |
+| [QueryParseSelectKeysSQL](#queryparseSelectKeysSQL)            | Build ¶-list of key names from SQL-formatted column list     |
+| [QueryParseSelects](#queryparseselects)                        | Populate selects, selectKeys, distinct from SQL               |
+| [QueryParseJoins](#queryparsejoins)                            | Recursively parse JOIN clauses                                |
+| [QueryParseWheres](#queryparsewheres)                          | Parse WHERE clause into where objects                         |
+| [QueryParseWheresIter](#queryparsewheresiter)                  | Iterate over split WHERE condition tokens                     |
+| [QueryParseWhereCondition](#queryparswherecondition)           | Detect type and build a single where object                   |
+| [QueryParseGroupBys](#querysarsegroupbys)                      | Recursively parse GROUP BY items                              |
+| [QueryParseOrderBys](#queryparseorderbys)                      | Recursively parse ORDER BY items                              |
+| [QueryParseHavings](#querysarsehavings)                        | Parse HAVING clause into having objects                       |
+| [QueryParseHavingsIter](#querysarsehavingsiter)                | Iterate over split HAVING condition tokens                    |
+| [QueryParseHavingCondition](#querysarsehavingcondition)        | Detect type and build a single having object                  |
 
 ---
 
@@ -1166,6 +1182,71 @@ _sql = QueryToSQL ( _query )
 // ORDER BY
 //     "CONTACT"."lastName" ASC
 ```
+
+---
+
+### QueryFromSQL
+
+Reconstructs a fmorm query object from a SQL string produced by `QueryToSQL`. The returned object can be passed to `QueryGet`, `QueryToSQL`, or any builder function for further modification.
+
+The reconstructed object matches the one the builder calls produced — both the SQL it generates and its JSON structure — with two exceptions: parenthesised condition groups come back as `raw` WHERE entries, and subqueries come back as raw SQL strings (see Known limitations 4 and 5 below). In those cases the SQL is still identical; only the JSON differs.
+
+**Primary use case:** a developer has a SQL string captured from `QueryToSQL` (or hand-written in exactly the same format) and wants to load it into the ORM to continue modifying it dynamically.
+
+**Parameters**
+
+| Parameter  | Description   |
+|------------|---------------|
+| `sql`      | SQL string as produced by `QueryToSQL` (pretty-printed, double-quoted identifiers, `?` placeholders) |
+| `bindings` | ¶-delimited list of values for each `?` placeholder in left-to-right order. Pass `""` if no placeholders. |
+
+**Supported clause types**
+
+- `SELECT` / `SELECT DISTINCT` — selects, selectKeys, distinct flag
+- `FROM` — table name
+- `INNER JOIN` / `LEFT JOIN` / `RIGHT JOIN` / `CROSS JOIN` — all join types with ON clause
+- `WHERE` — all 13 condition types: basic, in, notIn, null, notNull, between, notBetween, column, raw, exists, notExists, inSubquery, notInSubquery
+- `GROUP BY` — regular columns and raw expressions
+- `HAVING` — basic and raw conditions
+- `ORDER BY` — column+direction and raw expressions
+- `OFFSET` / `FETCH FIRST` — limit and offset
+
+**Example**
+
+```
+// Build and capture a query as SQL
+_q = QueryNew ( "CONTACT" )
+_q = QuerySelect ( _q ; "CONTACT::id¶CONTACT::firstName¶CONTACT::lastName" )
+_q = QueryWhere ( _q ; "CONTACT::status" ; "=" ; "active" )
+_q = QueryOrderBy ( _q ; "CONTACT::lastName" ; "ASC" )
+_sql = QueryToSQL ( _q )
+_bindings = "active"
+
+// Later, reconstruct the query object from the SQL string
+_q2 = QueryFromSQL ( _sql ; _bindings )
+
+// Continue modifying
+_q2 = QueryLimit ( _q2 ; 25 )
+_q2 = QueryOffset ( _q2 ; 50 )
+
+// Round-trip test 1: both should produce identical SQL
+QueryToSQL ( _q ) = QueryToSQL ( QueryFromSQL ( QueryToSQL ( _q ) ; _bindings ) )
+// → 1 (true)
+
+// Round-trip test 2 (stricter): the query objects themselves should match.
+// JSONFormatElements normalises the JSON so the two can be compared as text.
+JSONFormatElements ( _q ) = JSONFormatElements ( QueryFromSQL ( QueryToSQL ( _q ) ; _bindings ) )
+// → 1 (true), except for queries using WHERE groups or subqueries (see limitations 4 and 5)
+```
+
+**Known limitations**
+
+1. **Input must be `QueryToSQL` output.** Arbitrary hand-written SQL with different quoting or indentation is not supported.
+2. **Bindings required separately.** Binding values cannot be recovered from the SQL string; supply them in the same left-to-right order as the `?` placeholders.
+3. **UNION / UNION ALL — Phase 2.** SQL ending with `UNION`/`UNION ALL` blocks will partially parse (main query correct; union clauses ignored).
+4. **`group` WHERE type — Phase 2.** Parenthesised condition groups are round-tripped as `raw` type (SQL output is identical; further builder modification of inner conditions is not possible).
+5. **Subquery round-trip — Phase 3.** `FROM (SELECT…)`, `JOIN (SELECT…)`, and `(SELECT…) AS alias` in the select list parse correctly for execution but the inner subquery is stored as a raw SQL string rather than a nested query object.
+6. **~5,000-char WHERE clause limit** from FileMaker's 10,000-step recursion cap on `QueryParseSplitBooleans`.
 
 ---
 

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="2" visible="True" parameters="sql;bindings" name="QueryFromSQL">
+        <Calculation><![CDATA[// Reconstructs a fmorm query object from a SQL string produced by QueryToSQL.
+// sql     — SQL string as returned by QueryToSQL (pretty-printed, double-quoted identifiers).
+// bindings — ¶-delimited list of binding values for each ? placeholder, in left-to-right order.
+//            Pass "" if the SQL has no ? placeholders.
+// Returns a query object equivalent to one built via builder calls; passable to QueryGet,
+// QueryToSQL, or any builder function for further modification.
+//
+// Parsing contract: only handles QueryToSQL output format.
+//   Each top-level keyword (SELECT, FROM, JOIN, WHERE, …) is at column 0 on its own line.
+//   Child content is indented with exactly 4 spaces.
+//   Identifiers are double-quoted ("Table"."Field").
+//   Placeholders are ?.
+//
+// Known limitations:
+//   UNION / UNION ALL — Phase 2 (union clauses are ignored; main query parses correctly).
+//   Subquery round-trip — Phase 3 (FROM subquery, JOIN subquery stored as raw expressions).
+//   Raw SQL with embedded AND/OR/IS NULL keywords may mis-detect condition type.
+//   ~5,000-char WHERE limit from FM recursion cap on QueryParseSplitBooleans.
+//   Bindings must be supplied by caller; they cannot be recovered from the SQL string.
+Let
+(
+[
+_norm = Substitute ( sql ; ¶ & "    " ; Char ( 29 ) ) ;
+// --- FROM: extract table name ---
+_fromBody = QueryParseClause ( sql ; "FROM" ) ;
+_table = Trim ( _fromBody ) ;
+// --- Initialise base query object from QueryNew so the structures cannot drift ---
+// The parsed table is already in SQL form ("Table" or a subquery expression),
+// so it overwrites the table QueryNew would quote rather than being passed in.
+_base = JSONSetElement ( QueryNew ( "" ) ; "table" ; _table ; JSONString ) ;
+// --- SELECT ---
+_q1 = QueryParseSelects ( _base ; sql ) ;
+// --- JOINs ---
+_q2 = QueryParseJoins ( _q1 ; _norm ; 1 ) ;
+// --- WHERE ---
+_q3 = QueryParseWheres ( _q2 ; sql ) ;
+// --- GROUP BY ---
+_groupBody = QueryParseClause ( sql ; "GROUP BY" ) ;
+_groupCols = Substitute ( _groupBody ; "," & Char ( 29 ) ; ¶ ) ;
+_groupCount = If ( IsEmpty ( _groupBody ) ; 0 ; ValueCount ( _groupCols ) ) ;
+_q4 = If ( _groupCount > 0 ;
+	QueryParseGroupBys ( _q3 ; _groupCols ; _groupCount ; 1 ) ;
+	_q3
+	) ;
+// --- HAVING ---
+_q5 = QueryParseHavings ( _q4 ; sql ) ;
+// --- ORDER BY ---
+_orderBody = QueryParseClause ( sql ; "ORDER BY" ) ;
+_orderCols = Substitute ( _orderBody ; "," & Char ( 29 ) ; ¶ ) ;
+_orderCount = If ( IsEmpty ( _orderBody ) ; 0 ; ValueCount ( _orderCols ) ) ;
+_q6 = If ( _orderCount > 0 ;
+	QueryParseOrderBys ( _q5 ; _orderCols ; _orderCount ; 1 ) ;
+	_q5
+	) ;
+// --- OFFSET ---
+// Format in SQL: ¶OFFSET n ROWS  (no indented body — single-line clause)
+_offsetMarker = ¶ & "OFFSET " ;
+_offsetStart = Position ( sql ; _offsetMarker ; 1 ; 1 ) ;
+_offsetNumStart = _offsetStart + Length ( _offsetMarker ) ;
+_offsetEnd = Position ( sql ; " ROWS" ; _offsetNumStart ; 1 ) ;
+_offsetVal = If ( _offsetStart > 0 and _offsetEnd > 0 ;
+	Middle ( sql ; _offsetNumStart ; _offsetEnd - _offsetNumStart ) ;
+	""
+	) ;
+_q7 = If ( not IsEmpty ( _offsetVal ) ;
+	JSONSetElement ( _q6 ; "offset" ; _offsetVal ; JSONNumber ) ;
+	_q6
+	) ;
+// --- FETCH FIRST (LIMIT) ---
+// Format: ¶FETCH FIRST n ROWS ONLY
+_fetchMarker = ¶ & "FETCH FIRST " ;
+_fetchStart = Position ( sql ; _fetchMarker ; 1 ; 1 ) ;
+_fetchNumStart = _fetchStart + Length ( _fetchMarker ) ;
+_fetchEnd = Position ( sql ; " ROWS ONLY" ; _fetchNumStart ; 1 ) ;
+_limitVal = If ( _fetchStart > 0 and _fetchEnd > 0 ;
+	Middle ( sql ; _fetchNumStart ; _fetchEnd - _fetchNumStart ) ;
+	""
+	) ;
+_q8 = If ( not IsEmpty ( _limitVal ) ;
+	JSONSetElement ( _q7 ; "limit" ; _limitVal ; JSONNumber ) ;
+	_q7
+	) ;
+// --- Bindings ---
+// All ? placeholders are filled in order from the supplied bindings list.
+_bindingCount = ValueCount ( bindings ) ;
+_q9 = If ( _bindingCount > 0 ;
+	QueryAppendBindings ( _q8 ; bindings ; _bindingCount ; 1 ) ;
+	_q8
+	)
+] ;
+_q9
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="4" visible="False" parameters="query;condList;condCount;index" name="QueryParseWheresIter">
+        <Calculation><![CDATA[// Iterates over a ¶-delimited list of WHERE condition tokens.
+// Each token (after the first) starts with " AND " or " OR " as a boolean prefix.
+// condList: output of QueryParseSplitBooleans with Char(28) replaced by ¶.
+// condCount: ValueCount of condList.
+// index: 1-based current position.
+// Calls QueryParseWhereCondition for each trimmed condition.
+Let
+(
+[
+_raw = GetValue ( condList ; index ) ;
+// Detect and strip boolean prefix
+_isOr  = Left ( _raw ; 4 ) = " OR " ;
+_isAnd = Left ( _raw ; 5 ) = " AND " ;
+_boolean = If ( _isOr ; "or" ; "and" ) ;
+_condition = Trim ( Case (
+	_isAnd ; Middle ( _raw ; 6 ; Length ( _raw ) ) ;
+	_isOr  ; Middle ( _raw ; 5 ; Length ( _raw ) ) ;
+	_raw
+	) ) ;
+_q1 = QueryParseWhereCondition ( query ; _condition ; _boolean ) ;
+_rest = If ( index < condCount ;
+	QueryParseWheresIter ( _q1 ; condList ; condCount ; index + 1 ) ;
+	_q1
+	)
+] ;
+_rest
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

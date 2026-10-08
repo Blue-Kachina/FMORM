@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="3" visible="False" parameters="query;token;boolean" name="QueryParseWhereCondition">
+        <Calculation><![CDATA[// Detects the type of a single WHERE condition token and appends a where object.
+// token: the condition text, stripped of any leading AND/OR prefix, trimmed.
+// boolean: "and" or "or".
+// Restores Char(29) → ¶+4spaces within extracted sql strings (for round-tripping
+// subquery conditions that may contain multi-line inner SQL).
+// Detection priority (matches the order in QueryBuildWheres rendering):
+//   notExists, exists, notNull, null,
+//   notInSubquery, inSubquery, notIn, in,
+//   notBetween, between, raw (starts with "("), column (ends with "), basic.
+// Phase 2 adds: group (outer parens with AND/OR inside at depth 0).
+Let
+(
+[
+_dq = Char ( 34 ) ;
+_restoreChar29 = ¶ & "    " ;
+_whereCount = JSONGetElement ( query ; "whereCount" ) ;
+// --- Type detection ---
+_isNotExists    = Left ( token ; 12 ) = "NOT EXISTS (" ;
+_isExists       = Left ( token ; 8  ) = "EXISTS (" ;
+_isNotNull      = PatternCount ( token ; " IS NOT NULL" ) > 0 ;
+_isNull         = PatternCount ( token ; " IS NULL" ) > 0 ;
+_isNotInSub     = PatternCount ( token ; " NOT IN (SELECT" ) > 0 ;
+_isInSub        = PatternCount ( token ; " IN (SELECT" ) > 0 ;
+_isNotIn        = PatternCount ( token ; " NOT IN (" ) > 0 ;
+_isIn           = PatternCount ( token ; " IN (" ) > 0 ;
+_isNotBetween   = PatternCount ( token ; " NOT BETWEEN " ) > 0 ;
+_isBetween      = PatternCount ( token ; " BETWEEN " ) > 0 ;
+_isRaw          = Left ( token ; 1 ) = "(" ;
+_isColumn       = Right ( token ; 1 ) = _dq ;
+// --- Column extraction helpers ---
+// For basic: token ends with " ?"
+_stripRhsB  = Left ( token ; Length ( token ) - 2 ) ;
+_lastDqB    = Position ( _stripRhsB ; _dq ; 1 ; PatternCount ( _stripRhsB ; _dq ) ) ;
+_colBasic   = Left ( _stripRhsB ; _lastDqB ) ;
+_opBasic    = Trim ( Middle ( _stripRhsB ; _lastDqB + 1 ; Length ( _stripRhsB ) ) ) ;
+// For column type: "T1"."c1" op "T2"."c2"
+_splitPosC  = Position ( token ; _dq & " " ; 1 ; 1 ) ;
+_firstC     = Left ( token ; _splitPosC ) ;
+_afterFirstC = Trim ( Middle ( token ; _splitPosC + 2 ; Length ( token ) ) ) ;
+_opEndC     = Position ( _afterFirstC ; " " ; 1 ; 1 ) ;
+_opC        = If ( _opEndC > 0 ; Left ( _afterFirstC ; _opEndC - 1 ) ; _afterFirstC ) ;
+_secondC    = If ( _opEndC > 0 ; Trim ( Middle ( _afterFirstC ; _opEndC + 1 ; Length ( _afterFirstC ) ) ) ; "" ) ;
+// For null/notNull: column is everything before " IS"
+_isPos      = Position ( token ; " IS " ; 1 ; 1 ) ;
+_colNull    = Left ( token ; _isPos - 1 ) ;
+// For IN/NOT IN: column before " IN (" or " NOT IN ("
+_inPos      = Position ( token ; " IN (" ; 1 ; 1 ) ;
+_notInPos   = Position ( token ; " NOT IN (" ; 1 ; 1 ) ;
+_colIn      = Left ( token ; _inPos - 1 ) ;
+_colNotIn   = Left ( token ; _notInPos - 1 ) ;
+// Value count for IN: count "?" inside the parens
+_inValueCount    = PatternCount ( token ; "?" ) ;
+_notInValueCount = PatternCount ( token ; "?" ) ;
+// For BETWEEN / NOT BETWEEN
+_betweenPos    = Position ( token ; " BETWEEN " ; 1 ; 1 ) ;
+_notBetweenPos = Position ( token ; " NOT BETWEEN " ; 1 ; 1 ) ;
+_colBetween    = Left ( token ; _betweenPos - 1 ) ;
+_colNotBetween = Left ( token ; _notBetweenPos - 1 ) ;
+// For EXISTS/NOT EXISTS: sql is inside the outer parens
+_sqlExists    = Substitute ( Middle ( token ; 9  ; Length ( token ) - 9  ) ; Char ( 29 ) ; _restoreChar29 ) ;
+_sqlNotExists = Substitute ( Middle ( token ; 13 ; Length ( token ) - 13 ) ; Char ( 29 ) ; _restoreChar29 ) ;
+// For IN (subquery) / NOT IN (subquery)
+_inSubPos    = Position ( token ; " IN (" ; 1 ; 1 ) ;
+_colInSub    = Left ( token ; _inSubPos - 1 ) ;
+_sqlInSub    = Substitute ( Middle ( token ; _inSubPos + 5 ; Length ( token ) - _inSubPos - 5 ) ; Char ( 29 ) ; _restoreChar29 ) ;
+_notInSubPos = Position ( token ; " NOT IN (" ; 1 ; 1 ) ;
+_colNotInSub = Left ( token ; _notInSubPos - 1 ) ;
+_sqlNotInSub = Substitute ( Middle ( token ; _notInSubPos + 9 ; Length ( token ) - _notInSubPos - 9 ) ; Char ( 29 ) ; _restoreChar29 ) ;
+// For raw: strip outer parens and restore Char(29)
+_rawSql = Substitute ( Middle ( token ; 2 ; Length ( token ) - 2 ) ; Char ( 29 ) ; _restoreChar29 ) ;
+// --- Build where object ---
+_whereObj = Case (
+	_isNotExists ;
+		JSONSetElement ( "{}" ;
+			[ "type" ; "notExists" ; JSONString ] ;
+			[ "sql" ; _sqlNotExists ; JSONString ] ;
+			[ "boolean" ; boolean ; JSONString ]
+			) ;
+	_isExists ;
+		JSONSetElement ( "{}" ;
+			[ "type" ; "exists" ; JSONString ] ;
+			[ "sql" ; _sqlExists ; JSONString ] ;
+			[ "boolean" ; boolean ; JSONString ]
+			) ;
+	_isNotNull ;
+		JSONSetElement ( "{}" ;
+			[ "type" ; "notNull" ; JSONString ] ;
+			[ "column" ; _colNull ; JSONString ] ;
+			[ "boolean" ; boolean ; JSONString ]
+			) ;
+	_isNull ;
+		JSONSetElement ( "{}" ;
+			[ "type" ; "null" ; JSONString ] ;
+			[ "column" ; _colNull ; JSONString ] ;
+			[ "boolean" ; boolean ; JSONString ]
+			) ;
+	_isNotInSub ;
+		JSONSetElement ( "{}" ;
+			[ "type" ; "notInSubquery" ; JSONString ] ;
+			[ "column" ; _colNotInSub ; JSONString ] ;
+			[ "sql" ; _sqlNotInSub ; JSONString ] ;
+			[ "boolean" ; boolean ; JSONString ]
+			) ;
+	_isInSub ;
+		JSONSetElement ( "{}" ;
+			[ "type" ; "inSubquery" ; JSONString ] ;
+			[ "column" ; _colInSub ; JSONString ] ;
+			[ "sql" ; _sqlInSub ; JSONString ] ;
+			[ "boolean" ; boolean ; JSONString ]
+			) ;
+	_isNotIn ;
+		JSONSetElement ( "{}" ;
+			[ "type" ; "notIn" ; JSONString ] ;
+			[ "column" ; _colNotIn ; JSONString ] ;
+			[ "valueCount" ; _notInValueCount ; JSONNumber ] ;
+			[ "boolean" ; boolean ; JSONString ]
+			) ;
+	_isIn ;
+		JSONSetElement ( "{}" ;
+			[ "type" ; "in" ; JSONString ] ;
+			[ "column" ; _colIn ; JSONString ] ;
+			[ "valueCount" ; _inValueCount ; JSONNumber ] ;
+			[ "boolean" ; boolean ; JSONString ]
+			) ;
+	_isNotBetween ;
+		JSONSetElement ( "{}" ;
+			[ "type" ; "notBetween" ; JSONString ] ;
+			[ "column" ; _colNotBetween ; JSONString ] ;
+			[ "boolean" ; boolean ; JSONString ]
+			) ;
+	_isBetween ;
+		JSONSetElement ( "{}" ;
+			[ "type" ; "between" ; JSONString ] ;
+			[ "column" ; _colBetween ; JSONString ] ;
+			[ "boolean" ; boolean ; JSONString ]
+			) ;
+	_isRaw ;
+		JSONSetElement ( "{}" ;
+			[ "type" ; "raw" ; JSONString ] ;
+			[ "sql" ; _rawSql ; JSONString ] ;
+			[ "boolean" ; boolean ; JSONString ]
+			) ;
+	_isColumn ;
+		JSONSetElement ( "{}" ;
+			[ "type" ; "column" ; JSONString ] ;
+			[ "column" ; _firstC ; JSONString ] ;
+			[ "operator" ; _opC ; JSONString ] ;
+			[ "second" ; _secondC ; JSONString ] ;
+			[ "boolean" ; boolean ; JSONString ]
+			) ;
+	// default: basic
+	JSONSetElement ( "{}" ;
+		[ "type" ; "basic" ; JSONString ] ;
+		[ "column" ; _colBasic ; JSONString ] ;
+		[ "operator" ; _opBasic ; JSONString ] ;
+		[ "boolean" ; boolean ; JSONString ]
+		)
+	) ;
+_q1 = JSONSetElement ( query ; "wheres[" & _whereCount & "]" ; _whereObj ; JSONObject ) ;
+_q2 = JSONSetElement ( _q1 ; "whereCount" ; _whereCount + 1 ; JSONNumber )
+] ;
+_q2
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

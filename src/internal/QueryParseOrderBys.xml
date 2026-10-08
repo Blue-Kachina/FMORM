@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="4" visible="False" parameters="query;colList;count;index" name="QueryParseOrderBys">
+        <Calculation><![CDATA[// Recursively parses ORDER BY items from a ¶-delimited list.
+// colList: items extracted from the ORDER BY clause body (one per line).
+// index: 1-based.
+// Detection:
+//   ends with " ASC"  → column + direction "ASC"
+//   ends with " DESC" → column + direction "DESC"
+//   anything else     → type "raw", sql stored as-is
+// This mirrors the storage format of QueryOrderBy / QueryOrderByRaw
+// (column entries carry no "type" key; QueryBuildOrderBys defaults to column).
+Let
+(
+[
+_item = Trim ( GetValue ( colList ; index ) ) ;
+_isAsc  = Right ( _item ; 4 ) = " ASC" ;
+_isDesc = Right ( _item ; 5 ) = " DESC" ;
+_orderByCount = JSONGetElement ( query ; "orderByCount" ) ;
+_col = Case (
+	_isAsc  ; Left ( _item ; Length ( _item ) - 4 ) ;
+	_isDesc ; Left ( _item ; Length ( _item ) - 5 ) ;
+	_item
+	) ;
+_dir = Case (
+	_isAsc  ; "ASC" ;
+	_isDesc ; "DESC" ;
+	""
+	) ;
+_obj = Case (
+	_isAsc or _isDesc ;
+		JSONSetElement ( "{}" ;
+			[ "column" ; _col ; JSONString ] ;
+			[ "direction" ; _dir ; JSONString ]
+			) ;
+	JSONSetElement ( "{}" ;
+		[ "type" ; "raw" ; JSONString ] ;
+		[ "sql" ; _item ; JSONString ]
+		)
+	) ;
+_q1 = JSONSetElement ( query ; "orderBys[" & _orderByCount & "]" ; _obj ; JSONObject ) ;
+_q2 = JSONSetElement ( _q1 ; "orderByCount" ; _orderByCount + 1 ; JSONNumber ) ;
+_rest = If ( index < count ;
+	QueryParseOrderBys ( _q2 ; colList ; count ; index + 1 ) ;
+	_q2
+	)
+] ;
+_rest
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="4" visible="False" parameters="text;depth;pos;accumulator" name="QueryParseSplitComma">
+        <Calculation><![CDATA[// Depth-aware recursive scanner. Inserts Char(28) before each top-level comma.
+// Tracks parenthesis depth so commas inside (...) are NOT marked.
+// Call with depth=0, pos=1, accumulator="".
+// Output: text with Char(28) before each top-level comma.
+// Split result: Substitute(result ; Char(28) ; ¶) then GetValue.
+Let
+(
+[
+_len = Length ( text ) ;
+_char = Middle ( text ; pos ; 1 ) ;
+_isComma = depth = 0 and _char = "," ;
+_newDepth = Case (
+	_char = "(" ; depth + 1 ;
+	_char = ")" ; depth - 1 ;
+	depth
+)
+] ;
+If ( pos > _len ;
+	accumulator ;
+	If ( _isComma ;
+		QueryParseSplitComma ( text ; depth ; pos + 1 ; accumulator & Char ( 28 ) ) ;
+		QueryParseSplitComma ( text ; _newDepth ; pos + 1 ; accumulator & _char )
+	)
+)
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

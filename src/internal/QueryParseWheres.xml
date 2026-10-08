@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="2" visible="False" parameters="query;sql" name="QueryParseWheres">
+        <Calculation><![CDATA[// Parses the WHERE clause from QueryToSQL output.
+// Extracts the clause body via QueryParseClause (which uses the Char(29) trick).
+// The body uses Char(29) as separator for every logical line-break that was
+// originally ¶+4spaces.  QueryToSQL converts " AND " and " OR " to
+// ¶+4spaces+AND+¶+4spaces, so they appear as {29}AND{29} and {29}OR{29}.
+// Key fix: BETWEEN ? AND ? also becomes ?{29}AND{29}? — its inner AND is
+// protected with Char(31) in place of the spaces so neither the {29}AND{29}
+// reconstruction nor QueryParseSplitBooleans treats it as a condition boundary.
+// Char(31) is restored to a space after splitting. Covers NOT BETWEEN as well,
+// since "NOT BETWEEN ?" contains "BETWEEN ?".
+// After reconstruction, applies depth-aware QueryParseSplitBooleans to handle
+// parenthesised conditions (raw, exists, group) without splitting their internals.
+Let
+(
+[
+_body = QueryParseClause ( sql ; "WHERE" ) ;
+// Protect BETWEEN/NOT BETWEEN: their inner AND must not become a condition boundary
+_fixedBody = Substitute ( _body ;
+	"BETWEEN ?" & Char ( 29 ) & "AND" & Char ( 29 ) & "?" ;
+	"BETWEEN ?" & Char ( 31 ) & "AND" & Char ( 31 ) & "?" ) ;
+// Reconstruct the WHERE text: {29}AND{29} → " AND ", {29}OR{29} → " OR "
+_whereText = Substitute ( Substitute ( _fixedBody ;
+	Char ( 29 ) & "AND" & Char ( 29 ) ; " AND " ) ;
+	Char ( 29 ) & "OR" & Char ( 29 ) ; " OR " ) ;
+// Depth-aware split: inserts Char(28) before each top-level AND/OR
+_split = QueryParseSplitBooleans ( _whereText ; 0 ; 1 ; "" ) ;
+// Convert to ¶-delimited list for GetValue iteration; restore protected BETWEEN spaces
+_condList = Substitute ( _split ; [ Char ( 28 ) ; ¶ ] ; [ Char ( 31 ) ; " " ] ) ;
+_condCount = ValueCount ( _condList )
+] ;
+If ( IsEmpty ( _body ) ;
+	query ;
+	QueryParseWheresIter ( query ; _condList ; _condCount ; 1 )
+)
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="4" visible="False" parameters="query;colList;count;index" name="QueryParseGroupBys">
+        <Calculation><![CDATA[// Recursively parses GROUP BY columns from a ¶-delimited list.
+// colList: columns extracted from the GROUP BY clause body (one per line).
+// index: 1-based.
+// Detection: column starts with " (double-quote) → regular column stored as plain string.
+// Anything else (function calls etc.) → raw expression stored as {"type":"raw","sql":"..."}.
+// This mirrors the storage format expected by QueryBuildGroupBys.
+Let
+(
+[
+_col = Trim ( GetValue ( colList ; index ) ) ;
+_isQuoted = Left ( _col ; 1 ) = Char ( 34 ) ;
+_groupByCount = JSONGetElement ( query ; "groupByCount" ) ;
+_item = If ( _isQuoted ;
+	_col ;
+	JSONSetElement ( "{}" ;
+		[ "type" ; "raw" ; JSONString ] ;
+		[ "sql" ; _col ; JSONString ]
+		)
+	) ;
+_itemType = If ( _isQuoted ; JSONString ; JSONObject ) ;
+_q1 = JSONSetElement ( query ; "groupBys[" & _groupByCount & "]" ; _item ; _itemType ) ;
+_q2 = JSONSetElement ( _q1 ; "groupByCount" ; _groupByCount + 1 ; JSONNumber ) ;
+_rest = If ( index < count ;
+	QueryParseGroupBys ( _q2 ; colList ; count ; index + 1 ) ;
+	_q2
+	)
+] ;
+_rest
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

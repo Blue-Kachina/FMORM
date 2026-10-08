@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="2" visible="False" parameters="query;sql" name="QueryParseSelects">
+        <Calculation><![CDATA[// Parses the SELECT clause from QueryToSQL output.
+// Populates: selects (comma-separated SQL expressions), selectKeys (¶-list of
+// plain key names for QueryGetResultsAsJson), and distinct flag.
+// QueryToSQL formats SELECT columns as col1,¶    col2,¶    col3.
+// After QueryParseClause (which applies the Char(29) trick), columns are
+// separated by ,Char(29). Replacing ,Char(29) with ¶ gives one column per line.
+Let
+(
+[
+_distinct = PatternCount ( sql ; "SELECT DISTINCT" & ¶ ) > 0 ;
+_body = QueryParseClause ( sql ; "SELECT" ) ;
+// Each column boundary is marked as ,{29} in the clause body
+_colList = Substitute ( _body ; "," & Char ( 29 ) ; ¶ ) ;
+_colCount = ValueCount ( _colList ) ;
+// Rejoin with ", " to store as the selects string
+_selects = Substitute ( _colList ; ¶ ; ", " ) ;
+// Extract plain key names for QueryGetResultsAsJson
+_selectKeys = If ( Trim ( _colList ) = "*" ;
+	"*" ;
+	QueryParseSelectKeysSQL ( _colList ; _colCount ; 1 )
+	) ;
+_q1 = JSONSetElement ( query ; "selects" ; _selects ; JSONString ) ;
+_q2 = JSONSetElement ( _q1 ; "selectKeys" ; _selectKeys ; JSONString ) ;
+_q3 = If ( _distinct ; JSONSetElement ( _q2 ; "distinct" ; 1 ; JSONBoolean ) ; _q2 )
+] ;
+_q3
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

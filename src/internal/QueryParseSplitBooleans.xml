@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="4" visible="False" parameters="text;depth;pos;accumulator" name="QueryParseSplitBooleans">
+        <Calculation><![CDATA[// Depth-aware recursive scanner. Inserts Char(28) before top-level " AND " / " OR ".
+// Tracks parenthesis depth so AND/OR inside (...) are NOT marked.
+// Call with depth=0, pos=1, accumulator="".
+// Output: text with Char(28) before each top-level AND/OR separator.
+// Split result: Substitute(result ; Char(28) ; ¶) then GetValue.
+// Each value after the first starts with " AND " or " OR " (boolean prefix).
+// FM recursion limit ~10,000 steps → handles ~5,000-char WHERE clauses.
+Let
+(
+[
+_len = Length ( text ) ;
+_char = Middle ( text ; pos ; 1 ) ;
+_isAnd = depth = 0 and Middle ( text ; pos ; 5 ) = " AND " ;
+_isOr = depth = 0 and Middle ( text ; pos ; 4 ) = " OR " ;
+_newDepth = Case (
+	_char = "(" ; depth + 1 ;
+	_char = ")" ; depth - 1 ;
+	depth
+)
+] ;
+If ( pos > _len ;
+	accumulator ;
+	Case (
+		_isAnd ;
+			QueryParseSplitBooleans ( text ; depth ; pos + 5 ; accumulator & Char ( 28 ) & " AND " ) ;
+		_isOr ;
+			QueryParseSplitBooleans ( text ; depth ; pos + 4 ; accumulator & Char ( 28 ) & " OR " ) ;
+		QueryParseSplitBooleans ( text ; _newDepth ; pos + 1 ; accumulator & _char )
+	)
+)
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

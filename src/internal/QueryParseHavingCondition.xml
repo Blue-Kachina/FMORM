@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="3" visible="False" parameters="query;token;boolean" name="QueryParseHavingCondition">
+        <Calculation><![CDATA[// Detects the type of a single HAVING condition token and appends a having object.
+// token: condition text stripped of boolean prefix, trimmed.
+// boolean: "and" or "or".
+// Supported types (matching QueryBuildHavings):
+//   raw   — token starts with "(" (was wrapped by QueryHavingRaw)
+//   basic — default: column op ? (one binding)
+// Column extraction for basic: strip trailing " ?", find last " to get column,
+// everything between last " and the stripped end is the operator.
+Let
+(
+[
+_dq = Char ( 34 ) ;
+_havingCount = JSONGetElement ( query ; "havingCount" ) ;
+_isRaw = Left ( token ; 1 ) = "(" ;
+// Basic: "T"."col" op ?  — ends with " ?"
+_stripRhs = Left ( token ; Length ( token ) - 2 ) ;
+_lastDq = Position ( _stripRhs ; _dq ; 1 ; PatternCount ( _stripRhs ; _dq ) ) ;
+_column = Left ( _stripRhs ; _lastDq ) ;
+_operator = Trim ( Middle ( _stripRhs ; _lastDq + 1 ; Length ( _stripRhs ) ) ) ;
+// Raw: strip outer parens and restore any Char(29) to ¶+4spaces
+_rawSql = Substitute ( Middle ( token ; 2 ; Length ( token ) - 2 ) ; Char ( 29 ) ; ¶ & "    " ) ;
+_havingObj = If ( _isRaw ;
+	JSONSetElement ( "{}" ;
+		[ "type" ; "raw" ; JSONString ] ;
+		[ "sql" ; _rawSql ; JSONString ] ;
+		[ "boolean" ; boolean ; JSONString ]
+		) ;
+	JSONSetElement ( "{}" ;
+		[ "type" ; "basic" ; JSONString ] ;
+		[ "column" ; _column ; JSONString ] ;
+		[ "operator" ; _operator ; JSONString ] ;
+		[ "boolean" ; boolean ; JSONString ]
+		)
+	) ;
+_q1 = JSONSetElement ( query ; "havings[" & _havingCount & "]" ; _havingObj ; JSONObject ) ;
+_q2 = JSONSetElement ( _q1 ; "havingCount" ; _havingCount + 1 ; JSONNumber )
+] ;
+_q2
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

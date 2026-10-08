@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="2" visible="False" parameters="sql;clauseName" name="QueryParseClause">
+        <Calculation><![CDATA[// Extracts the body of a named SQL clause from QueryToSQL-formatted output.
+// Uses the "Char(29) trick": replace ¶ + 4 spaces with Char(29) so that
+// remaining ¶ characters only precede top-level keywords.
+// Returns the clause body with Char(29) as internal line separators,
+// or "" if the clause is not present.
+// Works for SELECT, FROM, WHERE, GROUP BY, HAVING, ORDER BY, INNER JOIN, etc.
+// Does NOT apply to single-line clauses (OFFSET, FETCH FIRST) — parse those directly.
+Let
+(
+[
+_norm = Substitute ( sql ; ¶ & "    " ; Char ( 29 ) ) ;
+// Clause may be at position 1 (SELECT) or preceded by ¶ (all others)
+_atStart = Left ( _norm ; Length ( clauseName ) ) = clauseName ;
+_markerPos = Position ( _norm ; ¶ & clauseName ; 1 ; 1 ) ;
+_clauseFound = _atStart or _markerPos > 0 ;
+_keyStart = Case (
+	_atStart ; 1 ;
+	_markerPos > 0 ; _markerPos + 1 ;
+	0
+) ;
+// Find first Char(29) after keyword (may have extra text, e.g. "SELECT DISTINCT")
+_afterKeyword = _keyStart + Length ( clauseName ) ;
+_char29Pos = Position ( _norm ; Char ( 29 ) ; _afterKeyword ; 1 ) ;
+_bodyStart = _char29Pos + 1 ;
+// Body ends just before next ¶ (next top-level keyword) or at string end
+_nextPara = Position ( _norm ; ¶ ; _bodyStart ; 1 ) ;
+_end = If ( _nextPara > 0 ; _nextPara - 1 ; Length ( _norm ) ) ;
+_body = Middle ( _norm ; _bodyStart ; _end - _bodyStart + 1 )
+] ;
+If ( not _clauseFound or _char29Pos = 0 ; "" ; _body )
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

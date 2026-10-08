@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="1" visible="False" parameters="expr" name="QueryParseSelectKey">
+        <Calculation><![CDATA[// Extracts a plain JSON property key name from a SQL column expression.
+// Rules (applied to SQL-formatted expressions):
+//   expr AS alias          →  alias   (anything with AS)
+//   "Table"."Field"        →  Field   (unquote the last identifier)
+//   "Field"                →  Field   (single quoted identifier)
+//   *  /  COUNT(*)  etc.   →  as-is
+// Used by QueryParseSelectKeysSQL to build the selectKeys ¶-list.
+Let
+(
+[
+_expr = Trim ( expr ) ;
+_dq = Char ( 34 ) ;
+_dotPattern = _dq & "." & _dq ;
+_asPos = Position ( _expr ; " AS " ; 1 ; 1 ) ;
+_dotCount = PatternCount ( _expr ; _dotPattern ) ;
+_lastDotPos = If ( _dotCount > 0 ; Position ( _expr ; _dotPattern ; 1 ; _dotCount ) ; 0 ) ;
+// For a plain "Field" (starts and ends with "), strip outer quotes
+_isSingleQuoted = Left ( _expr ; 1 ) = _dq and Right ( _expr ; 1 ) = _dq and _dotCount = 0
+] ;
+Case (
+	_asPos > 0 ;
+		Trim ( Middle ( _expr ; _asPos + 4 ; Length ( _expr ) ) ) ;
+	_lastDotPos > 0 ;
+		// "Table"."Field" → extract Field (between last "." and trailing ")
+		Middle ( _expr ; _lastDotPos + 3 ; Length ( _expr ) - _lastDotPos - 3 ) ;
+	_isSingleQuoted ;
+		Middle ( _expr ; 2 ; Length ( _expr ) - 2 ) ;
+	_expr
+)
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>

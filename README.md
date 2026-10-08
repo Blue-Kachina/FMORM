@@ -153,6 +153,35 @@ _query = QueryWhen (
 >
 > See [docs/functions.md](docs/functions.md) for the full function reference with parameter details and examples.
 
+---
+
+
+## Development
+
+Each custom function lives in its own file under `src/` (public functions) or `src/internal/` (helpers). Those files are the source of truth. `fmorm-all.xml` is **generated** from them, so never edit it by hand.
+
+After adding, editing, renaming or deleting any file in `src/`, regenerate the bundle:
+
+```
+python3 build.py
+```
+
+The build refuses to write the bundle if a source file is malformed XML, its function `name` doesn't match its file name, two files define the same function, `functionArity` doesn't match the parameter list, or a function calls a `Query*` function that has no file in `src/`.
+
+To have git block commits where `fmorm-all.xml` is out of date with `src/`, enable the bundled pre-commit hook once per clone:
+
+```
+git config core.hooksPath .githooks
+```
+
+`python3 build.py --check` runs the same check on demand without writing anything.
+
+### Installing into FileMaker
+
+1. Run `python3 build.py`.
+2. Open the target `.fmp12` file in FileMaker Pro and delete its existing FMORM custom functions.
+3. Copy `fmorm-all.xml` to the clipboard in FileMaker format (e.g. with fmCuttingBoard), then paste into **Manage › Custom Functions**.
+
 #### Common Parameter Patterns
 Many of the system's parameters are actually references to fields, or tables.
 Field references can be passed directly to those (no `GetFieldName()` wrapper required). 
@@ -180,7 +209,16 @@ QueryToSQL ( _query )
 ```
 
 ### Debugging
-Use `QueryToSQL` at any point to inspect the SQL that would be produced without executing it (very useful during development/debugging). 
+Use `QueryToSQL` at any point to inspect the SQL that would be produced without executing it (very useful during development/debugging).
+
+Use `QueryFromSQL` to go the other direction — reconstruct a query object from a `QueryToSQL`-formatted SQL string so you can continue modifying it dynamically:
+
+```
+_q = QueryFromSQL ( _sql ; _bindings )
+_q = QueryLimit ( _q ; 25 )
+```
+
+See [QueryFromSQL](docs/functions.md#queryfromsql) for full details and known limitations.
 
 ```
 SELECT

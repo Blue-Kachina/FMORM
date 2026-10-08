@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+    <CustomFunction id="1" functionArity="3" visible="False" parameters="query;normSql;startPos" name="QueryParseJoins">
+        <Calculation><![CDATA[// Recursively parses JOIN clauses from a Char(29)-normalised SQL string.
+// normSql: sql with ¶+4spaces already replaced by Char(29).
+// startPos: position to begin scanning (advance past each parsed JOIN).
+// Appends join objects to query.joins and increments joinCount.
+// Supports: INNER JOIN, LEFT JOIN, RIGHT JOIN, CROSS JOIN.
+// Sub-join types (Phase 3) round-trip as inner/left with the full table expression.
+// Call with startPos = 1.
+Let
+(
+[
+// Find the next occurrence of each JOIN keyword at a ¶ boundary
+_p29 = Char ( 29 ) ;
+_posInner = Position ( normSql ; ¶ & "INNER JOIN" & _p29 ; startPos ; 1 ) ;
+_posLeft  = Position ( normSql ; ¶ & "LEFT JOIN"  & _p29 ; startPos ; 1 ) ;
+_posRight = Position ( normSql ; ¶ & "RIGHT JOIN" & _p29 ; startPos ; 1 ) ;
+_posCross = Position ( normSql ; ¶ & "CROSS JOIN" & _p29 ; startPos ; 1 ) ;
+// Use 99999999 as "not found" sentinel for Min()
+_pI = If ( _posInner > 0 ; _posInner ; 99999999 ) ;
+_pL = If ( _posLeft  > 0 ; _posLeft  ; 99999999 ) ;
+_pR = If ( _posRight > 0 ; _posRight ; 99999999 ) ;
+_pC = If ( _posCross > 0 ; _posCross ; 99999999 ) ;
+_minPos = Min ( _pI ; _pL ; _pR ; _pC ) ;
+_hasJoin = _minPos < 99999999 ;
+// Identify which keyword matched
+_keyword = Case (
+	_minPos = _posInner ; "INNER JOIN" ;
+	_minPos = _posLeft  ; "LEFT JOIN" ;
+	_minPos = _posRight ; "RIGHT JOIN" ;
+	_minPos = _posCross ; "CROSS JOIN" ;
+	""
+	) ;
+_type = Case (
+	_keyword = "LEFT JOIN"  ; "left" ;
+	_keyword = "RIGHT JOIN" ; "right" ;
+	_keyword = "CROSS JOIN" ; "cross" ;
+	"inner"
+	) ;
+// Body starts after ¶KEYWORD{29}
+_bodyStart = _minPos + 1 + Length ( _keyword ) + 1 ;
+// Body ends just before the next ¶ or at end of string
+_nextPara = Position ( normSql ; ¶ ; _bodyStart ; 1 ) ;
+_bodyEnd = If ( _nextPara > 0 ; _nextPara - 1 ; Length ( normSql ) ) ;
+_body = Middle ( normSql ; _bodyStart ; _bodyEnd - _bodyStart + 1 ) ;
+// Parse: table [ON first op second]
+_onPos = Position ( _body ; " ON " ; 1 ; 1 ) ;
+_table = If ( _onPos > 0 ; Left ( _body ; _onPos - 1 ) ; _body ) ;
+_onClause = If ( _onPos > 0 ; Middle ( _body ; _onPos + 4 ; Length ( _body ) ) ; "" ) ;
+// Parse ON clause: "T1"."c1" op "T2"."c2"
+// First expression ends at the last " before a space+operator
+_dq = Char ( 34 ) ;
+_splitPos = Position ( _onClause ; _dq & " " ; 1 ; 1 ) ;
+_first = If ( _splitPos > 0 ; Left ( _onClause ; _splitPos ) ; "" ) ;
+_afterFirst = If ( _splitPos > 0 ; Trim ( Middle ( _onClause ; _splitPos + 2 ; Length ( _onClause ) ) ) ; "" ) ;
+_opEnd = Position ( _afterFirst ; " " ; 1 ; 1 ) ;
+_operator = If ( _opEnd > 0 ; Left ( _afterFirst ; _opEnd - 1 ) ; _afterFirst ) ;
+_second = If ( _opEnd > 0 ; Trim ( Middle ( _afterFirst ; _opEnd + 1 ; Length ( _afterFirst ) ) ) ; "" ) ;
+// Build join object
+_joinCount = JSONGetElement ( query ; "joinCount" ) ;
+_joinObj = Case (
+	Exact ( _type ; "cross" ) ;
+		JSONSetElement ( "{}" ;
+			[ "type" ; _type ; JSONString ] ;
+			[ "table" ; _table ; JSONString ] ;
+			[ "first" ; "" ; JSONString ] ;
+			[ "operator" ; "" ; JSONString ] ;
+			[ "second" ; "" ; JSONString ]
+			) ;
+	JSONSetElement ( "{}" ;
+		[ "type" ; _type ; JSONString ] ;
+		[ "table" ; _table ; JSONString ] ;
+		[ "first" ; _first ; JSONString ] ;
+		[ "operator" ; _operator ; JSONString ] ;
+		[ "second" ; _second ; JSONString ]
+		)
+	) ;
+_q1 = JSONSetElement ( query ; "joins[" & _joinCount & "]" ; _joinObj ; JSONObject ) ;
+_q2 = JSONSetElement ( _q1 ; "joinCount" ; _joinCount + 1 ; JSONNumber ) ;
+// Recurse: next JOIN starts after the current body
+_nextStart = _bodyEnd + 1
+] ;
+If ( not _hasJoin ;
+	query ;
+	QueryParseJoins ( _q2 ; normSql ; _nextStart )
+)
+)]]></Calculation>
+    </CustomFunction>
+</fmxmlsnippet>
